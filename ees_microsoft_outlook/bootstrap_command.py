@@ -45,6 +45,7 @@ class BootstrapCommand(BaseCommand):
                         "url_field": "url",
                         "detail_fields": [
                             {"field_name": "title", "label": "Title"},
+                            {"field_name": "type", "label": "Type"},
                             {"field_name": "body", "label": "Content"},
                             {"field_name": "created_at", "label": "Created At"},
                         ],
