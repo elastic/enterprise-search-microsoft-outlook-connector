@@ -4,12 +4,9 @@
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
 """Module contains a base command interface.
-
-    Connector can run multiple commands such as full-sync, incremental-sync,
-    etc. This module provides convenience interface defining the shared
-    objects and methods that will can be used by commands.
-"""
-
+Connector can run multiple commands such as full-sync, incremental-sync,
+etc. This module provides convenience interface defining the shared
+objects and methods that will can be used by commands."""
 import logging
 
 try:
@@ -43,7 +40,7 @@ class BaseCommand:
         log level will be determined by the configuration
         setting log_level.
         """
-        log_level = self.config.get_value('log_level')
+        log_level = self.config.get_value("log_level")
         logger = logging.getLogger(__name__)
         logger.propagate = False
         logger.setLevel(log_level)
@@ -67,10 +64,8 @@ class BaseCommand:
         args = self.args
         host = self.config.get_value("enterprise_search.host_url")
 
-        if hasattr(args, 'user') and args.user:
-            return WorkplaceSearch(
-                f"{host}/api/ws/v1/sources", http_auth=(args.user, args.password)
-            )
+        if hasattr(args, "user") and args.user:
+            return WorkplaceSearch(f"{host}/api/ws/v1/sources", http_auth=(args.user, args.password))
         else:
             return WorkplaceSearch(
                 f"{host}/api/ws/v1/sources", http_auth=self.config.get_value("enterprise_search.api_key")
