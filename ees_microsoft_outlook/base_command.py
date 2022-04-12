@@ -4,12 +4,13 @@
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
 """Module contains a base command interface.
-
 Connector can run multiple commands such as full-sync, incremental-sync,
 etc. This module provides convenience interface defining the shared
 objects and methods that will can be used by commands."""
 import logging
 
+# For Python>=3.8 cached_property should be imported from functools,
+# and for the prior versions it should be imported from cached_property
 try:
     from functools import cached_property
 except ImportError:
@@ -31,7 +32,7 @@ class BaseCommand:
 
     def execute(self):
         """Run the command.
-        This method is overriden by actual commands with logic
+        This method is overridden by actual commands with logic
         that is specific to each command implementing it."""
         raise NotImplementedError
 
@@ -57,7 +58,7 @@ class BaseCommand:
 
     @cached_property
     def workplace_search_client(self):
-        """Get the workplace search client instance for the running command.
+        """Get the Workplace Search client instance for the running command.
         Host and api key are taken from configuration file, if
         a user was provided when running command, then basic auth
         will be used instead.
@@ -66,10 +67,13 @@ class BaseCommand:
         host = self.config.get_value("enterprise_search.host_url")
 
         if hasattr(args, "user") and args.user:
-            return WorkplaceSearch(f"{host}/api/ws/v1/sources", http_auth=(args.user, args.password))
+            return WorkplaceSearch(
+                f"{host}/api/ws/v1/sources", http_auth=(args.user, args.password)
+            )
         else:
             return WorkplaceSearch(
-                f"{host}/api/ws/v1/sources", http_auth=self.config.get_value("enterprise_search.api_key")
+                f"{host}/api/ws/v1/sources",
+                http_auth=self.config.get_value("workplace_search.api_key"),
             )
 
     @cached_property

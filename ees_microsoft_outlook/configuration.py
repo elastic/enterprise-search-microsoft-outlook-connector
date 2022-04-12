@@ -6,13 +6,14 @@
 """Configuration module allows manipulations with application configuration.
 
     This module can be used to read and validate configuration file that defines
-    the settings of the connector.
+    the settings of the Microsoft Outlook connector.
 """
 import yaml
 from cerberus import Validator
 from yaml.error import YAMLError
 
-from .constant import RFC_3339_DATETIME_FORMAT
+from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
+                       CONNECTOR_TYPE_OFFICE365, RFC_3339_DATETIME_FORMAT)
 from .schema import schema
 
 
@@ -69,6 +70,48 @@ class Configuration:
 
     def validate(self):
         """Validates each properties defined in the yaml configuration file"""
+        if CONNECTOR_TYPE_OFFICE365 in self.__configurations["connector_platform_type"]:
+            schema.update(
+                {
+                    "office365.client_id": {
+                        "required": True,
+                        "empty": False,
+                    },
+                    "office365.tenant_id": {
+                        "required": True,
+                        "empty": False,
+                    },
+                    "office365.client_secret": {
+                        "required": True,
+                        "empty": False,
+                    },
+                }
+            )
+        elif (
+            CONNECTOR_TYPE_MICROSOFT_EXCHANGE
+            in self.__configurations["connector_platform_type"]
+        ):
+            schema.update(
+                {
+                    "microsoft_exchange.active_directory_server": {
+                        "required": True,
+                        "empty": False,
+                    },
+                    "microsoft_exchange.server": {
+                        "required": True,
+                        "empty": False,
+                    },
+                    "microsoft_exchange.username": {
+                        "required": True,
+                        "empty": False,
+                    },
+                    "microsoft_exchange.password": {
+                        "required": True,
+                        "empty": False,
+                    },
+                }
+            )
+
         validator = Validator(schema)
         validator.validate(self.__configurations, schema)
         if validator.errors:

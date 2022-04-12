@@ -1,0 +1,63 @@
+# Configurations for the Microsoft Outlook Connector
+
+# ------------------------------- Platform configuration settings -------------------------------
+#The connector platform type Example: "Microsoft Exchange" or "Office365"
+connector_platform_type: "Microsoft Exchange"
+
+# ------------------------------- Microsoft Exchange Server configuration settings -------------------------------
+#Microsoft Exchange active directory host address Example: 10.0.12.179
+microsoft_exchange.active_directory_server: "dummy"
+#Microsoft Exchange Server host address Example: 10.0.12.180
+microsoft_exchange.server: "dummy"
+#Username of the administrator account
+microsoft_exchange.username: "dummy"
+#Password of the administrator account
+microsoft_exchange.password: "dummy"
+
+# ------------------------------- Office365 configuration settings -------------------------------
+#Client ID of microsoft azure application Example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+office365.client_id: "dummy"
+#Tenant ID of microsoft azure application Example:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+office365.tenant_id: "dummy"
+#Client Secret of microsoft azure application
+office365.client_secret: "dummy"
+
+# ------------------------------- Workplace Search configuration settings -------------------------------
+#Access token for Workplace Search authentication
+enterprise_search.api_key: "12345678"
+#Source identifier for the custom source created on the Workplace Search server
+enterprise_search.source_id: "12345678"
+#Workplace Search server address Example: http://es-host:3002
+enterprise_search.host_url: "http://localhost:3002/"
+
+# ------------------------------- Connector specific configuration settings -------------------------------
+#Denotes whether document permission will be enabled or not
+enable_document_permission: Yes
+#Specifies the objects to be fetched and indexed in the WorkPlace Search along with fields that needs to be included/excluded. The list of the objects with a pattern to be included/excluded is provided. By default all the objects are fetched
+objects:
+    mails:
+        include_fields:
+        exclude_fields:
+    calendar:
+        include_fields:
+        exclude_fields:
+    tasks:
+        include_fields:
+        exclude_fields:
+    contacts:
+        include_fields:
+        exclude_fields:
+#The timestamp after which all the objects that are modified or created are fetched from the source. By default, all the objects present in the source till the end_time are fetched
+start_time:
+#The timestamp before which all the updated objects need to be fetched i.e. the connector won’t fetch any object updated/created after the end_time. By default, all the objects updated/added till the current time are fetched
+end_time:
+#The level of the logs the user wants to use in the log files. The possible values include: debug, info, warn, error. By default, the level is info
+log_level: INFO
+#The number of retries to perform in case of server error. The connector will use exponential back-off for retry mechanism
+retry_count: 3
+#Number of threads to be used in multithreading for the Microsoft Outlook sync
+source_sync_thread_count: 5
+#Number of threads to be used in multithreading for the enterprise search sync
+enterprise_search_sync_thread_count: 5
+#The path of csv file containing mapping of the source user name to Workplace username
+connector.user_mapping: "user_mapping.csv"
