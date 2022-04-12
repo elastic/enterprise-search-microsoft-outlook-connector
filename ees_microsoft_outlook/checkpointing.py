@@ -12,11 +12,10 @@
     remembering the last moment of time when sync successfully finished,
     so that later next sync can continue from that place.
 """
-
 import json
 import os
 
-from . import constant
+from .constant import RFC_3339_DATETIME_FORMAT
 from .schema import coerce_rfc_3339_date
 
 CHECKPOINT_PATH_OFFICE365 = os.path.join(
@@ -37,7 +36,7 @@ class IncorrectFormatError(Exception):
     def __init__(self, obj_type, checkpoint, inner_exception, CHECKPOINT_PATH):
         super().__init__(
             f"Start time: {checkpoint} for {obj_type} in the checkpoint file {CHECKPOINT_PATH} is not in \
-            the correct format. Expected format: {constant.RFC_3339_DATETIME_FORMAT}. Remove the checkpoint entry \
+            the correct format. Expected format: {RFC_3339_DATETIME_FORMAT}. Remove the checkpoint entry \
             for the {obj_type} or fix the format to continue indexing"
         )
         self.checkpoint = checkpoint
@@ -60,30 +59,21 @@ class Checkpoint:
             self.CHECKPOINT_PATH = CHECKPOINT_PATH_MICROSOFT_EXCHANGE
 
     def get_checkpoint(self, current_time, obj_type):
-        """Fetches the checkpoint from the checkpoint file in
+        """This method fetches the checkpoint from the checkpoint file in
         the local storage. If the file does not exist, it takes the
         checkpoint details from the configuration file.
-
-        Args:
-            current_time: Current time
-            obj_type: Microsoft Outlook for which checkpoint is fetched
-
-        Returns:
-            start_time, end_time: Return start_time and end_time
+        :param current_time: current time
+        :param obj_type: key for which checkpoint json file
         """
-        self.logger.info(
-            f"Fetching the checkpoint details for {obj_type} from the checkpoint file: {self.CHECKPOINT_PATH}"
-        )
+        self.logger.info(f"Fetching the checkpoint details from the checkpoint file: {self.CHECKPOINT_PATH}")
 
         start_time = self.config.get_value("start_time")
         end_time = self.config.get_value("end_time")
 
-        if (
-            os.path.exists(self.CHECKPOINT_PATH) and os.path.getsize(self.CHECKPOINT_PATH) > 0
-        ):
-            self.logger.info(
-                "Checkpoint file exists and has contents, hence considering the checkpoint time instead of \
-                start_time and end_time"
+        if os.path.exists(self.CHECKPOINT_PATH) and os.path.getsize(self.CHECKPOINT_PATH) > 0:
+            self.logger.debug(
+                "Checkpoint file exists and has contents, hence considering the checkpoint time \
+                    instead of start_time and end_time"
             )
             with open(self.CHECKPOINT_PATH, encoding="UTF-8") as checkpoint_store:
                 try:
@@ -91,40 +81,29 @@ class Checkpoint:
 
                     if not checkpoint_list.get(obj_type):
                         self.logger.debug(
-                            f"The checkpoint file is present but it does not contain the start_time for {obj_type}, \
-                            hence considering the start_time and end_time from the configuration file instead of the \
-                            last successful fetch time"
+                            f"The checkpoint file is present but it does not contain the start_time for \
+                                {obj_type}, hence considering the start_time and end_time from the configuration file \
+                                instead of the last successful fetch time"
                         )
                     else:
                         try:
-                            start_time = coerce_rfc_3339_date(
-                                checkpoint_list.get(obj_type)
-                            ).strftime(constant.RFC_3339_DATETIME_FORMAT)
-                            if start_time >= constant.CURRENT_TIME:
-                                raise Exception(
-                                    "Checkpoint file contain greater time than current time"
-                                )
+                            start_time = coerce_rfc_3339_date(checkpoint_list.get(obj_type)).strftime(
+                                RFC_3339_DATETIME_FORMAT
+                            )
                             end_time = current_time
                         except ValueError as exception:
-                            raise IncorrectFormatError(
-                                obj_type,
-                                checkpoint_list.get(obj_type),
-                                exception,
-                                self.CHECKPOINT_PATH,
-                            )
+                            raise IncorrectFormatError(obj_type, checkpoint_list.get(obj_type), exception)
                 except ValueError as exception:
                     self.logger.exception(
                         f"Error while parsing the json file of the checkpoint store from path: {self.CHECKPOINT_PATH}. \
                         Error: {exception}"
                     )
-                    self.logger.info(
-                        "Considering the start_time and end_time from the configuration file"
-                    )
+                    self.logger.info("Considering the start_time and end_time from the configuration file")
 
         else:
             self.logger.debug(
-                f"Checkpoint file does not exist at {self.CHECKPOINT_PATH}, considering the start_time and end_time from \
-                the configuration file"
+                f"Checkpoint file does not exist at {self.CHECKPOINT_PATH}, considering the start_time and \
+                end_time from the configuration file"
             )
 
         self.logger.debug(
@@ -133,27 +112,25 @@ class Checkpoint:
         return start_time, end_time
 
     def set_checkpoint(self, current_time, index_type, obj_type):
-        """Updates the existing checkpoint json file or creates
+        """This method updates the existing checkpoint json file or creates
         a new checkpoint json file in case it is not present
-
-        Args:
-            current_time: Current time
-            index_type: Indexing type from "incremental" or "full_sync"
-            obj_type: Object type to set the checkpoint
+        :param current_time: current time
+        :index_type: indexing type from "incremental" or "full_sync"
+        :param obj_type: object type to set the checkpoint
         """
         try:
             with open(self.CHECKPOINT_PATH, encoding="UTF-8") as checkpoint_store:
                 checkpoint_list = json.load(checkpoint_store)
                 if checkpoint_list.get(obj_type):
                     self.logger.debug(
-                        f"Setting the checkpoint contents: {current_time} for the {obj_type} to the \
-                        checkpoint path: {self.CHECKPOINT_PATH}"
+                        f"Setting the checkpoint contents: {current_time} for the {obj_type} \
+                            to the checkpoint path: {self.CHECKPOINT_PATH}"
                     )
                     checkpoint_list[obj_type] = current_time
                 else:
                     self.logger.debug(
                         f"Setting the checkpoint contents: {self.config.get_value('end_time')} for the {obj_type} \
-                        to the checkpoint path: {self.CHECKPOINT_PATH}"
+                            to the checkpoint path: {self.CHECKPOINT_PATH}"
                     )
                     checkpoint_list[obj_type] = self.config.get_value("end_time")
         except Exception as exception:
@@ -164,15 +141,15 @@ class Checkpoint:
             else:
                 self.logger.exception(
                     f"Error while fetching the json file of the checkpoint store from path: {self.CHECKPOINT_PATH}. \
-                    Error: {exception}"
+                        Error: {exception}"
                 )
             if index_type == "incremental":
                 checkpoint_time = self.config.get_value("end_time")
             else:
                 checkpoint_time = current_time
             self.logger.debug(
-                f"Setting the checkpoint contents: {checkpoint_time} for the {obj_type} to \
-                the checkpoint path: {self.CHECKPOINT_PATH}"
+                f"Setting the checkpoint contents: {checkpoint_time} for the {obj_type} \
+                    to the checkpoint path: {self.CHECKPOINT_PATH}"
             )
             checkpoint_list = {obj_type: checkpoint_time}
 
@@ -182,6 +159,6 @@ class Checkpoint:
                 self.logger.info("Successfully saved the checkpoint")
             except ValueError as exception:
                 self.logger.exception(
-                    f"Error while updating the existing checkpoint json file. Adding the new \
-                    content directly instead of updating. Error: {exception}"
+                    f"Error while updating the existing checkpoint json file. \
+                        Adding the new content directly instead of updating. Error: {exception}"
                 )

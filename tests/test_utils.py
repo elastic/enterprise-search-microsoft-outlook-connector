@@ -4,13 +4,10 @@
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
 
-import datetime
 import logging
 import os
 import sys
 
-import pytest
-from exchangelib import EWSTimeZone
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -52,40 +49,3 @@ def test_split_list_into_buckets():
             if id in documents:
                 count += 1
     assert len(documents) == count
-
-
-def test_change_date_format():
-    """Test for change date format"""
-    target_date_format = utils.change_date_format("2022-04-02T08:20:30Z")
-    assert target_date_format == datetime.datetime(
-        2022, 4, 2, 8, 20, 30, tzinfo=EWSTimeZone(key="UTC")
-    )
-
-
-@pytest.mark.parametrize(
-    "ids_list, source_documents",
-    [
-        (
-            [
-                {
-                    "id": "1645460238462",
-                    "type": "Mails",
-                    "platform": "Office365",
-                }
-            ],
-            [
-                {
-                    "id": "1645460238462",
-                    "type": "Mails",
-                    "platform": "Office365",
-                }
-            ],
-        )
-    ],
-)
-def test_insert_document_into_doc_id_storage(ids_list, source_documents):
-    """Test method for inserting the ids into doc id"""
-    target_documents = utils.insert_document_into_doc_id_storage(
-        ids_list, "1645460238462", "Mails", "Office365"
-    )
-    assert source_documents == target_documents
