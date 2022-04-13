@@ -26,9 +26,9 @@ class IncorrectFormatError(Exception):
         checkpoint -- the checkpoint time
     """
 
-    def __init__(self, obj_type, checkpoint, inner_exception, CHECKPOINT_PATH):
+    def __init__(self, obj_type, checkpoint, inner_exception, checkpoint_path):
         super().__init__(
-            f"Start time: {checkpoint} for {obj_type} in the checkpoint file {CHECKPOINT_PATH} is not in \
+            f"Start time: {checkpoint} for {obj_type} in the checkpoint file {checkpoint_path} is not in \
             the correct format. Expected format: {RFC_3339_DATETIME_FORMAT}. Remove the checkpoint entry \
             for the {obj_type} or fix the format to continue indexing"
         )
