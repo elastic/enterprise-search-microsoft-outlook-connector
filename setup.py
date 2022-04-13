@@ -44,12 +44,12 @@ classifiers = [
 
 
 setup(
-    name="python connector template",
+    name="Microsoft Outlook",
     version=__version__,
     url="https://example.com",
     packages=find_packages(),
     long_description=description.strip(),
-    description=("This is a template python project for a Enterprise Search Connector."),
+    description=("This is a python project for a Enterprise Search Outlook Connector."),
     author="author",
     author_email="email",
     include_package_data=True,
