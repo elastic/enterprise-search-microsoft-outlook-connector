@@ -12,4 +12,3 @@ RFC_3339_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 BATCH_SIZE = 100
 CONNECTOR_TYPE_OFFICE365 = "Office365"
 CONNECTOR_TYPE_MICROSOFT_EXCHANGE = "Microsoft Exchange"
-CURRENT_TIME = (datetime.datetime.utcnow()).strftime("%Y-%m-%dT%H:%M:%SZ")
