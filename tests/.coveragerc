@@ -1,0 +1,2 @@
+[run]
+omit = */ees_microsoft_outlook/test_connectivity.py

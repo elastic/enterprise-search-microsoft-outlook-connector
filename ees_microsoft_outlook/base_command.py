@@ -4,7 +4,6 @@
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
 """Module contains a base command interface.
-
 Connector can run multiple commands such as full-sync, incremental-sync,
 etc. This module provides convenience interface defining the shared
 objects and methods that will can be used by commands."""
@@ -31,7 +30,7 @@ class BaseCommand:
 
     def execute(self):
         """Run the command.
-        This method is overriden by actual commands with logic
+        This method is overridden by actual commands with logic
         that is specific to each command implementing it."""
         raise NotImplementedError
 

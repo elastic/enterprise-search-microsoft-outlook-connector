@@ -30,33 +30,29 @@ class BootstrapCommand(BaseCommand):
         workplace_search = self.workplace_search_client
         try:
             resp = workplace_search.create_content_source(
+                http_auth=self.config.get_value("enterprise_search.api_key"),
                 body={
                     "name": args.name,
                     "schema": {
                         "title": "text",
+                        "type": "text",
                         "body": "text",
                         "url": "text",
                         "created_at": "date",
-                        "name": "text",
-                        "description": "text",
-                        "type": "text",
-                        "size": "text",
                     },
                     "display": {
                         "title_field": "title",
-                        "description_field": "description",
                         "url_field": "url",
                         "detail_fields": [
-                            {"field_name": "created_at", "label": "Created At"},
+                            {"field_name": "title", "label": "Title"},
                             {"field_name": "type", "label": "Type"},
-                            {"field_name": "size", "label": "Size (in bytes)"},
-                            {"field_name": "description", "label": "Description"},
                             {"field_name": "body", "label": "Content"},
+                            {"field_name": "created_at", "label": "Created At"},
                         ],
                         "color": "#000000",
                     },
                     "is_searchable": True,
-                }
+                },
             )
 
             content_source_id = resp.get("id")

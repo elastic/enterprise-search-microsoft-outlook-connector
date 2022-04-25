@@ -8,3 +8,11 @@ pytest==6.2.5
 pytest-cov==3.0.0
 pyyaml==6.0
 tika==1.24
+beautifulsoup4==4.10.0
+iteration_utilities==0.11.0
+pytest-cov==3.0.0
+ldap3==2.9.1
+exchangelib==4.6.2
+requests==2.27.1
+pandas==1.4.2
+pytest-custom-exit-code==0.3.0
