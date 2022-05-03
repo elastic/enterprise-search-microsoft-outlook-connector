@@ -8,6 +8,7 @@
     This module can be used to read and validate configuration file that defines
     the settings of the Microsoft Outlook connector.
 """
+
 import yaml
 from cerberus import Validator
 from yaml.error import YAMLError
@@ -27,7 +28,6 @@ class ConfigurationInvalidException(Exception):
 
     def __init__(self, errors):
         super().__init__(f"Provided configuration was invalid. Errors: {errors}.")
-
         self.errors = errors
 
 
@@ -60,62 +60,78 @@ class Configuration:
         self.__configurations = self.validate()
         if self.__configurations["start_time"] >= self.__configurations["end_time"]:
             raise ConfigurationInvalidException(
-                f"The start_time: {self.__configurations['start_time']}  \
-                    cannot be greater than or equal to the end_time: {self.__configurations['end_time']}"
+                f"The start_time: {self.__configurations['start_time']}  "
+                f"cannot be greater than or equal to the end_time: {self.__configurations['end_time']}"
             )
-
+        # Converting datetime object to string
         for date_config in ["start_time", "end_time"]:
             value = self.__configurations[date_config]
             self.__configurations[date_config] = self.__parse_date_config_value(value)
 
     def validate(self):
         """Validates each properties defined in the yaml configuration file"""
-        if CONNECTOR_TYPE_OFFICE365 in self.__configurations["connector_platform_type"]:
+
+        if (
+            self.__configurations["connector_platform_type"] and CONNECTOR_TYPE_OFFICE365
+            in self.__configurations["connector_platform_type"]
+        ):
             schema.update(
                 {
                     "office365.client_id": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "office365.tenant_id": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "office365.client_secret": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                 }
             )
         elif (
-            CONNECTOR_TYPE_MICROSOFT_EXCHANGE
+            self.__configurations["connector_platform_type"] and CONNECTOR_TYPE_MICROSOFT_EXCHANGE
             in self.__configurations["connector_platform_type"]
         ):
             schema.update(
                 {
                     "microsoft_exchange.active_directory_server": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "microsoft_exchange.server": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "microsoft_exchange.username": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "microsoft_exchange.password": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                 }
+            )
+        else:
+            raise ConfigurationInvalidException(
+                "Enter valid connector platform type. Allowed values are 'Microsoft Outlook' and 'Office365'"
             )
 
         validator = Validator(schema)
         validator.validate(self.__configurations, schema)
         if validator.errors:
             raise ConfigurationInvalidException(validator.errors)
+
         return validator.document
 
     def get_value(self, key):
@@ -125,5 +141,5 @@ class Configuration:
 
     @staticmethod
     def __parse_date_config_value(string):
-        """Return Datetime by formatting into readable formats."""
+        """Change string to Datetime format"""
         return string.strftime(RFC_3339_DATETIME_FORMAT)

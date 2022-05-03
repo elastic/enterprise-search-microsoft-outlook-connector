@@ -4,10 +4,13 @@
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
 
+import datetime
 import logging
 import os
 import sys
 
+import pytest
+from exchangelib import EWSTimeZone
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -49,3 +52,75 @@ def test_split_list_into_buckets():
             if id in documents:
                 count += 1
     assert len(documents) == count
+
+
+def test_change_date_format():
+    """Test for change date format"""
+    target_date_format = utils.change_date_format("2022-04-02T08:20:30Z")
+    assert target_date_format == datetime.datetime(
+        2022, 4, 2, 8, 20, 30, tzinfo=EWSTimeZone(key="UTC")
+    )
+
+
+@pytest.mark.parametrize(
+    "ids_list, source_documents",
+    [
+        (
+            [
+                {
+                    "id": "1645460238462",
+                    "parent id": "123456",
+                    "type": "Mails",
+                    "platform": "Office365",
+                }
+            ],
+            [
+                {
+                    "id": "1645460238462",
+                    "parent id": "123456",
+                    "type": "Mails",
+                    "platform": "Office365",
+                }
+            ],
+        )
+    ],
+)
+def test_insert_document_into_doc_id_storage(ids_list, source_documents):
+    """Test method for inserting the ids into doc id"""
+    target_documents = utils.insert_document_into_doc_id_storage(
+        ids_list, "1645460238462", "123456", "Mails", "Office365"
+    )
+    assert source_documents == target_documents
+
+
+def test_html_to_text():
+    """Test method for convert content from html to text"""
+    content = "<p>This is paragraph</p>"
+    expected_output = "This is paragraph"
+    target_document = utils.html_to_text(content)
+    assert expected_output == target_document
+
+
+def test_split_documents_into_equal_chunks():
+    """Test Method to split Documents into chunks"""
+    document = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    target_document = utils.split_documents_into_equal_chunks(document, 5)
+    assert len(target_document[0]) == 5
+
+
+def test_split_date_range_into_chunks():
+    """Test Method to split dates into chunks"""
+    expected_date = "2022-04-10T00:00:00Z"
+    expected_list = [
+        "2022-04-01T00:00:00Z",
+        "2022-04-02T19:12:00Z",
+        "2022-04-04T14:24:00Z",
+        "2022-04-06T09:36:00Z",
+        "2022-04-08T04:48:00Z",
+        "2022-04-10T00:00:00Z",
+    ]
+    target_date, target_list = utils.split_date_range_into_chunks(
+        "2022-04-01T00:00:00Z", "2022-04-10T00:00:00Z", 5
+    )
+    assert expected_date == target_date
+    assert expected_list == target_list

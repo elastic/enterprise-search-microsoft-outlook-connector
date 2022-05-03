@@ -53,12 +53,14 @@ def test_remove_all_permissions():
         return_value=True
     )
     permission_sync_obj.remove_all_permissions()
-    enterprise_search_host = configs.get_value("enterprise_search.source_id")
+    enterprise_search_host = configs.get_value("enterprise_search.api_key")
+    enterprise_search_source = configs.get_value("enterprise_search.source_id")
     permission_sync_obj.workplace_search_client.list_permissions.assert_called_with(
-        content_source_id=enterprise_search_host
+        http_auth=enterprise_search_host, content_source_id=enterprise_search_source
     )
     permission_sync_obj.workplace_search_client.remove_user_permissions.assert_called_with(
-        content_source_id=enterprise_search_host,
+        http_auth=enterprise_search_host,
+        content_source_id=enterprise_search_source,
         user="user1",
         body={"permissions": ["permission1"]},
     )
