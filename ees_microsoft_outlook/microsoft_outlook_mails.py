@@ -172,51 +172,49 @@ class MicrosoftOutlookMails:
             documents: List of all types of mail documents
         """
         documents = []
+        mail_type = [
+            {
+                "folder": "inbox",
+                "constant": constant.INBOX_MAIL_OBJECT,
+            },
+            {
+                "folder": "sent",
+                "constant": constant.SENT_MAIL_OBJECT,
+            },
+            {
+                "folder": "junk",
+                "constant": constant.JUNK_MAIL_OBJECT,
+            },
+            {
+                "folder": "archive",
+                "constant": constant.ARCHIVE_MAIL_OBJECT,
+            }
+        ]
         start_time = change_date_format(start_time)
         end_time = change_date_format(end_time)
         for account in accounts:
-
             try:
-                # Logic to fetch Inbox emails
-                inbox_obj = account.inbox.all().filter(
-                    last_modified_time__gt=start_time,
-                    last_modified_time__lt=end_time,
-                )
-                mail_documents = self.get_mail_documents(
-                    account, ids_list_mails, constant.INBOX_MAIL_OBJECT, inbox_obj
-                )
-                documents.extend(mail_documents)
+                for type in mail_type:
 
-                # Logic to fetch Sent emails
-                sent_obj = account.sent.all().filter(
-                    last_modified_time__gt=start_time,
-                    last_modified_time__lt=end_time,
-                )
-                mail_documents = self.get_mail_documents(
-                    account, ids_list_mails, constant.SENT_MAIL_OBJECT, sent_obj
-                )
-                documents.extend(mail_documents)
+                    # Logic to get mails folder
+                    if "archive" in type["folder"]:
+                        mail_type_obj_folder = account.root / "Top of Information Store" / "Archive"
+                    else:
+                        mail_type_obj_folder = getattr(account, type["folder"])
 
-                # Logic to fetch Junk emails
-                junk_obj = account.junk.all().filter(
-                    last_modified_time__gt=start_time,
-                    last_modified_time__lt=end_time,
-                )
-                mail_documents = self.get_mail_documents(
-                    account, ids_list_mails, constant.JUNK_MAIL_OBJECT, junk_obj
-                )
-                documents.extend(mail_documents)
-
-                # Logic to fetch Archive emails
-                archive_folder = account.root / "Top of Information Store" / "Archive"
-                archive_obj = archive_folder.all().filter(
-                    last_modified_time__gt=start_time,
-                    last_modified_time__lt=end_time,
-                )
-                mail_documents = self.get_mail_documents(
-                    account, ids_list_mails, constant.ARCHIVE_MAIL_OBJECT, archive_obj
-                )
-                documents.extend(mail_documents)
+                    # Logic to fetch mails
+                    mail_type_obj = (
+                        mail_type_obj_folder
+                        .all()
+                        .filter(
+                            last_modified_time__gt=start_time,
+                            last_modified_time__lt=end_time,
+                        )
+                    )
+                    mail_type_documents = self.get_mail_documents(
+                        account, ids_list_mails, type["constant"], mail_type_obj
+                    )
+                    documents.extend(mail_type_documents)
             except Exception as exception:
                 self.logger.info(
                     f"Error while fetching mails data for {account.primary_smtp_address}. Error: {exception}"

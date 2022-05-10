@@ -38,6 +38,12 @@ schema = {
         "type": "string",
         "empty": True,
     },
+    "microsoft_exchange.domain": {
+        "required": False,
+        "type": "string",
+        "regex": r"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$",
+        "empty": True,
+    },
     "office365.client_id": {
         "required": False,
         "type": "string",

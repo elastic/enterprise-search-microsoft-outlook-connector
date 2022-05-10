@@ -120,6 +120,12 @@ class Configuration:
                         "type": "string",
                         "empty": False,
                     },
+                    "microsoft_exchange.domain": {
+                        "required": True,
+                        "type": "string",
+                        "regex": r"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$",
+                        "empty": False,
+                    },
                 }
             )
         else:

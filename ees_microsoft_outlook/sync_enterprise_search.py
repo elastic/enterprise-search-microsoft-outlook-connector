@@ -115,7 +115,12 @@ class SyncEnterpriseSearch:
                         signal_open = False
                         break
                     elif documents.get("type") == "checkpoint":
-                        self.checkpoint_list.append(documents.get("data"))
+                        checkpoint_dict = {
+                            "current_time": documents.get("data")[1],
+                            "index_type": documents.get("data")[2],
+                            "object_type": documents.get("data")[0]
+                        }
+                        self.checkpoint_list.append(checkpoint_dict)
                         break
                     elif documents.get("type") == "deletion":
                         deleted_document.extend(documents.get("data"))

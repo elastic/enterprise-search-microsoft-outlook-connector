@@ -8,7 +8,7 @@
 
 import warnings
 
-from exchangelib import DELEGATE, Account, Configuration, Credentials
+from exchangelib import IMPERSONATION, Account, Configuration, Credentials
 from exchangelib.protocol import BaseProtocol, NoVerifyHTTPAdapter
 from ldap3 import SAFE_SYNC, Connection, Server
 
@@ -38,8 +38,13 @@ class MicrosoftExchangeServerUser:
                 client_strategy=SAFE_SYNC,
                 auto_bind=True,
             )
+
+            domain_name_list = self.config.get_value("microsoft_exchange.domain").split(".")
+            ldap_domain_name_list = ["DC=" + domain for domain in domain_name_list]
+            search_query = ','.join(map(str, ldap_domain_name_list))
+
             status, _, response, _ = conn.search(
-                "DC=exchange,DC=demo",
+                search_query,
                 "(&(objectCategory=person)(objectClass=user)(givenName=*))",
                 attributes=["mail"],
             )
@@ -76,7 +81,7 @@ class MicrosoftExchangeServerUser:
                     user_account = Account(
                         primary_smtp_address=user["attributes"]["mail"],
                         config=config,
-                        access_type=DELEGATE,
+                        access_type=IMPERSONATION,
                     )
                     users_accounts.append(user_account)
             return users_accounts

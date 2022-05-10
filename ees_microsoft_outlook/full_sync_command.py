@@ -62,6 +62,11 @@ class FullSyncCommand(BaseCommand):
             self.workplace_search_client,
             queue,
         )
+
+        # Logic to remove all permissions present in workplace search
+        sync_microsoft_outlook.remove_permissions(self.workplace_search_client)
+
+        # Logic to fetch mails, calendars, contacts and task from Microsoft Outlook by using multithreading approach
         (
             end_time,
             time_range_list,
@@ -103,7 +108,7 @@ class FullSyncCommand(BaseCommand):
         self.create_jobs(thread_count, sync_es.perform_sync, (), [])
         for checkpoint_data in sync_es.checkpoint_list:
             checkpoint.set_checkpoint(
-                checkpoint_data[1], checkpoint_data[2], checkpoint_data[0]
+                checkpoint_data["current_time"], checkpoint_data["index_type"], checkpoint_data["object_type"]
             )
 
     def execute(self):

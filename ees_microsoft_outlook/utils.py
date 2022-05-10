@@ -234,12 +234,4 @@ def split_date_range_into_chunks(start_time, end_time, number_of_threads):
         datelist.append(date_time.strftime(RFC_3339_DATETIME_FORMAT))
     formatted_end_time = end_time.strftime(RFC_3339_DATETIME_FORMAT)
     datelist.append(formatted_end_time)
-    return formatted_end_time, datelist
-
-
-def is_document_in_present_data(document_item, id):
-    """This method is used filter removed document by id
-    :param document_item: Pass document
-    :param id: Pass id of the document which you want to match
-    """
-    return document_item["id"] == id
+    return datelist

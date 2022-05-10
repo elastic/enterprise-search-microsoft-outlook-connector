@@ -13,6 +13,8 @@ microsoft_exchange.server: "dummy"
 microsoft_exchange.username: "dummy"
 #Password of the administrator account
 microsoft_exchange.password: "dummy"
+#Exchange Server domain name Example: exchange.demo
+microsoft_exchange.domain: "dummy.dummy"
 
 # ------------------------------- Office365 configuration settings -------------------------------
 #Client ID of microsoft azure application Example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx

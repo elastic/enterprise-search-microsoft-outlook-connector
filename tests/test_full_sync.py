@@ -39,7 +39,6 @@ def test_start_producer(
     """Test method of start producer to fetching data from microsoft outlook for full sync"""
     config, logger = settings()
     args = get_args("FullSyncCommand")
-    print(args, "==================================================================")
     full = FullSyncCommand(args)
     queue = ConnectorQueue(logger)
     mock_get_users.return_value = [Mock()]

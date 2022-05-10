@@ -152,6 +152,9 @@ class BaseCommand:
         :param queue: Shared queue for storing the data
         """
         if constant.MAILS_OBJECT.lower() not in self.config.get_value("objects"):
+            self.logger.info(
+                "Disabled indexing of mails from configuration file by user"
+            )
             return
         self.logger.debug("Started fetching the mails")
         ids_list = []
@@ -189,7 +192,7 @@ class BaseCommand:
                 self.config.get_value("start_time"),
                 constant.CURRENT_TIME,
             )
-        _, datelist_mails = split_date_range_into_chunks(
+        datelist_mails = split_date_range_into_chunks(
             start_time,
             end_time,
             thread_count,

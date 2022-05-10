@@ -39,7 +39,7 @@ def test_get_mails():
             "type": "Inbox Mails",
             "id": "123456789",
             "title": "demo for attachments",
-            "body": "Sender Email: rinkesh.mistry@exchange.demo \n Receiver Email: , Moxarth.Rathod@exchange.demo \
+            "body": "Sender Email: abc@xyz.com \n Receiver Email: , pqr@xyz.com \
 \nCC:  \n BCC:  \n Importance: Normal \n Category: None \nBody: demo body",
             "created_at": "2022-04-21T12:12:30Z",
         }
@@ -49,7 +49,7 @@ def test_get_mails():
             "type": "Inbox Mails",
             "id": "123456789",
             "title": "demo for attachments",
-            "body": "Sender Email: rinkesh.mistry@exchange.demo \n Receiver Email: , Moxarth.Rathod@exchange.demo \
+            "body": "Sender Email: abc@xyz.com \n Receiver Email: , pqr@xyz.com \
 \nCC:  \n BCC:  \n Importance: Normal \n Category: None \nBody: demo body",
             "created_at": "2022-04-21T12:12:30Z",
         }
@@ -73,7 +73,7 @@ def test_get_mail_documents():
         "type": "Inbox Mails",
         "Id": "123456789",
         "DisplayName": "demo for attachments",
-        "Description": "Sender Email: rinkesh.mistry@exchange.demo \n Receiver Email: , Moxarth.Rathod@exchange.demo \
+        "Description": "Sender Email: abc@xyz.com \n Receiver Email: , pqr@xyz.com \
 \nCC:  \n BCC:  \n Importance: Normal \n Category: None \nBody: demo body",
         "Created": "2022-04-21T12:12:30Z",
     }
@@ -91,7 +91,7 @@ def test_get_mail_documents():
             "type": "Inbox Mails",
             "id": "123456789",
             "title": "demo for attachments",
-            "body": "Sender Email: rinkesh.mistry@exchange.demo \n Receiver Email: , Moxarth.Rathod@exchange.demo \
+            "body": "Sender Email: abc@xyz.com \n Receiver Email: , pqr@xyz.com \
 \nCC:  \n BCC:  \n Importance: Normal \n Category: None \nBody: demo body",
             "created_at": "2022-04-21T12:12:30Z",
         },
@@ -116,7 +116,7 @@ def test_get_mail_documents():
 
 
 def test_convert_mails_to_workplace_search_documents():
-    """Test method to convert mail attribute to workplace search documents"""
+    """Test method to convert mail attribute to Workplace Search documents"""
     attachments_response = [
         {
             "type": "Mails Attachments",
@@ -171,3 +171,31 @@ BCC: , abc@xyz.com\n Importance: Normal\nCategory: None\n Body: demo",
     )
     assert expected_mail_document == source_mail
     assert expected_attachments_documents == source_mail_attachments
+
+
+def test_get_mail_attachments():
+    """Test method to get mails attachments"""
+    expected_attachments = [
+        {
+            "type": "Mails Attachments",
+            "id": "123456789",
+            "title": "Demo.txt",
+            "created": "2022-04-11T02:13:00Z",
+            "_allow_permissions": ["abc@xyz.com"],
+            "body": "\n\n\n\n\n\n\n\nDemo Body\n",
+        }
+    ]
+
+    mail_attachments_obj = Message(
+        last_modified_time=datetime(2022, 4, 11, 2, 13, 00),
+        id="123456789",
+    )
+    mail_attachments_obj.attachments = [Mock()]
+    mail_attachments_obj.attachments[0].attachment_id.id = "123456789"
+    mail_attachments_obj.attachments[0].name = "Demo.txt"
+    mail_attachments_obj.attachments[0].content = "Demo Body"
+    microsoft_outlook_mails_obj = create_mail_obj()
+    source_attachments = microsoft_outlook_mails_obj.get_mail_attachments(
+        [], mail_attachments_obj, "abc@xyz.com"
+    )
+    assert expected_attachments == source_attachments
