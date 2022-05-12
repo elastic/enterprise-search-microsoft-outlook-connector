@@ -72,7 +72,8 @@ class Configuration:
         """Validates each properties defined in the yaml configuration file"""
 
         if (
-            self.__configurations["connector_platform_type"] and CONNECTOR_TYPE_OFFICE365
+            self.__configurations["connector_platform_type"] and isinstance(
+                self.__configurations["connector_platform_type"], str) and CONNECTOR_TYPE_OFFICE365
             in self.__configurations["connector_platform_type"]
         ):
             schema.update(
@@ -95,9 +96,24 @@ class Configuration:
                 }
             )
         elif (
-            self.__configurations["connector_platform_type"] and CONNECTOR_TYPE_MICROSOFT_EXCHANGE
+            self.__configurations["connector_platform_type"] and isinstance(
+                self.__configurations["connector_platform_type"], str) and CONNECTOR_TYPE_MICROSOFT_EXCHANGE
             in self.__configurations["connector_platform_type"]
         ):
+            if self.__configurations["microsoft_exchange.secure_connection"]:
+                schema.update(
+                    {
+                        "microsoft_exchange.secure_connection": {
+                            "required": True,
+                            "type": "boolean",
+                            "default": True,
+                        },
+                        "microsoft_exchange.certificate_path": {
+                            "required": True,
+                            "type": "string",
+                            "empty": False
+                        },
+                    })
             schema.update(
                 {
                     "microsoft_exchange.active_directory_server": {
