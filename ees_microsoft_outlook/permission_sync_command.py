@@ -14,11 +14,13 @@ class PermissionSyncCommand:
         self.logger = logger
         self.workplace_search_client = workplace_search_client
         self.config = config
+        self.ws_auth = config.get_value("enterprise_search.api_key")
 
     def remove_all_permissions(self):
         """Removes all the permissions present in the Workplace Search"""
         try:
             user_permission = self.workplace_search_client.list_permissions(
+                http_auth=self.ws_auth,
                 content_source_id=self.config.get_value("enterprise_search.source_id"),
             )
 
@@ -33,6 +35,7 @@ class PermissionSyncCommand:
                         content_source_id=self.config.get_value(
                             "enterprise_search.source_id"
                         ),
+                        http_auth=self.ws_auth,
                         user=permission["user"],
                         body={"permissions": permission_ids},
                     )

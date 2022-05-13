@@ -38,6 +38,12 @@ schema = {
         "type": "string",
         "empty": True,
     },
+    "microsoft_exchange.domain": {
+        "required": False,
+        "type": "string",
+        "regex": r"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$",
+        "empty": True,
+    },
     "office365.client_id": {
         "required": False,
         "type": "string",
@@ -72,10 +78,8 @@ schema = {
         "required": True,
         "type": "string",
         "default": "Office365",
-        "allowed": [
-            "Office365",
-            "Microsoft Exchange"
-        ],
+        "allowed": ["Office365", "Microsoft Exchange"],
+        "empty": False,
     },
     "enable_document_permission": {
         "required": False,
@@ -90,56 +94,32 @@ schema = {
                 "nullable": True,
                 "type": "dict",
                 "schema": {
-                    "include_fields": {
-                        "nullable": True,
-                        "type": "list"
-                    },
-                    "exclude_fields": {
-                        "nullable": True,
-                        "type": "list"
-                    },
+                    "include_fields": {"nullable": True, "type": "list"},
+                    "exclude_fields": {"nullable": True, "type": "list"},
                 },
             },
             "calendar": {
                 "type": "dict",
                 "nullable": True,
                 "schema": {
-                    "include_fields": {
-                        "nullable": True,
-                        "type": "list"
-                    },
-                    "exclude_fields": {
-                        "nullable": True,
-                        "type": "list"
-                    },
+                    "include_fields": {"nullable": True, "type": "list"},
+                    "exclude_fields": {"nullable": True, "type": "list"},
                 },
             },
             "tasks": {
                 "type": "dict",
                 "nullable": True,
                 "schema": {
-                    "include_fields": {
-                        "nullable": True,
-                        "type": "list"
-                    },
-                    "exclude_fields": {
-                        "nullable": True,
-                        "type": "list"
-                    },
+                    "include_fields": {"nullable": True, "type": "list"},
+                    "exclude_fields": {"nullable": True, "type": "list"},
                 },
             },
             "contacts": {
                 "type": "dict",
                 "nullable": True,
                 "schema": {
-                    "include_fields": {
-                        "nullable": True,
-                        "type": "list"
-                    },
-                    "exclude_fields": {
-                        "nullable": True,
-                        "type": "list"
-                    },
+                    "include_fields": {"nullable": True, "type": "list"},
+                    "exclude_fields": {"nullable": True, "type": "list"},
                 },
             },
         },
@@ -164,31 +144,20 @@ schema = {
         "required": False,
         "type": "string",
         "default": "INFO",
-        "allowed": [
-            "DEBUG",
-            "INFO",
-            "WARNING",
-            "ERROR"
-        ],
+        "allowed": ["DEBUG", "INFO", "WARNING", "ERROR"],
     },
-    "retry_count": {
-        "required": False,
-        "type": "integer",
-        "default": 3,
-        "min": 1
-    },
+    "retry_count": {"required": False, "type": "integer", "default": 3, "min": 1},
     "source_sync_thread_count": {
         "required": True,
         "type": "integer",
-        "default": 5
+        "default": 5,
+        "min": 1,
     },
     "enterprise_search_sync_thread_count": {
         "required": True,
         "type": "integer",
         "default": 5,
+        "min": 1,
     },
-    "connector.user_mapping": {
-        "required": False,
-        "type": "string"
-    },
+    "connector.user_mapping": {"required": False, "type": "string"},
 }
