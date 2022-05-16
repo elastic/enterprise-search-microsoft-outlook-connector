@@ -39,7 +39,6 @@ def test_put_checkpoint():
     queue.put("Example data")
     queue.put_checkpoint("key", current_time, "full")
     queue.end_signal()
-
     queue.get()
     current_message = queue.get()
     queue.get()
@@ -52,12 +51,9 @@ def test_append_to_queue():
     for count in range(10):
         data.append(count)
     expected_message = {"type": "document_list", "data": data}
-
     queue = create_connector_queue_object()
     queue.append_to_queue("document_list", data)
     queue.end_signal()
-
     current_message = queue.get()
     queue.get()
-
     assert current_message == expected_message
