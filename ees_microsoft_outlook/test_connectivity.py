@@ -16,6 +16,10 @@ import pytest
 from elastic_enterprise_search import WorkplaceSearch
 
 from .configuration import Configuration
+from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
+                       CONNECTOR_TYPE_OFFICE365)
+from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
+from .office365_user import Office365User
 
 
 @pytest.fixture(name="settings")
@@ -27,9 +31,58 @@ def fixture_settings():
     return configuration, logger
 
 
+@pytest.mark.microsoftoutlook
+def test_microsoft_outlook(settings):
+    """Tests the connection with Microsoft Outlook.
+    :param settings: Configuration settings
+    """
+
+    configs, _ = settings
+    retry_count = configs.get_value("retry_count")
+    print("Starting Microsoft Outlook connectivity tests..")
+
+    retry = 0
+    while retry <= retry_count:
+        try:
+            product_type = configs.get_value("connector_platform_type")
+            if CONNECTOR_TYPE_OFFICE365 in configs.get_value("connector_platform_type"):
+                office365_connection = Office365User(configs)
+                users = office365_connection.get_users()
+                users_accounts = office365_connection.get_users_accounts(users)
+            elif CONNECTOR_TYPE_MICROSOFT_EXCHANGE in configs.get_value(
+                "connector_platform_type"
+            ):
+                microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
+                    configs
+                )
+                users = microsoft_exchange_server_connection.get_users()
+                users_accounts = (
+                    microsoft_exchange_server_connection.get_users_accounts(users)
+                )
+
+            if len(users_accounts) >= 0:
+                print(f"Successfully fetched users accounts from the {product_type}")
+                assert True
+                break
+        except Exception as exception:
+            if retry > 0:
+                print(f"Connection Failed. Retry Count:{retry}")
+            # This condition is to avoid sleeping for the last time
+            if retry < retry_count:
+                time.sleep(2**retry)
+            else:
+                assert (
+                    False
+                ), f"Error while connecting to the Microsoft Outlook. Error: {exception}"
+            retry += 1
+            assert False
+    print("Microsoft Outlook connectivity tests completed..")
+
+
 @pytest.mark.enterprise_search
 def test_workplace(settings):
     """Tests the connection to the Enterprise search host"""
+
     configs, _ = settings
     print("Starting Enterprise Search connectivity tests..")
     retry_count = configs.get_value("retry_count")
@@ -48,15 +101,18 @@ def test_workplace(settings):
                 assert True
                 break
         except Exception as exception:
-            print(
-                f"[Fail] Error while connecting to the Enterprise Search host {enterprise_search_host}. \
-                    Retry Count: {retry}. Error: {exception}"
-            )
+            if retry > 0:
+                print(
+                    f"[Fail] Error while connecting to the Enterprise Search host "
+                    f"{enterprise_search_host}. Retry Count: {retry}. Error: {exception}"
+                )
             # This condition is to avoid sleeping for the last time
             if retry < retry_count:
                 time.sleep(2**retry)
             else:
-                assert False, f"Error while connecting to the Enterprise Search at {enterprise_search_host}"
+                assert (
+                    False
+                ), f"Error while connecting to the Enterprise Search at {enterprise_search_host}"
             retry += 1
 
     print("Enterprise Search connectivity tests completed..")
@@ -65,7 +121,7 @@ def test_workplace(settings):
 @pytest.mark.ingestion
 def test_ingestion(settings):
     """Tests the successful ingestion and deletion of a sample document to the Enterprise search"""
-    configs, logger = settings
+    configs, _v = settings
     retry_count = configs.get_value("retry_count")
     enterprise_search_host = configs.get_value("enterprise_search.host_url")
     print("Starting Enterprise Search ingestion tests..")
@@ -89,22 +145,29 @@ def test_ingestion(settings):
                 content_source_id=configs.get_value("enterprise_search.source_id"),
                 documents=document,
             )
-            print("Successfully indexed a dummy document with id 1234 to the Enterprise Search")
+            print(
+                "Successfully indexed a dummy document with id 1234 in the Enterprise Search"
+            )
             break
         except Exception as exception:
-            print(
-                f"[Fail] Error while ingesting document to the Enterprise Search host {enterprise_search_host}. \
-                Retry Count: {retry}. Error: {exception}"
-            )
+            if retry > 0:
+                print(
+                    f"[Fail] Error while ingesting document to the Enterprise Search host "
+                    f"{enterprise_search_host}. Retry Count: {retry}. Error: {exception}"
+                )
             # This condition is to avoid sleeping for the last time
             if retry < retry_count:
                 time.sleep(2**retry)
             else:
-                assert False, f"Error while connecting to the Enterprise Search at {enterprise_search_host}"
+                assert (
+                    False
+                ), f"Error while connecting to the Enterprise Search at {enterprise_search_host}"
             retry += 1
 
     if response:
-        print("Attempting to delete the dummy document 1234 from the Enterprise Search for cleanup")
+        print(
+            "Attempting to delete the dummy document 1234 from the Enterprise Search for cleanup"
+        )
         retry = 0
         while retry <= retry_count:
             try:
@@ -113,20 +176,24 @@ def test_ingestion(settings):
                     content_source_id=configs.get_value("enterprise_search.source_id"),
                     document_ids=[1234],
                 )
-                print("Successfully deleted the dummy document with id 1234 from the Enterprise Search")
+                print(
+                    "Successfully deleted the dummy document with id 1234 from the Enterprise Search"
+                )
                 if response:
                     assert True
                     break
             except Exception as exception:
                 print(
-                    f"[Fail] Error while deleting document id 1234 from the Enterprise Search host {enterprise_search_host}. \
-                        Retry Count: {retry}. Error: {exception}"
+                    f"[Fail] Error while deleting document id 1234 from the Enterprise Search host "
+                    f"{enterprise_search_host}. Retry Count: {retry}. Error: {exception}"
                 )
                 # This condition is to avoid sleeping for the last time
                 if retry < retry_count:
                     time.sleep(2**retry)
                 else:
-                    assert False, "Error while connecting to the Enterprise Search at {enterprise_search_host}"
+                    assert (
+                        False
+                    ), f"Error while connecting to the Enterprise Search at {enterprise_search_host}"
                 retry += 1
 
     print("Enterprise Search ingestion tests completed..")

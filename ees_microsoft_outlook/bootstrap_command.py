@@ -4,13 +4,10 @@
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
 """This module allows to create Content Source in Elastic Enterprise Search.
-
-    It can be used to create a Content Source that will be used to upload the
-    data to Elastic Enterprise Search instance.
-
-    Otherwise, it's possible to use Content Source that was pre-created
-    in Elastic Enterprise Search
-"""
+It can be used to create a Content Source that will be used to upload the
+data from Microsoft Outlook to Elastic Enterprise Search instance.
+Otherwise, it's possible to use Content Source that was pre-created
+in Elastic Enterprise Search"""
 
 from .base_command import BaseCommand
 
@@ -57,8 +54,8 @@ class BootstrapCommand(BaseCommand):
 
             content_source_id = resp.get("id")
             logger.info(
-                f"Created ContentSource with ID {content_source_id}. \
-                    You may now begin indexing with content-source-id= {content_source_id}"
+                f"Created ContentSource with ID {content_source_id}. "
+                f"You may now begin indexing with content-source-id={content_source_id}"
             )
         except Exception as exception:
             logger.error(f"Could not create a content source, Error {exception}")
