@@ -55,16 +55,12 @@ class FullSyncCommand(BaseCommand):
             self.logger.info("Error while fetching users from the Active Directory")
             exit()
 
-        # Logic to fetch mails, calendars, contacts and task from Microsoft Outlook by using multithreading approach
         sync_microsoft_outlook = SyncMicrosoftOutlook(
             self.config,
             self.logger,
             self.workplace_search_client,
             queue,
         )
-
-        # Logic to remove all permissions present in workplace search
-        sync_microsoft_outlook.remove_permissions(self.workplace_search_client)
 
         # Logic to fetch mails, calendars, contacts and task from Microsoft Outlook by using multithreading approach
         (
@@ -83,12 +79,6 @@ class FullSyncCommand(BaseCommand):
             queue,
         )
 
-        # Logic to map Microsoft Outlook users with Workplace Search and indexing permission as well
-        if self.config.get_value("enable_document_permission"):
-            for account in users_accounts:
-                sync_microsoft_outlook.map_ms_outlook_user_to_ws_user(
-                    account.primary_smtp_address, [account.primary_smtp_address]
-                )
         enterprise_thread_count = self.config.get_value(
             "enterprise_search_sync_thread_count"
         )
@@ -108,7 +98,9 @@ class FullSyncCommand(BaseCommand):
         self.create_jobs(thread_count, sync_es.perform_sync, (), [])
         for checkpoint_data in sync_es.checkpoint_list:
             checkpoint.set_checkpoint(
-                checkpoint_data["current_time"], checkpoint_data["index_type"], checkpoint_data["object_type"]
+                checkpoint_data["current_time"],
+                checkpoint_data["index_type"],
+                checkpoint_data["object_type"],
             )
 
     def execute(self):

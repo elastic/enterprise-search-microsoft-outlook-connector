@@ -50,7 +50,7 @@ class BaseCommand:
         """
         log_level = self.config.get_value("log_level")
         logger = logging.getLogger(__name__)
-        logger.propagate = False
+        logger.propagate = True
         logger.setLevel(log_level)
 
         handler = logging.StreamHandler()
@@ -153,7 +153,7 @@ class BaseCommand:
         """
         if constant.MAILS_OBJECT.lower() not in self.config.get_value("objects"):
             self.logger.info(
-                "Disabled indexing of mails from configuration file by user"
+                "Mails are not getting indexed because user has excluded from configuration file"
             )
             return
         self.logger.debug("Started fetching the mails")

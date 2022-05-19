@@ -41,14 +41,10 @@ def create_object_of_sync_microsoft_outlook():
 
 @pytest.mark.parametrize(
     "mock_response",
-    [
-        (
-            {"user": "dummy_user", "permissions": ["permission1"]},
-        )
-    ],
+    [({"user": "dummy_user", "permissions": ["permission1"]},)],
 )
 def test_workplace_add_permission(mock_response, caplog):
-    """Test method to add permission into workplace search"""
+    """Test method to add permission into Workplace Search"""
     caplog.set_level("INFO")
     sync_outlook = create_object_of_sync_microsoft_outlook()
     sync_outlook.workplace_search_client.add_user_permissions = Mock(

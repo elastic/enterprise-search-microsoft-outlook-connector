@@ -31,6 +31,12 @@ def settings():
     return configuration, logger
 
 
+def test_extract():
+    """Test the extract content from tika"""
+    target_content = utils.extract("hello")
+    assert target_content == "\n\n\n\n\n\n\n\nhello\n"
+
+
 def test_url_encode():
     """Test that encode URL"""
     url_to_encode = '''http://ascii.cl?parameter="Click on 'URL Decode'!"'''
@@ -54,9 +60,9 @@ def test_split_list_into_buckets():
     assert len(documents) == count
 
 
-def test_change_date_format():
+def test_change_datetime_ews_format():
     """Test for change date format"""
-    target_date_format = utils.change_date_format("2022-04-02T08:20:30Z")
+    target_date_format = utils.change_datetime_ews_format("2022-04-02T08:20:30Z")
     assert target_date_format == datetime.datetime(
         2022, 4, 2, 8, 20, 30, tzinfo=EWSTimeZone(key="UTC")
     )

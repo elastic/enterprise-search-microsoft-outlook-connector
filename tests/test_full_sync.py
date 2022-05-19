@@ -11,9 +11,9 @@ from unittest.mock import Mock, patch
 from ees_microsoft_outlook.configuration import Configuration
 from ees_microsoft_outlook.connector_queue import ConnectorQueue
 from ees_microsoft_outlook.full_sync_command import FullSyncCommand
-from ees_microsoft_outlook.microsoft_exchange_server_user import \
-    MicrosoftExchangeServerUser
-from ees_microsoft_outlook.sync_microsoft_outlook import SyncMicrosoftOutlook
+from ees_microsoft_outlook.microsoft_exchange_server_user import (
+    MicrosoftExchangeServerUser,
+)
 from tests.support import get_args
 
 
@@ -30,12 +30,9 @@ def settings():
     return configuration, logger
 
 
-@patch.object(SyncMicrosoftOutlook, "remove_permissions")
 @patch.object(MicrosoftExchangeServerUser, "get_users_accounts")
 @patch.object(MicrosoftExchangeServerUser, "get_users")
-def test_start_producer(
-    mock_get_users, mock_get_users_accounts, mock_remove_permissions
-):
+def test_start_producer(mock_get_users, mock_get_users_accounts):
     """Test method of start producer to fetching data from microsoft outlook for full sync"""
     config, logger = settings()
     args = get_args("FullSyncCommand")
@@ -43,7 +40,6 @@ def test_start_producer(
     queue = ConnectorQueue(logger)
     mock_get_users.return_value = [Mock()]
     mock_get_users_accounts.return_value = [Mock()]
-    mock_remove_permissions.return_value = Mock()
     full.create_jobs_for_mails = Mock()
     full.start_producer(queue)
     assert queue.qsize() == config.get_value("enterprise_search_sync_thread_count")

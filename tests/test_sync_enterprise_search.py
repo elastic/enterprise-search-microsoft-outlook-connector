@@ -15,8 +15,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from ees_microsoft_outlook.configuration import Configuration  # noqa
 from ees_microsoft_outlook.connector_queue import ConnectorQueue  # noqa
-from ees_microsoft_outlook.sync_enterprise_search import \
-    SyncEnterpriseSearch  # noqa
+from ees_microsoft_outlook.sync_enterprise_search import SyncEnterpriseSearch  # noqa
 from elastic_enterprise_search import WorkplaceSearch  # noqa
 
 
@@ -68,19 +67,19 @@ def create_enterprise_search_obj():
                 },
             ],
             {"results": [{"id": "0", "errors": []}, {"id": "1", "errors": []}]},
-            "Successfully indexed 2 to the workplace out of 2",
+            "Total 2 text indexed out of 2.",
         )
     ],
 )
 def test_index_documents(documents, mock_response, log_msg, caplog):
-    """Test Method to Index Documents into workplace search"""
+    """Test Method to Index Documents into Workplace Search"""
     caplog.set_level("INFO")
     indexer_obj = create_enterprise_search_obj()
     indexer_obj.workplace_search_client.index_documents = Mock(
         return_value=mock_response
     )
     indexer_obj.index_documents(documents)
-    assert "Total 2 text indexed out of 2" in caplog.text
+    assert log_msg in caplog.text
 
 
 def test_get_records_by_types():

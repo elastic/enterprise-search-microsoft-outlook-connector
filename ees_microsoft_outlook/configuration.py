@@ -13,8 +13,11 @@ import yaml
 from cerberus import Validator
 from yaml.error import YAMLError
 
-from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
-                       CONNECTOR_TYPE_OFFICE365, RFC_3339_DATETIME_FORMAT)
+from .constant import (
+    CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
+    CONNECTOR_TYPE_OFFICE365,
+    RFC_3339_DATETIME_FORMAT,
+)
 from .schema import schema
 
 
@@ -70,14 +73,23 @@ class Configuration:
 
     def validate(self):
         """Validates each properties defined in the yaml configuration file"""
-
         if (
-            self.__configurations["connector_platform_type"] and isinstance(
-                self.__configurations["connector_platform_type"], str) and CONNECTOR_TYPE_OFFICE365
+            self.__configurations["connector_platform_type"] and isinstance(self.__configurations[
+                "connector_platform_type"], str) and CONNECTOR_TYPE_OFFICE365
             in self.__configurations["connector_platform_type"]
         ):
             schema.update(
                 {
+                    "microsoft_exchange.secure_connection": {
+                        "required": False,
+                        "type": "boolean",
+                        "default": True,
+                    },
+                    "microsoft_exchange.certificate_path": {
+                        "required": False,
+                        "type": "string",
+                        "empty": True,
+                    },
                     "office365.client_id": {
                         "required": True,
                         "type": "string",
@@ -96,11 +108,11 @@ class Configuration:
                 }
             )
         elif (
-            self.__configurations["connector_platform_type"] and isinstance(
-                self.__configurations["connector_platform_type"], str) and CONNECTOR_TYPE_MICROSOFT_EXCHANGE
+            self.__configurations["connector_platform_type"] and isinstance(self.__configurations[
+                "connector_platform_type"], str) and CONNECTOR_TYPE_MICROSOFT_EXCHANGE
             in self.__configurations["connector_platform_type"]
         ):
-            if self.__configurations["microsoft_exchange.secure_connection"]:
+            if self.__configurations["microsoft_exchange.secure_connection"] is False:
                 schema.update(
                     {
                         "microsoft_exchange.secure_connection": {
@@ -109,11 +121,12 @@ class Configuration:
                             "default": True,
                         },
                         "microsoft_exchange.certificate_path": {
-                            "required": True,
+                            "required": False,
                             "type": "string",
-                            "empty": False
+                            "empty": True,
                         },
-                    })
+                    }
+                )
             schema.update(
                 {
                     "microsoft_exchange.active_directory_server": {

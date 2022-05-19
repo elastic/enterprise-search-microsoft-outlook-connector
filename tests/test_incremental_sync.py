@@ -10,10 +10,10 @@ from unittest.mock import Mock, patch
 
 from ees_microsoft_outlook.configuration import Configuration
 from ees_microsoft_outlook.connector_queue import ConnectorQueue
-from ees_microsoft_outlook.incremental_sync_command import \
-    IncrementalSyncCommand
-from ees_microsoft_outlook.microsoft_exchange_server_user import \
-    MicrosoftExchangeServerUser
+from ees_microsoft_outlook.incremental_sync_command import IncrementalSyncCommand
+from ees_microsoft_outlook.microsoft_exchange_server_user import (
+    MicrosoftExchangeServerUser,
+)
 from tests.support import get_args
 
 

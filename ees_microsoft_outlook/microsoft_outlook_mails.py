@@ -9,9 +9,14 @@
 from iteration_utilities import unique_everseen
 
 from . import constant
-from .utils import (change_date_format, change_datetime_format, extract,
-                    get_schema_fields, html_to_text,
-                    insert_document_into_doc_id_storage)
+from .utils import (
+    change_datetime_ews_format,
+    change_datetime_format,
+    extract,
+    get_schema_fields,
+    html_to_text,
+    insert_document_into_doc_id_storage,
+)
 
 
 class MicrosoftOutlookMails:
@@ -20,54 +25,74 @@ class MicrosoftOutlookMails:
     def __init__(self, logger, config):
         self.logger = logger
         self.config = config
+        self.time_zone = constant.DEFAULT_TIME_ZONE
 
-    def get_mail_attachments(self, ids_list_mails, mail_obj, user_email_address):
+    def get_mail_attachments(
+        self, ids_list_mails, mail_obj, user_email_address, start_time, end_time
+    ):
         """Method is used to fetch attachment from mail object store in dictionary
         :param ids_list_mails: Documents ids of mails
         :param mail_obj: Object of account
         :param user_email_address: Email address of user
+        :param start_time: Start time for fetching the mails
+        :param end_time: End time for fetching the mails
         Returns:
             mail_attachments: Dictionary of attachment
         """
         mail_attachments = []
-
-        # Logic for mail last modified time
-        mail_created = ""
-        if mail_obj.last_modified_time:
-            mail_created = change_datetime_format(mail_obj.last_modified_time)
-
         for attachment in mail_obj.attachments:
-            attachments = {
-                "type": constant.MAILS_ATTACHMENTS_OBJECT,
-                "id": attachment.attachment_id.id,
-                "title": attachment.name,
-                "created": mail_created,
-            }
-            attachments["_allow_permissions"] = []
-            if self.config.get_value("enable_document_permission"):
-                attachments["_allow_permissions"] = [user_email_address]
 
-            # Logic to insert mail attachment into global_keys object
-            insert_document_into_doc_id_storage(
-                ids_list_mails,
-                attachment.attachment_id.id,
-                mail_obj.id,
-                constant.MAILS_ATTACHMENTS_OBJECT.lower(),
-                self.config.get_value("connector_platform_type"),
-            )
-            if hasattr(attachment, "content"):
-                attachments["body"] = extract(attachment.content)
-            mail_attachments.append(attachments)
+            # Logic for mail attachment last modified time
+            attachment_created = ""
+            if attachment.last_modified_time:
+                attachment_created = change_datetime_format(
+                    attachment.last_modified_time, self.time_zone
+                )
+
+            # Logic to fetch mail attachments
+            if (
+                attachment.last_modified_time >= start_time and attachment.last_modified_time < end_time
+            ):
+                attachments = {
+                    "type": constant.MAILS_ATTACHMENTS_OBJECT,
+                    "id": attachment.attachment_id.id,
+                    "title": attachment.name,
+                    "created": attachment_created,
+                }
+                attachments["_allow_permissions"] = []
+                if self.config.get_value("enable_document_permission"):
+                    attachments["_allow_permissions"] = [user_email_address]
+
+                # Logic to insert mail attachment into global_keys object
+                insert_document_into_doc_id_storage(
+                    ids_list_mails,
+                    attachment.attachment_id.id,
+                    mail_obj.id,
+                    constant.MAILS_ATTACHMENTS_OBJECT.lower(),
+                    self.config.get_value("connector_platform_type"),
+                )
+                if hasattr(attachment, "content"):
+                    attachments["body"] = extract(attachment.content)
+                mail_attachments.append(attachments)
+
         return mail_attachments
 
     def convert_mails_to_workplace_search_documents(
-        self, ids_list_mails, mail_type, mail_obj, user_email_address
+        self,
+        ids_list_mails,
+        mail_type,
+        mail_obj,
+        user_email_address,
+        start_time,
+        end_time,
     ):
         """Method is used to convert mail data into Workplace Search document
         :param ids_list_mails: Documents ids of mails
         :param mail_type: Type of the mail like inbox, sent, junk
         :param mail_obj: Object of account
         :param user_email_address: Email address of user
+        :param start_time: Start time for fetching the mails
+        :param end_time: End time for fetching the mails
         Returns:
             mail_document: Dictionary of mail
             mail_attachments_documents: Dictionary of attachment
@@ -81,25 +106,33 @@ class MicrosoftOutlookMails:
         # Logic for email recipients
         receiver_email = ""
         if mail_obj.to_recipients:
+            receiver_email_list = []
             for recipient in mail_obj.to_recipients:
-                receiver_email = receiver_email + ", " + recipient.email_address
+                receiver_email_list.append(recipient.email_address)
+            receiver_email = ", ".join(receiver_email_list)
 
         # Logic for email cc
         cc = ""
         if mail_obj.cc_recipients:
+            cc_list = []
             for cc_recipient in mail_obj.cc_recipients:
-                cc = cc + ", " + cc_recipient.email_address
+                cc_list.append(cc_recipient.email_address)
+            cc = ", ".join(cc_list)
 
         # Logic for email bcc
         bcc = ""
         if mail_obj.bcc_recipients:
+            bcc_list = []
             for bcc_recipient in mail_obj.bcc_recipients:
-                bcc = bcc + ", " + bcc_recipient.email_address
+                bcc_list.append(bcc_recipient.email_address)
+            bcc = ", ".join(bcc_list)
 
         # Logic for mail last modified time
         mail_created = ""
         if mail_obj.last_modified_time:
-            mail_created = change_datetime_format(mail_obj.last_modified_time)
+            mail_created = change_datetime_format(
+                mail_obj.last_modified_time, self.time_zone
+            )
 
         # Logic to create document body
         mail_document = {
@@ -116,17 +149,21 @@ class MicrosoftOutlookMails:
         mail_attachments_documents = []
         if mail_obj.has_attachments:
             mail_attachments_documents = self.get_mail_attachments(
-                ids_list_mails, mail_obj, user_email_address
+                ids_list_mails, mail_obj, user_email_address, start_time, end_time
             )
 
         return mail_document, mail_attachments_documents
 
-    def get_mail_documents(self, account, ids_list_mails, mail_type, mail_objs):
+    def get_mail_documents(
+        self, account, ids_list_mails, mail_type, mail_objs, start_time, end_time
+    ):
         """This method is used to get mail's data and mapped with fields
         :param account: User account object
         :param ids_list_mails: Documents ids list
         :param mail_type: Type of mail like inbox, sent, junk
         :param mail_obj: Object of account
+        :param start_time: Start time for fetching the mails
+        :param end_time: End time for fetching the mails
         Returns:
             documents: List of documents
         """
@@ -148,7 +185,12 @@ class MicrosoftOutlookMails:
                 mail_dict,
                 mail_attachment,
             ) = self.convert_mails_to_workplace_search_documents(
-                ids_list_mails, mail_type, mail_obj, account.primary_smtp_address
+                ids_list_mails,
+                mail_type,
+                mail_obj,
+                account.primary_smtp_address,
+                start_time,
+                end_time,
             )
             mail_map = {}
             mail_map["_allow_permissions"] = []
@@ -188,31 +230,54 @@ class MicrosoftOutlookMails:
             {
                 "folder": "archive",
                 "constant": constant.ARCHIVE_MAIL_OBJECT,
-            }
+            },
         ]
-        start_time = change_date_format(start_time)
-        end_time = change_date_format(end_time)
+        start_time = change_datetime_ews_format(start_time)
+        end_time = change_datetime_ews_format(end_time)
         for account in accounts:
+
+            # Logic to set time zone according to user account
+            self.time_zone = account.default_timezone
+
             try:
                 for type in mail_type:
 
                     # Logic to get mails folder
                     if "archive" in type["folder"]:
-                        mail_type_obj_folder = account.root / "Top of Information Store" / "Archive"
+                        mail_type_obj_folder = (
+                            account.root / "Top of Information Store" / "Archive"
+                        )
                     else:
                         mail_type_obj_folder = getattr(account, type["folder"])
 
                     # Logic to fetch mails
                     mail_type_obj = (
-                        mail_type_obj_folder
-                        .all()
+                        mail_type_obj_folder.all()
                         .filter(
                             last_modified_time__gt=start_time,
                             last_modified_time__lt=end_time,
                         )
+                        .only(
+                            "sender",
+                            "to_recipients",
+                            "cc_recipients",
+                            "bcc_recipients",
+                            "last_modified_time",
+                            "subject",
+                            "importance",
+                            "categories",
+                            "body",
+                            "has_attachments",
+                            "attachments",
+                        )
                     )
                     mail_type_documents = self.get_mail_documents(
-                        account, ids_list_mails, type["constant"], mail_type_obj
+                        account,
+                        ids_list_mails,
+                        type["constant"],
+                        mail_type_obj,
+                        start_time,
+                        end_time,
                     )
                     documents.extend(mail_type_documents)
             except Exception as exception:

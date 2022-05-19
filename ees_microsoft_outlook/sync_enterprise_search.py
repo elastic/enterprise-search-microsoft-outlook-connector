@@ -118,7 +118,7 @@ class SyncEnterpriseSearch:
                         checkpoint_dict = {
                             "current_time": documents.get("data")[1],
                             "index_type": documents.get("data")[2],
-                            "object_type": documents.get("data")[0]
+                            "object_type": documents.get("data")[0],
                         }
                         self.checkpoint_list.append(checkpoint_dict)
                         break

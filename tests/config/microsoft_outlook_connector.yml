@@ -16,9 +16,9 @@ microsoft_exchange.password: "dummy"
 #Exchange Server domain name Example: exchange.demo
 microsoft_exchange.domain: "dummy.dummy"
 #Validate the SSL certificate if host is secured. Specify Yes if host is secured and want to validate the SSL certificate, else No.
-microsoft_exchange.secure_connection: No
+microsoft_exchange.secure_connection: Yes
 #The path of the SSL certificate to establish a secure connection with Microsoft Exchange server
-microsoft_exchange.certificate_path: ""
+microsoft_exchange.certificate_path: "Certificate.cer"
 
 # ------------------------------- Office365 configuration settings -------------------------------
 #Client ID of microsoft azure application Example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx

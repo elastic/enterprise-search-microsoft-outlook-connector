@@ -16,7 +16,7 @@ CONFIG_FILE = os.path.join(
 
 
 def get_args(command_name, *args):
-    """generate args for testing cli file
+    """Generate args for testing cli file
     :param command_name: name of the command to execute.
     """
     args = namedtuple("args", "verbose quiet duration exception")

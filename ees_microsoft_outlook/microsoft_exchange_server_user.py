@@ -23,17 +23,17 @@ global_ssl_certificate_path = ""
 class RootCAAdapter(requests.adapters.HTTPAdapter):
     """This class is use to verify ssl certificate"""
 
-    def cert_verify(self, connection, url, ssl_certificate_file, certificate):
-        """This method is used to verify SSL certificate
-        :param connection: The urllib3 connection object associated with the cert.
+    def cert_verify(self, conn, url, ssl_certificate_file, cert):
+        """This method is used to verify certificate
+        :param conn: The urllib3 connection object associated with the cert.
         :param url: The requested URL.
-        :param ssl_certificate_file: Dictionary which contain SSL certificate
-        :param certificate: The SSL certificate to verify.
+        :param ssl_certificate_file: Dictionary which contain ssl certificate
+        :param cert: The SSL certificate to verify.
         """
         ssl_certificate_file = {
             global_dns_name: global_ssl_certificate_path,
         }[urlparse(url).hostname]
-        super().cert_verify(conn=connection, url=url, verify=ssl_certificate_file, cert=certificate)
+        super().cert_verify(conn=conn, url=url, verify=ssl_certificate_file, cert=cert)
 
 
 class MicrosoftExchangeServerUser:
@@ -60,7 +60,9 @@ class MicrosoftExchangeServerUser:
                 auto_bind=True,
             )
 
-            domain_name_list = self.config.get_value("microsoft_exchange.domain").split(".")
+            domain_name_list = self.config.get_value("microsoft_exchange.domain").split(
+                "."
+            )
             ldap_domain_name_list = ["DC=" + domain for domain in domain_name_list]
             search_query = ",".join(map(str, ldap_domain_name_list))
 

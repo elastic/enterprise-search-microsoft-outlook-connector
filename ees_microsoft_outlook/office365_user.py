@@ -9,11 +9,16 @@ import json
 import warnings
 
 import requests
-from exchangelib import (IMPERSONATION, OAUTH2, Account, Configuration,
-                         Identity, OAuth2Credentials)
+from exchangelib import (
+    IMPERSONATION,
+    OAUTH2,
+    Account,
+    Configuration,
+    Identity,
+    OAuth2Credentials,
+)
 
-from .constant import (API_SCOPE, EWS_ENDPOINT, GRAPH_BASE_URL,
-                       MICROSOFTONLINE_URL)
+from .constant import API_SCOPE, EWS_ENDPOINT, GRAPH_BASE_URL, MICROSOFTONLINE_URL
 from .utils import CustomException
 
 

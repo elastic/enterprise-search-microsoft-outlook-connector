@@ -16,8 +16,7 @@ import pytest
 from elastic_enterprise_search import WorkplaceSearch
 
 from .configuration import Configuration
-from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
-                       CONNECTOR_TYPE_OFFICE365)
+from .constant import CONNECTOR_TYPE_MICROSOFT_EXCHANGE, CONNECTOR_TYPE_OFFICE365
 from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
 from .office365_user import Office365User
 

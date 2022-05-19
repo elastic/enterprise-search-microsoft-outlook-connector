@@ -18,6 +18,7 @@ API_SCOPE = "https://graph.microsoft.com/.default"
 MICROSOFTONLINE_URL = "https://login.microsoftonline.com"
 EWS_ENDPOINT = "https://outlook.office365.com/EWS/Exchange.asmx"
 BATCH_SIZE = 100
+DEFAULT_TIME_ZONE = "UTC"
 MAILS_OBJECT = "Mails"
 INBOX_MAIL_OBJECT = "Inbox Mails"
 SENT_MAIL_OBJECT = "Sent Mails"
