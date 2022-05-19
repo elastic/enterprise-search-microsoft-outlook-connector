@@ -62,9 +62,6 @@ class FullSyncCommand(BaseCommand):
             queue,
         )
 
-        # Logic to remove all permissions present in Workplace Search
-        sync_microsoft_outlook.remove_permissions(self.workplace_search_client)
-
         # Logic to fetch mails, calendars, contacts and task from Microsoft Outlook by using multithreading approach
         (
             end_time,
@@ -90,13 +87,6 @@ class FullSyncCommand(BaseCommand):
             end_time,
             queue,
         )
-
-        # Logic to map Microsoft Outlook users with Workplace Search and indexing permission as well
-        if self.config.get_value("enable_document_permission"):
-            for account in users_accounts:
-                sync_microsoft_outlook.map_ms_outlook_user_to_ws_user(
-                    account.primary_smtp_address, [account.primary_smtp_address]
-                )
         enterprise_thread_count = self.config.get_value(
             "enterprise_search_sync_thread_count"
         )

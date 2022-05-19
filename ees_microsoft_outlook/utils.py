@@ -11,12 +11,14 @@ import time
 import urllib.parse
 from datetime import datetime
 
+import exchangelib
+import pytz
 from bs4 import BeautifulSoup
 from exchangelib import EWSTimeZone
 from tika import parser
 
 from .adapter import SCHEMA
-from .constant import RFC_3339_DATETIME_FORMAT
+from .constant import DEFAULT_TIME_ZONE, RFC_3339_DATETIME_FORMAT
 
 
 def extract(content):
@@ -141,15 +143,32 @@ def html_to_text(content):
         return text
 
 
-def change_date_format(utc_datetime):
+def change_datetime_ews_format(utc_datetime):
     """Change datetime format to EWS timezone
     :param utc_datetime: Datetime in UTC format
     Returns:
         Datetime: Datetime with EWS format
     """
     return datetime.strptime(utc_datetime, "%Y-%m-%dT%H:%M:%SZ").replace(
-        tzinfo=EWSTimeZone("UTC")
+        tzinfo=EWSTimeZone(DEFAULT_TIME_ZONE)
     )
+
+
+def change_datetime_format(datetime, timezone):
+    """Change datetime format to user account timezone
+    :param utc_datetime: Datetime in UTC format
+    :param timezone: User account timezone
+    Returns:
+        Datetime: Date format as user account timezone
+    """
+    if isinstance(datetime, exchangelib.ewsdatetime.EWSDateTime):
+        return (datetime.astimezone(pytz.timezone(str(timezone)))).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+    elif isinstance(datetime, exchangelib.ewsdatetime.EWSDate):
+        return datetime.strftime("%Y-%m-%d")
+    else:
+        return None
 
 
 def insert_document_into_doc_id_storage(ids_list, id, parent_id, type, platform):
@@ -200,14 +219,6 @@ def get_schema_fields(document_name, objects):
     return adapter_schema
 
 
-def change_datetime_format(time):
-    """Returns the converted datetime in YYYY-MM-DDTHH:MM:SS format
-    Returns:
-        converted_time: YYYY-MM-DDTHH:MM:SS datetime format
-    """
-    return time.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
 class CustomException(Exception):
     """Exception raised when there is an error in user fetching.
     Attributes:
@@ -235,3 +246,11 @@ def split_date_range_into_chunks(start_time, end_time, number_of_threads):
     formatted_end_time = end_time.strftime(RFC_3339_DATETIME_FORMAT)
     datelist.append(formatted_end_time)
     return datelist
+
+
+def is_document_in_present_data(document_item, id):
+    """This method is used filter removed document by id
+    :param document_item: Pass document
+    :param id: Pass id of the document which you want to match
+    """
+    return document_item["id"] == id

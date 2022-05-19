@@ -43,6 +43,6 @@ class ConnectorQueue(Queue):
         if documents:
             documents_map = {"type": type, "data": documents}
             self.logger.debug(
-                f"Added list of {len(documents)} " "documents into the queue"
+                f"Added list of {len(documents)} documents into the queue"
             )
             self.put(documents_map)

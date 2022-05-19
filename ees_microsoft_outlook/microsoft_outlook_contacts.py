@@ -9,8 +9,12 @@ import exchangelib
 from iteration_utilities import unique_everseen
 
 from . import constant
-from .utils import (change_date_format, change_datetime_format,
-                    get_schema_fields, insert_document_into_doc_id_storage)
+from .utils import (
+    change_datetime_ews_format,
+    change_datetime_format,
+    get_schema_fields,
+    insert_document_into_doc_id_storage,
+)
 
 
 class MicrosoftOutlookContacts:
@@ -19,6 +23,7 @@ class MicrosoftOutlookContacts:
     def __init__(self, logger, config):
         self.logger = logger
         self.config = config
+        self.time_zone = constant.DEFAULT_TIME_ZONE
 
     def convert_contacts_to_workplace_search_documents(self, contact_obj):
         """Method is used to convert contact data into Workplace Search document
@@ -30,19 +35,30 @@ class MicrosoftOutlookContacts:
         # Logic for contact email address
         contact_emails = ""
         if contact_obj.email_addresses:
+            contact_emails_list = []
             for email in contact_obj.email_addresses:
-                contact_emails = contact_emails + ", " + email.email
+                contact_emails_list.append(email.email)
+            contact_emails = ", ".join(contact_emails_list)
 
         # Logic for contact phone number
         contact_numbers = ""
         if contact_obj.phone_numbers:
+            contact_numbers_list = []
             for number in contact_obj.phone_numbers:
-                contact_numbers = contact_numbers + ", " + number.phone_number
+                contact_numbers_list.append(number.phone_number)
+            contact_numbers = ", ".join(contact_numbers_list)
 
         # Logic for contact last modified time
         contact_created = ""
         if contact_obj.last_modified_time:
-            contact_created = change_datetime_format(contact_obj.last_modified_time)
+            contact_created = change_datetime_format(
+                contact_obj.last_modified_time, self.time_zone
+            )
+
+        # Logic to remove year from birthdate if birth year is kept empty by the user
+        if contact_obj.birthday:
+            if 1604 == contact_obj.birthday.year:
+                contact_obj.birthday = contact_obj.birthday.strftime("%m-%d")
 
         # Logic to create document body
         contact_document = {
@@ -64,19 +80,33 @@ class MicrosoftOutlookContacts:
             documents: List of contact documents
         """
         documents = []
-        start_time = change_date_format(start_time)
-        end_time = change_date_format(end_time)
+        start_time = change_datetime_ews_format(start_time)
+        end_time = change_datetime_ews_format(end_time)
         contact_schema = get_schema_fields(
             constant.CONTACTS_OBJECT.lower(), self.config.get_value("objects")
         )
         for account in accounts:
 
+            # Logic to set time zone according to user account
+            self.time_zone = account.default_timezone
+
             try:
                 # Logic to fetch contacts
                 folder = account.root / "Top of Information Store" / "Contacts"
-                for contact in folder.all().filter(
-                    last_modified_time__gt=start_time,
-                    last_modified_time__lt=end_time,
+                for contact in (
+                    folder.all()
+                    .filter(
+                        last_modified_time__gt=start_time,
+                        last_modified_time__lt=end_time,
+                    )
+                    .only(
+                        "email_addresses",
+                        "phone_numbers",
+                        "last_modified_time",
+                        "display_name",
+                        "company_name",
+                        "birthday",
+                    )
                 ):
                     if isinstance(contact, exchangelib.items.contact.Contact):
 

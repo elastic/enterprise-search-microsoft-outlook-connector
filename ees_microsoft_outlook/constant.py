@@ -18,6 +18,7 @@ API_SCOPE = "https://graph.microsoft.com/.default"
 MICROSOFTONLINE_URL = "https://login.microsoftonline.com"
 EWS_ENDPOINT = "https://outlook.office365.com/EWS/Exchange.asmx"
 BATCH_SIZE = 100
+DEFAULT_TIME_ZONE = "UTC"
 CONTACTS_OBJECT = "Contacts"
 CONTACT_DELETION_PATH = os.path.join(
     os.path.dirname(__file__), "doc_ids", "microsoft_outlook_contacts_doc_ids.json"

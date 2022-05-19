@@ -6,13 +6,12 @@
 
 import logging
 import os
-from datetime import datetime
 from unittest.mock import Mock
 
 from ees_microsoft_outlook.configuration import Configuration
-from ees_microsoft_outlook.microsoft_outlook_calendar import \
-    MicrosoftOutlookCalendar
+from ees_microsoft_outlook.microsoft_outlook_calendar import MicrosoftOutlookCalendar
 from exchangelib import Message
+from exchangelib.ewsdatetime import EWSDateTime, EWSTimeZone
 from exchangelib.items.calendar_item import CalendarItem
 
 
@@ -86,7 +85,7 @@ Descriptions: demo calendar event\n",
     )
     start_date = "2022-04-21T12:10:00Z"
     end_date = "2022-04-21T12:13:00Z"
-    account.calendar.filter = Mock(return_value=[Mock()])
+    account.calendar.filter().only = Mock(return_value=[Mock()])
     source_calendar_events = calendar_obj.get_calendar(
         [], start_date, end_date, account_list
     )
@@ -109,9 +108,9 @@ def test_convert_calendar_to_workplace_search_document():
         "type": "Calendar",
         "Id": "123465789",
         "DisplayName": "Demo Event",
-        "Description": "Start Time: 2022-04-12 02:13:00\n End Time: 2022-04-13 02:13:00\nLocation: Demo Location\n \
-Organizer: abc@xyz.com\nMeeting Type: Recurring ('Every One Week',)\n Attendee List: , abc@xyz.com\n\
-Descriptions: Demo Body",
+        "Description": "Start Date: 2022-04-12T02:13:00Z\nEnd Date: 2022-04-13T02:13:00Z\nLocation: Demo Location\n \
+Organizer: abc@xyz.com\nMeeting Type: Recurring ('Every One Week',)\n Attendee List: abc@xyz.com\n\
+Description: Demo Body",
         "Created": "2022-04-11T02:13:00Z",
     }
     expected_attachments_documents = [
@@ -126,15 +125,16 @@ Descriptions: Demo Body",
     ]
 
     microsoft_outlook_cal_obj = create_calendar_obj()
+    microsoft_outlook_cal_obj.time_zone = EWSTimeZone("Asia/Calcutta")
     calendar_obj = CalendarItem(
         required_attendees=[Mock()],
         type="RecurringMaster",
         recurrence=Mock(),
-        last_modified_time=datetime(2022, 4, 11, 2, 13, 00),
+        last_modified_time=EWSDateTime(2022, 4, 11, 2, 13, 00),
         id="123465789",
         subject="Demo Event",
-        start=datetime(2022, 4, 12, 2, 13, 00),
-        end=datetime(2022, 4, 13, 2, 13, 00),
+        start=EWSDateTime(2022, 4, 12, 2, 13, 00),
+        end=EWSDateTime(2022, 4, 13, 2, 13, 00),
         location="Demo Location",
         organizer=Mock(),
         body="Demo Body",
@@ -150,7 +150,7 @@ Descriptions: Demo Body",
         source_calendar,
         source_calendar_attachments,
     ) = microsoft_outlook_cal_obj.convert_calendars_to_workplace_search_documents(
-        [], calendar_obj, "abc@xyz.com"
+        [], calendar_obj, "abc@xyz.com", calendar_obj.start, calendar_obj.end
     )
     assert expected_calendar_document == source_calendar
     assert expected_attachments_documents == source_calendar_attachments
@@ -163,21 +163,29 @@ def test_get_calendar_attachments():
             "type": "Calendar Attachments",
             "id": "123456789",
             "title": "Demo.txt",
-            "created": "2022-04-11T02:13:00Z",
+            "created": "2022-04-12T03:13:00Z",
             "_allow_permissions": ["abc@xyz.com"],
             "body": "\n\n\n\n\n\n\n\nDemo Body\n",
         }
     ]
     calendar_attachments_obj = Message(
-        last_modified_time=datetime(2022, 4, 11, 2, 13, 00),
+        last_modified_time=EWSDateTime(2022, 4, 12, 3, 13, 00),
         id="123456789",
     )
     calendar_attachments_obj.attachments = [Mock()]
     calendar_attachments_obj.attachments[0].attachment_id.id = "123456789"
     calendar_attachments_obj.attachments[0].name = "Demo.txt"
     calendar_attachments_obj.attachments[0].content = "Demo Body"
+    calendar_attachments_obj.attachments[0].last_modified_time = EWSDateTime(
+        2022, 4, 12, 3, 13, 00
+    )
     microsoft_outlook_calendar_obj = create_calendar_obj()
+    microsoft_outlook_calendar_obj.time_zone = EWSTimeZone("Asia/Calcutta")
     source_attachments = microsoft_outlook_calendar_obj.get_calendar_attachments(
-        [], calendar_attachments_obj, "abc@xyz.com"
+        [],
+        calendar_attachments_obj,
+        "abc@xyz.com",
+        EWSDateTime(2022, 4, 12, 2, 13, 00),
+        EWSDateTime(2022, 4, 13, 2, 13, 00),
     )
     assert expected_attachments == source_attachments

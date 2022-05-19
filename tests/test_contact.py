@@ -6,13 +6,12 @@
 
 import logging
 import os
-from datetime import datetime
 from unittest.mock import MagicMock, Mock
 
 import exchangelib
 from ees_microsoft_outlook.configuration import Configuration
-from ees_microsoft_outlook.microsoft_outlook_contacts import \
-    MicrosoftOutlookContacts
+from ees_microsoft_outlook.microsoft_outlook_contacts import MicrosoftOutlookContacts
+from exchangelib.ewsdatetime import EWSDateTime, EWSTimeZone
 from exchangelib.items.contact import Contact
 
 
@@ -65,7 +64,7 @@ def test_get_contacts():
     start_date = "2022-04-21T12:10:00Z"
     end_date = "2022-04-21T12:13:00Z"
     updated_account = account.root / "Top of Information Store" / "Contacts"
-    updated_account.all().filter = Mock(
+    updated_account.all().filter().only = Mock(
         return_value=[Mock(spec_set=exchangelib.items.contact.Contact)]
     )
     source_contacts = microsoft_outlook_con_obj.get_contacts(
@@ -76,19 +75,20 @@ def test_get_contacts():
 
 
 def test_convert_contact_to_workplace_search_document():
-    """Test method to convert contact to workplace search document"""
+    """Test method to convert contact to Workplace Search document"""
     expected_contact = {
         "Id": "123456789",
         "DisplayName": "Demo User",
-        "Description": "Email Addresses: , demo@abc.com\n Company Name: demo_com\n\
-Contact Numbers: , 123456789\n Date of Birth: ",
+        "Description": "Email Addresses: demo@abc.com\n Company Name: demo_com\n\
+Contact Numbers: 123456789\n Date of Birth: ",
         "Created": "2022-04-11T02:13:00Z",
     }
     microsoft_outlook_con_obj = create_contact_obj()
+    microsoft_outlook_con_obj.time_zone = EWSTimeZone("Asia/Calcutta")
     contact_obj = Contact(
         email_addresses=[Mock()],
         phone_numbers=[Mock()],
-        last_modified_time=datetime(2022, 4, 11, 2, 13, 00),
+        last_modified_time=EWSDateTime(2022, 4, 11, 2, 13, 00),
         id="123456789",
         display_name="Demo User",
         company_name="demo_com",

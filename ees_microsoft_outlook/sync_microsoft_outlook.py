@@ -7,7 +7,6 @@ import csv
 import os
 
 from . import constant
-from .permission_sync_command import PermissionSyncCommand
 
 
 class SyncMicrosoftOutlook:
@@ -73,6 +72,29 @@ class SyncMicrosoftOutlook:
         user_name = rows.get(user, user)
         self.workplace_add_permission(user_name, permissions)
 
+    def fetch_mails(
+        self, ids_list, users_account, mail_object, is_deletion, start_time, end_time
+    ):
+        """This method is used to fetch mails from Microsoft Outlook
+        :ids_list: List of ids of documents
+        :param users_account: List of user accounts
+        :param mail_object: Object of mails
+        :param is_deletion: Boolean to check method called by deletion or indexer
+        :param start_time: Start time for fetching the mails
+        :param end_time: End time for fetching the mails
+        """
+        self.logger.info("Fetching Mails from Microsoft Outlook")
+        try:
+            documents = mail_object.get_mails(
+                ids_list, start_time, end_time, users_account
+            )
+        except Exception as exception:
+            self.logger.exception(f"Error while fetching Mails. Error: {exception}")
+        self.logger.info("Successfully fetched Mails from Microsoft Outlook")
+        if is_deletion:
+            return documents
+        self.queue.append_to_queue(constant.MAILS_OBJECT.lower(), documents)
+
     def fetch_calendar(
         self,
         ids_list,
@@ -125,13 +147,25 @@ class SyncMicrosoftOutlook:
             return documents
         self.queue.append_to_queue(constant.CONTACTS_OBJECT.lower(), documents)
 
-    def remove_permissions(self, workplace_search_client):
-        """Removes the permissions from Workplace Search"""
-        if self.config.get_value("enable_document_permission"):
-            PermissionSyncCommand(
-                self.logger, self.config, workplace_search_client
-            ).remove_all_permissions()
-        else:
-            self.logger.info(
-                "'enable_document_permission' is disabled, skipping permission removal"
+    def fetch_tasks(
+        self, ids_list, users_account, task_object, is_deletion, start_time, end_time
+    ):
+        """This method is used to fetch tasks from Microsoft Outlook
+        :ids_list: List of ids of documents
+        :param users_account: List of user accounts
+        :param mail_object: Object of task
+        :param is_deletion: Boolean to check method called by deletion or indexer
+        :param start_time: Start time for fetching the tasks
+        :param end_time: End time for fetching the tasks
+        """
+        self.logger.info("Fetching Tasks from Microsoft Outlook")
+        try:
+            documents = task_object.get_tasks(
+                ids_list, start_time, end_time, users_account
             )
+        except Exception as exception:
+            self.logger.exception(f"Error while fetching Tasks. Error: {exception}")
+        self.logger.info("Successfully fetched Tasks from Microsoft Outlook")
+        if is_deletion:
+            return documents
+        self.queue.append_to_queue(constant.TASKS_OBJECT.lower(), documents)

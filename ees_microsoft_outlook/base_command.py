@@ -51,7 +51,7 @@ class BaseCommand:
         """
         log_level = self.config.get_value("log_level")
         logger = logging.getLogger(__name__)
-        logger.propagate = False
+        logger.propagate = True
         logger.setLevel(log_level)
 
         handler = logging.StreamHandler()
