@@ -10,7 +10,7 @@ PIP = pip3
 VENV_DIRECTORY = venv
 PROJECT_DIRECTORY = ees_microsoft_outlook
 TEST_DIRECTORY = tests
-COVERAGE_THRESHOLD = 0 # In percents, so 50 = 50%
+COVERAGE_THRESHOLD = 50 # In percents, so 50 = 50%
 EXEC_DIR = bin
 CMD_UPDATE = touch
 
@@ -53,7 +53,7 @@ test: .installed .venv_init
 	${VENV_DIRECTORY}/${EXEC_DIR}/${PYTHON_EXE} -m pytest ${TEST_DIRECTORY}/ --suppress-no-test-exit-code
 
 cover: .installed .venv_init
-	${VENV_DIRECTORY}/${EXEC_DIR}/${PYTHON_EXE} -m pytest --cov ${PROJECT_DIRECTORY} --cov-config=${TEST_DIRECTORY}/.coveragerc  --cov-fail-under=${COVERAGE_THRESHOLD} ${TEST_DIRECTORY}/ --suppress-no-test-exit-code 
+	${VENV_DIRECTORY}/${EXEC_DIR}/${PYTHON_EXE} -m pytest --cov ${PROJECT_DIRECTORY} --cov-fail-under=${COVERAGE_THRESHOLD} ${TEST_DIRECTORY}/ --suppress-no-test-exit-code
 	
 lint: .installed .venv_init
 	${VENV_DIRECTORY}/${EXEC_DIR}/flake8 ${PROJECT_DIRECTORY}
