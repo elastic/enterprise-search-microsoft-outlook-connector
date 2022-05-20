@@ -29,6 +29,7 @@ install_requires = [
     "requests",
     "tika",
     "pandas",
+    "pytest-custom_exit_code"
 ]
 
 description = ""
