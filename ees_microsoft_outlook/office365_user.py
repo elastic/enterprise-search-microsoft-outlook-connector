@@ -11,7 +11,6 @@ import warnings
 import requests
 from exchangelib import (IMPERSONATION, OAUTH2, Account, Configuration,
                          Identity, OAuth2Credentials)
-from exchangelib.protocol import BaseProtocol, NoVerifyHTTPAdapter
 
 from .constant import (API_SCOPE, EWS_ENDPOINT, GRAPH_BASE_URL,
                        MICROSOFTONLINE_URL)
@@ -98,7 +97,6 @@ class Office365User:
         """
         users_accounts = []
         try:
-            BaseProtocol.HTTP_ADAPTER_CLS = NoVerifyHTTPAdapter
 
             for user_account in users:
                 credentials = OAuth2Credentials(

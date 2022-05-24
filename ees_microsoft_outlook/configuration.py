@@ -8,6 +8,7 @@
     This module can be used to read and validate configuration file that defines
     the settings of the Microsoft Outlook connector.
 """
+
 import yaml
 from cerberus import Validator
 from yaml.error import YAMLError
@@ -27,7 +28,6 @@ class ConfigurationInvalidException(Exception):
 
     def __init__(self, errors):
         super().__init__(f"Provided configuration was invalid. Errors: {errors}.")
-
         self.errors = errors
 
 
@@ -70,15 +70,23 @@ class Configuration:
 
     def validate(self):
         """Validates each properties defined in the yaml configuration file"""
-
         if (
-            self.__configurations["connector_platform_type"]
-            and isinstance(self.__configurations["connector_platform_type"], str)
-            and CONNECTOR_TYPE_OFFICE365
+            self.__configurations["connector_platform_type"] and isinstance(self.__configurations[
+                "connector_platform_type"], str) and CONNECTOR_TYPE_OFFICE365
             in self.__configurations["connector_platform_type"]
         ):
             schema.update(
                 {
+                    "microsoft_exchange.secure_connection": {
+                        "required": False,
+                        "type": "boolean",
+                        "default": True,
+                    },
+                    "microsoft_exchange.certificate_path": {
+                        "required": False,
+                        "type": "string",
+                        "empty": True,
+                    },
                     "office365.client_id": {
                         "required": True,
                         "type": "string",
@@ -97,11 +105,25 @@ class Configuration:
                 }
             )
         elif (
-            self.__configurations["connector_platform_type"]
-            and isinstance(self.__configurations["connector_platform_type"], str)
-            and CONNECTOR_TYPE_MICROSOFT_EXCHANGE
+            self.__configurations["connector_platform_type"] and isinstance(self.__configurations[
+                "connector_platform_type"], str) and CONNECTOR_TYPE_MICROSOFT_EXCHANGE
             in self.__configurations["connector_platform_type"]
         ):
+            if self.__configurations["microsoft_exchange.secure_connection"] is False:
+                schema.update(
+                    {
+                        "microsoft_exchange.secure_connection": {
+                            "required": True,
+                            "type": "boolean",
+                            "default": True,
+                        },
+                        "microsoft_exchange.certificate_path": {
+                            "required": False,
+                            "type": "string",
+                            "empty": True,
+                        },
+                    }
+                )
             schema.update(
                 {
                     "microsoft_exchange.active_directory_server": {

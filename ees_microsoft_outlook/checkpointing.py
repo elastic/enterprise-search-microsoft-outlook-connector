@@ -78,8 +78,7 @@ class Checkpoint:
         end_time = self.config.get_value("end_time")
 
         if (
-            os.path.exists(self.CHECKPOINT_PATH)
-            and os.path.getsize(self.CHECKPOINT_PATH) > 0
+            os.path.exists(self.CHECKPOINT_PATH) and os.path.getsize(self.CHECKPOINT_PATH) > 0
         ):
             self.logger.info(
                 "Checkpoint file exists and has contents, hence considering the checkpoint time instead "

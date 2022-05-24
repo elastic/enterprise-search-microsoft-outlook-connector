@@ -9,6 +9,8 @@ etc. This module provides convenience interface defining the shared
 objects and methods that will can be used by commands."""
 import logging
 
+# For Python>=3.8 cached_property should be imported from functools,
+# and for the prior versions it should be imported from cached_property
 try:
     from functools import cached_property
 except ImportError:
@@ -48,7 +50,7 @@ class BaseCommand:
         """
         log_level = self.config.get_value("log_level")
         logger = logging.getLogger(__name__)
-        logger.propagate = False
+        logger.propagate = True
         logger.setLevel(log_level)
 
         handler = logging.StreamHandler()

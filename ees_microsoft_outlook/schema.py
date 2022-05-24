@@ -44,6 +44,16 @@ schema = {
         "regex": r"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$",
         "empty": True,
     },
+    "microsoft_exchange.secure_connection": {
+        "required": False,
+        "type": "boolean",
+        "default": True,
+    },
+    "microsoft_exchange.certificate_path": {
+        "required": True,
+        "type": "string",
+        "empty": False
+    },
     "office365.client_id": {
         "required": False,
         "type": "string",

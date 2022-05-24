@@ -7,7 +7,6 @@ import csv
 import os
 
 from . import constant
-from .permission_sync_command import PermissionSyncCommand
 
 
 class SyncMicrosoftOutlook:
@@ -64,9 +63,7 @@ class SyncMicrosoftOutlook:
         rows = {}
         mapping_sheet_path = self.config.get_value("connector.user_mapping")
         if (
-            mapping_sheet_path
-            and os.path.exists(mapping_sheet_path)
-            and os.path.getsize(mapping_sheet_path) > 0
+            mapping_sheet_path and os.path.exists(mapping_sheet_path) and os.path.getsize(mapping_sheet_path) > 0
         ):
             with open(mapping_sheet_path, encoding="UTF-8") as file:
                 csvreader = csv.reader(file)
@@ -97,12 +94,3 @@ class SyncMicrosoftOutlook:
         if is_deletion:
             return documents
         self.queue.append_to_queue(constant.TASKS_OBJECT.lower(), documents)
-
-    def remove_permissions(self, workplace_search_client):
-        """Removes the permissions from Workplace Search"""
-        if self.config.get_value("enable_document_permission"):
-            PermissionSyncCommand(
-                self.logger, self.config, workplace_search_client
-            ).remove_all_permissions()
-        else:
-            self.logger.info("'enable_document_permission' is disabled, skipping permission removal")

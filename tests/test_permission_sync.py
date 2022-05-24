@@ -8,13 +8,12 @@ import os
 import sys
 from unittest.mock import Mock
 
-from elastic_enterprise_search import WorkplaceSearch
+from tests.support import get_args
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from ees_microsoft_outlook.configuration import Configuration  # noqa
-from ees_microsoft_outlook.permission_sync_command import \
-    PermissionSyncCommand  # noqa
+from ees_microsoft_outlook.permission_sync_command import PermissionSyncCommand  # noqa
 
 CONFIG_FILE = os.path.join(
     os.path.join(os.path.dirname(__file__), "config"),
@@ -32,17 +31,12 @@ def settings():
 
 def create_permission_sync_obj():
     """This function create permission object for test."""
-    configs, logger = settings()
-    enterprise_search_host = configs.get_value("enterprise_search.host_url")
-    workplace_search_client = WorkplaceSearch(
-        enterprise_search_host,
-        http_auth=configs.get_value("enterprise_search.api_key"),
-    )
-    return PermissionSyncCommand(logger, configs, workplace_search_client)
+    args = get_args("PermissionSyncCommand")
+    return PermissionSyncCommand(args)
 
 
 def test_remove_all_permissions():
-    """Test method for removing all the permissions from workplace search"""
+    """Test method for removing all the permissions from Workplace Search"""
     configs, _ = settings()
     permission_sync_obj = create_permission_sync_obj()
     mocked_respose = {"results": [{"user": "user1", "permissions": ["permission1"]}]}
@@ -53,11 +47,13 @@ def test_remove_all_permissions():
         return_value=True
     )
     permission_sync_obj.remove_all_permissions()
-    enterprise_search_host = configs.get_value("enterprise_search.source_id")
+    enterprise_search_host = configs.get_value("enterprise_search.api_key")
+    enterprise_search_source = configs.get_value("enterprise_search.source_id")
     permission_sync_obj.workplace_search_client.list_permissions.assert_called_with(
-        content_source_id=enterprise_search_host
+        http_auth=enterprise_search_host, content_source_id=enterprise_search_source
     )
     permission_sync_obj.workplace_search_client.remove_user_permissions.assert_called_with(
+        http_auth=enterprise_search_host,
         content_source_id=enterprise_search_host,
         user="user1",
         body={"permissions": ["permission1"]},

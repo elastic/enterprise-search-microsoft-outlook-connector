@@ -4,14 +4,8 @@
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
 """Cli module contains entry points to the connector.
-
 Each method provides a way to make an interaction
-between Elastic Enterprise Search and remote system.
-
-For example, full-sync provides a command that will attempt to sync
-all data from remote system to Elastic Enterprise Search.
-
-See each individual command for the description.
+between Elastic Enterprise Search and remote system
 """
 
 import getpass
@@ -21,23 +15,25 @@ from argparse import ArgumentParser
 from .bootstrap_command import BootstrapCommand
 from .full_sync_command import FullSyncCommand
 from .incremental_sync_command import IncrementalSyncCommand
+from .permission_sync_command import PermissionSyncCommand
 
 CMD_BOOTSTRAP = "bootstrap"
 CMD_FULL_SYNC = "full-sync"
 CMD_INCREMENTAL_SYNC = "incremental-sync"
+CMD_PERMISSION_SYNC = "permission-sync"
 
 commands = {
     CMD_BOOTSTRAP: BootstrapCommand,
     CMD_FULL_SYNC: FullSyncCommand,
     CMD_INCREMENTAL_SYNC: IncrementalSyncCommand,
+    CMD_PERMISSION_SYNC: PermissionSyncCommand,
 }
 
 
 def _parser():
     """Get a configured parser for the module.
-
     This method will initialize argument parser with a list
-    of avaliable commands and their options."""
+    of available commands and their options."""
     parser = ArgumentParser(prog="ees_microsoft_outlook")
     parser.add_argument(
         "-c",
@@ -68,6 +64,7 @@ def _parser():
 
     subparsers.add_parser(CMD_FULL_SYNC)
     subparsers.add_parser(CMD_INCREMENTAL_SYNC)
+    subparsers.add_parser(CMD_PERMISSION_SYNC)
 
     return parser
 
@@ -94,7 +91,6 @@ def main(args=None):
 
 def run(args):
     """Run the command from the parsed args.
-
     This method takes already parsed and validated arguments
     and attempts to run the command with specified arguments."""
     commands[args.cmd](args).execute()

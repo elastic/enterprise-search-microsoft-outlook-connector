@@ -82,12 +82,6 @@ class IncrementalSyncCommand(BaseCommand):
             queue,
         )
 
-        # Logic to map Microsoft Outlook users with Workplace Search and indexing permission as well
-        if self.config.get_value("enable_document_permission"):
-            for account in users_accounts:
-                sync_microsoft_outlook.map_ms_outlook_user_to_ws_user(
-                    account.primary_smtp_address, [account.primary_smtp_address]
-                )
         enterprise_thread_count = self.config.get_value(
             "enterprise_search_sync_thread_count"
         )
