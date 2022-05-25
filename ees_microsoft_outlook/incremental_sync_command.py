@@ -97,13 +97,17 @@ class IncrementalSyncCommand(BaseCommand):
         sync_es = SyncEnterpriseSearch(
             self.config, self.logger, self.workplace_search_client, queue
         )
-
-        self.create_jobs(thread_count, sync_es.perform_sync, (), [])
-        for checkpoint_data in sync_es.checkpoint_list:
-            checkpoint.set_checkpoint(
-                checkpoint_data["current_time"],
-                checkpoint_data["index_type"],
-                checkpoint_data["object_type"],
+        try:
+            self.create_jobs(thread_count, sync_es.perform_sync, (), [])
+            for checkpoint_data in sync_es.checkpoint_list:
+                checkpoint.set_checkpoint(
+                    checkpoint_data["current_time"],
+                    checkpoint_data["index_type"],
+                    checkpoint_data["object_type"],
+                )
+        except Exception as exception:
+            raise Exception(
+                f"Error while running Incremental sync command. Error: {exception}"
             )
 
     def execute(self):

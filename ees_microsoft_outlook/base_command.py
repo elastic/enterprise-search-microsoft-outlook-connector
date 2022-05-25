@@ -129,7 +129,9 @@ class BaseCommand:
         else:
             with ThreadPoolExecutor(max_workers=thread_count) as executor:
                 for _ in range(thread_count):
-                    executor.submit(func)
+                    future = executor.submit(func)
+                    if future.exception():
+                        raise Exception("Error while fetching results from threads")
         return documents
 
     def create_jobs_for_mails(

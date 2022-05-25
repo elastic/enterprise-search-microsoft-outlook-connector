@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
 
-import pandas as pd
+import collections
 
 from . import constant
 from .utils import split_documents_into_equal_chunks
@@ -30,7 +30,7 @@ class SyncEnterpriseSearch:
     def filter_removed_item_by_id(self, item, id):
         """This method is used filter removed document by id
         :param item: Pass document
-        :param id: Pass id of the document which having error from workplace search
+        :param id: Pass id of the document which having error from Workplace Search
         """
         return item["id"] == id
 
@@ -68,8 +68,9 @@ class SyncEnterpriseSearch:
                     if total_inserted_record_dict
                     else f"Total 0 {type} indexed out of {count}"
                 )
-        except Exception as e:
-            self.logger.error(e)
+        except Exception as exception:
+            self.logger.error(f"Error while indexing the objects. Error: {exception}")
+            raise Exception()
 
     def delete_documents(self, final_deleted_list):
         """Deletes the documents of specified ids from Workplace Search
@@ -78,7 +79,7 @@ class SyncEnterpriseSearch:
         for index in range(0, len(final_deleted_list), constant.BATCH_SIZE):
             final_list = final_deleted_list[index: index + constant.BATCH_SIZE]
             try:
-                # Logic to delete documents from the workplace search
+                # Logic to delete documents from the Workplace Search
                 self.workplace_search_client.delete_documents(
                     http_auth=self.ws_auth,
                     content_source_id=self.ws_source,
@@ -96,12 +97,15 @@ class SyncEnterpriseSearch:
         Returns:
              df_dict: Dictionary of type with its count
         """
+        dict_count = {}
         if not documents:
             return {}
-        df = pd.DataFrame(documents)
-        df_size = df.groupby("type").size()
-        df_dict = df_size.to_dict()
-        return df_dict
+        grouped_documents = collections.defaultdict(list)
+        for item in documents:
+            grouped_documents[item["type"]].append(item)
+        for model, group in grouped_documents.items():
+            dict_count[model] = len(group)
+        return dict_count
 
     def perform_sync(self):
         """Pull documents from the queue and synchronize it to the Enterprise Search."""
@@ -139,5 +143,5 @@ class SyncEnterpriseSearch:
                 if not signal_open:
                     break
 
-        except Exception as e:
-            self.logger.error(e)
+        except Exception as exception:
+            raise Exception(f"Error while indexing the objects. Error: {exception}")

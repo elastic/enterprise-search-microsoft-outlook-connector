@@ -9,7 +9,7 @@ import csv
 import os
 import time
 import urllib.parse
-from datetime import datetime
+from datetime import date, datetime
 
 import exchangelib
 import pytz
@@ -156,7 +156,7 @@ def change_datetime_ews_format(utc_datetime):
 
 def change_datetime_format(datetime, timezone):
     """Change datetime format to user account timezone
-    :param utc_datetime: Datetime in UTC format
+    :param datetime: Datetime in UTC format
     :param timezone: User account timezone
     Returns:
         Datetime: Date format as user account timezone
@@ -165,7 +165,9 @@ def change_datetime_format(datetime, timezone):
         return (datetime.astimezone(pytz.timezone(str(timezone)))).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
-    elif isinstance(datetime, exchangelib.ewsdatetime.EWSDate):
+    elif isinstance(datetime, exchangelib.ewsdatetime.EWSDate) or isinstance(
+        datetime, date
+    ):
         return datetime.strftime("%Y-%m-%d")
     else:
         return None
@@ -219,28 +221,18 @@ def get_schema_fields(document_name, objects):
     return adapter_schema
 
 
-class CustomException(Exception):
-    """Exception raised when there is an error in user fetching.
-    Attributes:
-        message -- Error message
-    """
-
-    def __init__(self, message):
-        self.message = message
-
-
-def split_date_range_into_chunks(start_time, end_time, number_of_threads):
+def split_date_range_into_chunks(start_time, end_time, number_of_chunks):
     """Divides the timerange in equal partitions by number of threads
     :param start_time: Start time of the interval
     :param end_time: End time of the interval
-    :param number_of_threads: Number of threads defined into config file for producer process
+    :param number_of_chunks: Number of threads defined into config file for producer process
     """
     start_time = datetime.strptime(start_time, RFC_3339_DATETIME_FORMAT)
     end_time = datetime.strptime(end_time, RFC_3339_DATETIME_FORMAT)
 
-    diff = (end_time - start_time) / number_of_threads
+    diff = (end_time - start_time) / number_of_chunks
     datelist = []
-    for idx in range(number_of_threads):
+    for idx in range(number_of_chunks):
         date_time = start_time + diff * idx
         datelist.append(date_time.strftime(RFC_3339_DATETIME_FORMAT))
     formatted_end_time = end_time.strftime(RFC_3339_DATETIME_FORMAT)

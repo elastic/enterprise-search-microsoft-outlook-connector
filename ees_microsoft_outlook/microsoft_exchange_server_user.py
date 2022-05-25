@@ -14,8 +14,6 @@ from exchangelib import IMPERSONATION, Account, Configuration, Credentials
 from exchangelib.protocol import BaseProtocol, NoVerifyHTTPAdapter
 from ldap3 import SAFE_SYNC, Connection, Server
 
-from .utils import CustomException
-
 global_dns_name = ""
 global_ssl_certificate_path = ""
 
@@ -74,11 +72,11 @@ class MicrosoftExchangeServerUser:
             if status:
                 return response
             else:
-                raise CustomException(
+                raise Exception(
                     "Error while searching users from Exchange Active Directory."
                 )
         except Exception as exception:
-            raise CustomException(
+            raise Exception(
                 f"Error while fetching users from Exchange Active Directory. Error: {exception}"
             )
 
@@ -119,6 +117,6 @@ class MicrosoftExchangeServerUser:
                     users_accounts.append(user_account)
             return users_accounts
         except Exception as exception:
-            raise CustomException(
+            raise Exception(
                 f"Error while fetching users account from exchange server. Error: {exception}"
             )

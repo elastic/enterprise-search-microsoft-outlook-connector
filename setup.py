@@ -28,8 +28,7 @@ install_requires = [
     "exchangelib",
     "requests",
     "tika",
-    "pandas",
-    "pytest-custom_exit_code"
+    "pytz",
 ]
 
 description = ""
@@ -55,7 +54,7 @@ setup(
     url="someurl",
     packages=find_packages(),
     long_description=description.strip(),
-    description=("Some connectors"),
+    description=("This is a python project for a Enterprise Search Outlook Connector."),
     author="author",
     author_email="email",
     include_package_data=True,

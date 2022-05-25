@@ -19,7 +19,6 @@ from exchangelib import (
 )
 
 from .constant import API_SCOPE, EWS_ENDPOINT, GRAPH_BASE_URL, MICROSOFTONLINE_URL
-from .utils import CustomException
 
 
 class Office365User:
@@ -56,14 +55,18 @@ class Office365User:
 
                 token_response = json.loads(token_request.text)
                 access_token = token_response["access_token"]
-            except requests.exceptions.HTTPError as errh:
-                raise CustomException(f"Http Error. Error: {errh}")
-            except requests.exceptions.ConnectionError as errc:
-                raise CustomException(f"Error Connecting. Error: {errc}")
-            except requests.exceptions.Timeout as errt:
-                raise CustomException(f"Timeout Error. Error: {errt}")
-            except requests.exceptions.RequestException as err:
-                raise CustomException(f"Error: {err}")
+            except requests.exceptions.HTTPError as http_error:
+                raise requests.exceptions.HTTPError(f"Http Error. Error: {http_error}")
+            except requests.exceptions.ConnectionError as connection_error:
+                raise requests.exceptions.ConnectionError(
+                    f"Error Connecting. Error: {connection_error}"
+                )
+            except requests.exceptions.Timeout as timeout_error:
+                raise requests.exceptions.Timeout(
+                    f"Timeout Error. Error: {timeout_error}"
+                )
+            except requests.exceptions.RequestException as request_error:
+                raise requests.exceptions.RequestException(f"Error: {request_error}")
 
             # Logic to fetch users
             try:
@@ -75,14 +78,18 @@ class Office365User:
 
                 user_res = json.loads(user_request.text)
                 user_res_value = user_res["value"]
-            except requests.exceptions.HTTPError as errh:
-                raise CustomException(f"Http Error. Error: {errh}")
-            except requests.exceptions.ConnectionError as errc:
-                raise CustomException(f"Error Connecting. Error: {errc}")
-            except requests.exceptions.Timeout as errt:
-                raise CustomException(f"Timeout Error. Error: {errt}")
-            except requests.exceptions.RequestException as err:
-                raise CustomException(f"Error: {err}")
+            except requests.exceptions.HTTPError as http_error:
+                raise requests.exceptions.HTTPError(f"Http Error. Error: {http_error}")
+            except requests.exceptions.ConnectionError as connection_error:
+                raise requests.exceptions.ConnectionError(
+                    f"Error Connecting. Error: {connection_error}"
+                )
+            except requests.exceptions.Timeout as timeout_error:
+                raise requests.exceptions.Timeout(
+                    f"Timeout Error. Error: {timeout_error}"
+                )
+            except requests.exceptions.RequestException as request_error:
+                raise requests.exceptions.RequestException(f"Error: {request_error}")
 
             users_mails = []
 
@@ -90,7 +97,7 @@ class Office365User:
                 users_mails.append(user_mail["mail"])
             return users_mails
         except Exception as exception:
-            raise CustomException(
+            raise Exception(
                 f"Error while fetching users from Azure Active Directory. Error: {exception}"
             )
 
@@ -124,6 +131,6 @@ class Office365User:
                 users_accounts.append(account)
             return users_accounts
         except Exception as exception:
-            raise CustomException(
+            raise Exception(
                 f"Error while creating users account objects. Error: {exception}"
             )
