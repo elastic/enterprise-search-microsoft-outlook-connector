@@ -5,7 +5,7 @@
 #
 
 import sys
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 if sys.version_info < (3, 6):
     raise ValueError("Requires Python 3.6 or superior")
@@ -13,7 +13,7 @@ if sys.version_info < (3, 6):
 from ees_microsoft_outlook import __version__  # NOQA
 
 install_requires = [
-    "cached_property",
+    "cached_property==1.5.2; python_version < '3.8'",
     "cerberus",
     "ecs_logging",
     "elastic_enterprise_search",
@@ -21,19 +21,23 @@ install_requires = [
     "pytest",
     "pytest-cov",
     "pyyaml",
-    "tika"
+    "tika",
+    "beautifulsoup4",
+    "iteration_utilities",
+    "ldap3",
+    "exchangelib",
+    "requests",
+    "pytz"
 ]
 
 description = ""
 
-for file_ in ("README", "CHANGELOG"):
-    with open("%s.rst" % file_) as f:
-        description += f.read() + "\n\n"
+with open("README.rst", encoding="utf-8") as readme_file:
+    description += readme_file.read() + "\n\n"
 
 
 classifiers = [
     "Programming Language :: Python",
-    "License :: OSI Approved :: Apache Software License",
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.6",
@@ -56,8 +60,9 @@ setup(
     zip_safe=False,
     classifiers=classifiers,
     install_requires=install_requires,
+    data_files=[("config", ["microsoft_outlook_connector.yml"])],
     entry_points="""
       [console_scripts]
-      run_connector=connector.cli:main
+      ees_microsoft_outlook = ees_microsoft_outlook.cli:main
       """,
 )
