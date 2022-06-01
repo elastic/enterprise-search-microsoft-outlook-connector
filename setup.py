@@ -5,7 +5,7 @@
 #
 
 import sys
-from setuptools import find_packages, setup
+from setuptools import setup, find_packages
 
 if sys.version_info < (3, 6):
     raise ValueError("Requires Python 3.6 or superior")
