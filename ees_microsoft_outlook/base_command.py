@@ -16,8 +16,10 @@ except ImportError:
 
 from elastic_enterprise_search import WorkplaceSearch
 
+from . import constant
 from .configuration import Configuration
 from .local_storage import LocalStorage
+from .microsoft_outlook_contacts import MicrosoftOutlookContacts
 
 
 class BaseCommand:
@@ -81,3 +83,50 @@ class BaseCommand:
     def local_storage(self):
         """Get the object for local storage to fetch and update ids stored locally"""
         return LocalStorage(self.logger)
+
+    @cached_property
+    def microsoft_outlook_contact_object(self):
+        """Get the object for fetching the contacts related data"""
+        return MicrosoftOutlookContacts(self.logger, self.config)
+
+    def create_jobs_for_contacts(
+        self,
+        indexing_type,
+        sync_microsoft_outlook,
+        thread_count,
+        users_accounts,
+        time_range_list,
+        end_time,
+        queue,
+    ):
+        """Create job for fetching the contacts
+        :param indexing_type: The type of the indexing i.e. Full or Incremental
+        :param sync_microsoft_outlook: Object of SyncMicrosoftOutlook
+        :param thread_count: Thread count to make partitions
+        :param users_accounts: List of users account
+        :param time_range_list: List of time range for fetching the data
+        :param end_time: End time for setting checkpoint
+        :param queue: Shared queue for storing the data
+        """
+        if constant.CONTACTS_OBJECT.lower() not in self.config.get_value("objects"):
+            self.logger.info(
+                "Contacts are not getting indexed because user has excluded from configuration file"
+            )
+            return
+        self.logger.debug("Started fetching the contacts")
+        ids_list = []
+        storage_with_collection = self.local_storage.get_storage_with_collection(
+            self.local_storage, constant.CONTACT_DELETION_PATH
+        )
+        ids_list = storage_with_collection.get("global_keys")
+        self.create_jobs(
+            thread_count,
+            sync_microsoft_outlook.fetch_contacts,
+            (ids_list, users_accounts, self.microsoft_outlook_contact_object, False),
+            time_range_list,
+        )
+        storage_with_collection["global_keys"] = list(ids_list)
+        self.local_storage.update_storage(
+            storage_with_collection, constant.CONTACT_DELETION_PATH
+        )
+        queue.put_checkpoint(constant.CONTACTS_OBJECT.lower(), end_time, indexing_type)
