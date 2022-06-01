@@ -36,7 +36,7 @@ def url_encode(object_name):
     """Performs encoding on the name of objects
     containing special characters in their url, and
     replaces single quote with two single quote since quote
-    is treated as an escape character in data
+    is treated as an escape character in odata
     :param object_name: name that contains special characters
     """
     name = urllib.parse.quote(object_name, safe="'")
@@ -61,8 +61,8 @@ def retry(exception_list):
                     return func(self, *args, **kwargs)
                 except exception_list as exception:
                     self.logger.exception(
-                        f"Error while creating a connection. Retry count: {retry} out of {self.retry_count}. "
-                        f"Error: {exception}"
+                        f"Error while creating a connection. Retry count: {retry} out of {self.retry_count}. \
+                            Error: {exception}"
                     )
                     time.sleep(2**retry)
                     retry += 1

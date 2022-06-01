@@ -43,7 +43,7 @@ class LocalStorage:
 
     def update_storage(self, ids, ids_path):
         """This method is used to update the ids stored in doc_id.json file
-        :param ids: Updated ids to be stored in the doc_id.json file
+        :param ids: updated ids to be stored in the doc_id.json file
         :param ids_path: Path to the respective doc_ids.json
         """
         with open(ids_path, "w", encoding="utf-8") as ids_file:

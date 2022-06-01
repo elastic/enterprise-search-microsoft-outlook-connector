@@ -69,7 +69,7 @@ def _parser():
         required=False,
         type=str,
         metavar="ENTERPRISE_SEARCH_ADMIN_USER_NAME",
-        help="Username of the Workplace Search admin account",
+        help="Username of the workplace search admin account",
     )
 
     subparsers.add_parser(CMD_FULL_SYNC)
