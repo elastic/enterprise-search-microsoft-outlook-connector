@@ -13,6 +13,12 @@ microsoft_exchange.server: ""
 microsoft_exchange.username: ""
 #Password of the administrator account
 microsoft_exchange.password: ""
+#Exchange Server domain name Example: exchange.demo
+microsoft_exchange.domain: ""
+#Validate the SSL certificate if host is secured. Specify Yes if host is secured and want to validate the SSL certificate, else No.
+microsoft_exchange.secure_connection: Yes
+#The path of the SSL certificate to establish a secure connection with Microsoft Exchange server
+microsoft_exchange.certificate_path: ""
 
 # ------------------------------- Office365 configuration settings -------------------------------
 #Client ID of microsoft azure application Example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
@@ -51,7 +57,7 @@ objects:
 start_time:
 #The timestamp before which all the updated objects need to be fetched i.e. the connector won’t fetch any object updated/created after the end_time. By default, all the objects updated/added till the current time are fetched
 end_time:
-#The level of the logs the user wants to use in the log files. The possible values include: debug, info, warn, error. By default, the level is info
+#The level of the logs the user wants to use in the log files. The possible values include: debug, info, warning, error. By default, the level is info
 log_level: INFO
 #The number of retries to perform in case of server error. The connector will use exponential back-off for retry mechanism
 retry_count: 3
