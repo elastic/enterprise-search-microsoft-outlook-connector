@@ -14,4 +14,3 @@ pytest-cov==3.0.0
 ldap3==2.9.1
 exchangelib==4.6.2
 requests==2.27.1
-pytz==2022.1
