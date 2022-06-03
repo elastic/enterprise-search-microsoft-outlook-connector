@@ -50,10 +50,10 @@ install_locally: .installed .venv_init
 	${VENV_DIRECTORY}/${EXEC_DIR}/${PIP} install .
 
 test: .installed .venv_init
-	${VENV_DIRECTORY}/${EXEC_DIR}/${PYTHON_EXE} -m pytest ${TEST_DIRECTORY}/ --suppress-no-test-exit-code
+	${VENV_DIRECTORY}/${EXEC_DIR}/${PYTHON_EXE} -m pytest ${TEST_DIRECTORY}/
 
 cover: .installed .venv_init
-	${VENV_DIRECTORY}/${EXEC_DIR}/${PYTHON_EXE} -m pytest --cov ${PROJECT_DIRECTORY} --cov-fail-under=${COVERAGE_THRESHOLD} ${TEST_DIRECTORY}/ --suppress-no-test-exit-code
+	${VENV_DIRECTORY}/${EXEC_DIR}/${PYTHON_EXE} -m pytest --cov ${PROJECT_DIRECTORY} --cov-fail-under=${COVERAGE_THRESHOLD} ${TEST_DIRECTORY}/
 
 lint: .installed .venv_init
 	${VENV_DIRECTORY}/${EXEC_DIR}/flake8 ${PROJECT_DIRECTORY}
