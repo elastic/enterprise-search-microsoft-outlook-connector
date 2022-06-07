@@ -45,10 +45,6 @@ class BaseCommand:
         logger.setLevel(log_level)
 
         handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            "%(asctime)s %(levelname)s Thread[%(thread)s]: %(message)s"
-        )
-        handler.setFormatter(formatter)
         # Uncomment the following lines to output logs in ECS-compatible format
         # formatter = ecs_logging.StdlibFormatter()
         # handler.setFormatter(formatter)
