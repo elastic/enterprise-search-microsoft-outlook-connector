@@ -24,8 +24,20 @@ CMD_TEST_CONNECTIVITY = "test-connectivity"
 
 
 def _parser():
-    parser = ArgumentParser(prog="run_connector")
-    subparsers = parser.add_subparsers(dest="cmd", required=True)
+    """Get a configured parser for the module.
+
+    This method will initialize argument parser with a list
+    of avaliable commands and their options."""
+    parser = ArgumentParser(prog="ees_microsoft_outlook")
+    parser.add_argument(
+        "-c",
+        "--config-file",
+        type=str,
+        metavar="CONFIGURATION_FILE_PATH",
+        help="path to the configuration file",
+    )
+    subparsers = parser.add_subparsers(dest="cmd")
+    subparsers.required = True
     bootstrap = subparsers.add_parser(CMD_BOOTSTRAP)
     bootstrap.add_argument(
         "-n",
