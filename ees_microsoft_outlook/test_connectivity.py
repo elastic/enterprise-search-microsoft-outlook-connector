@@ -121,7 +121,7 @@ def test_workplace(settings):
 @pytest.mark.ingestion
 def test_ingestion(settings):
     """Tests the successful ingestion and deletion of a sample document to the Enterprise search"""
-    configs, _v = settings
+    configs, _ = settings
     retry_count = configs.get_value("retry_count")
     enterprise_search_host = configs.get_value("enterprise_search.host_url")
     print("Starting Enterprise Search ingestion tests..")

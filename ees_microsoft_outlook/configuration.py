@@ -13,11 +13,8 @@ import yaml
 from cerberus import Validator
 from yaml.error import YAMLError
 
-from .constant import (
-    CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
-    CONNECTOR_TYPE_OFFICE365,
-    RFC_3339_DATETIME_FORMAT,
-)
+from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
+                       CONNECTOR_TYPE_OFFICE365, RFC_3339_DATETIME_FORMAT)
 from .schema import schema
 
 
