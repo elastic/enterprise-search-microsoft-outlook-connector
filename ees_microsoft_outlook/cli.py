@@ -52,7 +52,7 @@ def _parser():
         required=False,
         type=str,
         metavar="ENTERPRISE_SEARCH_ADMIN_USER_NAME",
-        help="Username of the Workplace Search admin account",
+        help="Username of the workplace search admin account",
     )
 
     return parser

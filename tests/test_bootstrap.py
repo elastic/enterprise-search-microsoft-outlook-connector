@@ -54,14 +54,13 @@ def test_execute(caplog):
     )
 
 
-def test_execute_with_username(caplog):
+def test_execute_with_username():
     """Test execute method in Bootstrap file creates a content source in the Enterprise Search."""
     args = argparse.Namespace()
     args.name = "dummy"
     args.config_file = CONFIG_FILE
     args.user = "user1"
     args.password = "abcd1234"
-    caplog.set_level("INFO")
     mock_response = {"id": "1234"}
     bootstrap_obj = BootstrapCommand(args)
     bootstrap_obj.workplace_search_custom_client.create_content_source = Mock(
