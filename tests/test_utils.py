@@ -8,7 +8,6 @@ import logging
 import os
 import sys
 
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from ees_microsoft_outlook import utils  # noqa
@@ -20,7 +19,7 @@ def settings():
     configuration = Configuration(
         file_name=os.path.join(
             os.path.join(os.path.dirname(__file__), "config"),
-            "microsoft_teams_connector.yml",
+            "microsoft_outlook_connector.yml",
         )
     )
 
@@ -49,3 +48,21 @@ def test_split_list_into_buckets():
             if id in documents:
                 count += 1
     assert len(documents) == count
+
+
+def test_split_documents_into_equal_chunks():
+    """Test Method to split Documents into chunks"""
+    document = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    target_document = utils.split_documents_into_equal_chunks(document, 5)
+    assert len(target_document[0]) == 5
+
+
+def test_fetch_users_from_csv_file():
+    """Test Method to fetch users from csv"""
+    _, logger = settings()
+    user_mapping = os.path.join(
+        os.path.join(os.path.dirname(__file__), "config"),
+        "user_mapping.csv",
+    )
+    users = utils.fetch_users_from_csv_file(user_mapping, logger)
+    assert users == {"dummy": "dummy"}
