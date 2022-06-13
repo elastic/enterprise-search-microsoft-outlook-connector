@@ -21,6 +21,7 @@ CONFIG_FILE = os.path.join(
 
 def test_execute(caplog):
     """Test execute method in Bootstrap file creates a content source in the Enterprise Search."""
+    # Setup
     args = argparse.Namespace()
     args.name = "dummy"
     args.config_file = CONFIG_FILE
@@ -30,7 +31,6 @@ def test_execute(caplog):
     bootstrap_obj.workplace_search_custom_client.create_content_source = Mock(
         return_value=mock_response
     )
-    bootstrap_obj.execute()
     schema = {
         "title": "text",
         "type": "text",
@@ -49,6 +49,11 @@ def test_execute(caplog):
         "color": "#000000",
     }
     name = "dummy"
+
+    # Execute
+    bootstrap_obj.execute()
+
+    # Assert
     bootstrap_obj.workplace_search_custom_client.create_content_source.assert_called_with(
         schema, display, name, is_searchable=True
     )
@@ -56,6 +61,7 @@ def test_execute(caplog):
 
 def test_execute_with_username():
     """Test execute method in Bootstrap file creates a content source in the Enterprise Search."""
+    # Setup
     args = argparse.Namespace()
     args.name = "dummy"
     args.config_file = CONFIG_FILE
@@ -66,7 +72,6 @@ def test_execute_with_username():
     bootstrap_obj.workplace_search_custom_client.create_content_source = Mock(
         return_value=mock_response
     )
-    bootstrap_obj.execute()
     schema = {
         "title": "text",
         "type": "text",
@@ -85,6 +90,11 @@ def test_execute_with_username():
         "color": "#000000",
     }
     name = "dummy"
+
+    # Execute
+    bootstrap_obj.execute()
+
+    # Assert
     bootstrap_obj.workplace_search_custom_client.create_content_source.assert_called_with(
         schema, display, name, is_searchable=True
     )
