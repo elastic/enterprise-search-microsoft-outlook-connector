@@ -22,38 +22,53 @@ def create_connector_queue_object():
 
 def test_end_signal():
     """Tests that the end signal is sent to the queue to notify it to stop listening for new incoming data"""
+    # Setup
     expected_message = {"type": "signal_close"}
     queue = create_connector_queue_object()
     queue.put("Example data")
+
+    # Execute
     queue.end_signal()
     queue.get()
     current_message = queue.get()
+
+    # Assert
     assert current_message == expected_message
 
 
 def test_put_checkpoint():
     """Tests that the update the checkpoint in queue"""
+    # Setup
     current_time = get_current_time()
     expected_message = {"type": "checkpoint", "data": ("key", current_time, "full")}
     queue = create_connector_queue_object()
+
+    # Execute
     queue.put("Example data")
     queue.put_checkpoint("key", current_time, "full")
     queue.end_signal()
     queue.get()
     current_message = queue.get()
     queue.get()
+
+    # Assert
     assert current_message == expected_message
 
 
 def test_append_to_queue():
     """Tests that the append data in queue"""
+    # Setup
     data = []
     for count in range(10):
         data.append(count)
     expected_message = {"type": "document_list", "data": data}
     queue = create_connector_queue_object()
+
+    # Execute
     queue.append_to_queue("document_list", data)
     queue.end_signal()
     current_message = queue.get()
     queue.get()
+
+    # Assert
     assert current_message == expected_message

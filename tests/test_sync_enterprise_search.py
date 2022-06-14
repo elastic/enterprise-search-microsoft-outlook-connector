@@ -74,17 +74,23 @@ def create_enterprise_search_obj():
 )
 def test_index_documents(documents, mock_response, log_msg, caplog):
     """Test Method to Index Documents into Workplace Search"""
+    # Setup
     caplog.set_level("INFO")
     indexer_obj = create_enterprise_search_obj()
     indexer_obj.workplace_search_custom_client.index_documents = Mock(
         return_value=mock_response
     )
+
+    # Execute
     indexer_obj.index_documents(documents)
+
+    # Assert
     assert log_msg in caplog.text
 
 
 def test_get_records_by_types():
     """Test method to get records by types of documents"""
+    # Setup
     input_document = [
         {
             "id": 0,
@@ -96,5 +102,9 @@ def test_get_records_by_types():
         }
     ]
     indexer_obj = create_enterprise_search_obj()
+
+    # Execute
     target_response = indexer_obj.get_records_by_types(input_document)
+
+    # Assert
     assert {"text": 1} == target_response

@@ -53,6 +53,7 @@ def test_split_list_into_buckets():
 
 def test_split_date_range_into_chunks():
     """Test Method to split dates into chunks"""
+    # Setup
     expected_list = [
         "2022-04-01T00:00:00Z",
         "2022-04-02T19:12:00Z",
@@ -61,7 +62,11 @@ def test_split_date_range_into_chunks():
         "2022-04-08T04:48:00Z",
         "2022-04-10T00:00:00Z",
     ]
+
+    # Execute
     target_list = utils.split_date_range_into_chunks(
         "2022-04-01T00:00:00Z", "2022-04-10T00:00:00Z", 5
     )
+
+    # Assert
     assert expected_list == target_list

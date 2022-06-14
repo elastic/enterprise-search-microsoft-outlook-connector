@@ -25,7 +25,6 @@ INBOX_MAIL_OBJECT = "Inbox Mails"
 SENT_MAIL_OBJECT = "Sent Mails"
 JUNK_MAIL_OBJECT = "Junk Mails"
 ARCHIVE_MAIL_OBJECT = "Archive Mails"
-MAILS_ATTACHMENTS_OBJECT = "Mails Attachments"
 MAIL_DELETION_PATH = os.path.join(
     os.path.dirname(__file__), "doc_ids", "microsoft_outlook_mails_doc_ids.json"
 )

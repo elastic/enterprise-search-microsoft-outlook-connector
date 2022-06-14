@@ -35,6 +35,7 @@ def test_start_producer(
     mock_get_users, mock_get_users_accounts
 ):
     """Test method of start producer to fetching data from microsoft outlook for full sync"""
+    # Setup
     config, logger = settings()
     args = get_args("FullSyncCommand")
     full = FullSyncCommand(args)
@@ -42,5 +43,9 @@ def test_start_producer(
     mock_get_users.return_value = [Mock()]
     mock_get_users_accounts.return_value = [Mock()]
     full.create_jobs_for_mails = Mock()
+
+    # Execute
     full.start_producer(queue)
+
+    # Assert
     assert queue.qsize() == config.get_value("enterprise_search_sync_thread_count")

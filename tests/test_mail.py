@@ -33,6 +33,7 @@ def create_mail_obj():
 
 def test_get_mails():
     """Test method to get mail documents from Microsoft Outlook"""
+    # Setup
     inbox_response = [
         {
             "type": "Inbox Mails",
@@ -60,14 +61,19 @@ def test_get_mails():
     microsoft_outlook_mails_obj.get_mail_documents = Mock(return_value=inbox_response)
     start_date = "2022-04-21T12:10:00Z"
     end_date = "2022-04-21T12:13:00Z"
+
+    # Execute
     source_mails = microsoft_outlook_mails_obj.get_mails(
         [], start_date, end_date, accounts
     )
+
+    # Assert
     assert expected_mails == source_mails
 
 
 def test_get_mail_documents():
     """Test method to get mail documents"""
+    # Setup
     mail_response = {
         "type": "Inbox Mails",
         "Id": "123456789",
@@ -95,10 +101,14 @@ def test_get_mail_documents():
     )
     mail_obj = [Mock()]
     account.primary_smtp_address = "abc@xyz.com"
+
+    # Execute
     source_mails_documents = microsoft_outlook_mails_obj.get_mail_documents(
         account,
         [],
         "Inbox Mails",
         mail_obj
     )
+
+    # Assert
     assert expected_mails_documents == source_mails_documents

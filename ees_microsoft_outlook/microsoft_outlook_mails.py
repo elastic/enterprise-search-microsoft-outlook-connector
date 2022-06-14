@@ -210,8 +210,6 @@ class MicrosoftOutlookMails:
                         ids_list_mails,
                         type["constant"],
                         mail_type_obj,
-                        start_time,
-                        end_time,
                     )
                     documents.extend(mail_type_documents)
             except requests.exceptions.RequestException as request_error:

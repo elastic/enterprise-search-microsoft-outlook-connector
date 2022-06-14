@@ -89,7 +89,7 @@ class SyncEnterpriseSearch:
         try:
             signal_open = True
             while signal_open:
-                documents_to_index, deleted_document = [], []
+                documents_to_index = []
                 while len(documents_to_index) < constant.BATCH_SIZE:
                     documents = self.queue.get()
                     if documents.get("type") == "signal_close":
@@ -103,8 +103,6 @@ class SyncEnterpriseSearch:
                         }
                         self.checkpoint_list.append(checkpoint_dict)
                         break
-                    elif documents.get("type") == "deletion":
-                        deleted_document.extend(documents.get("data"))
                     else:
                         documents_to_index.extend(documents.get("data"))
                 if documents_to_index:
@@ -112,11 +110,6 @@ class SyncEnterpriseSearch:
                         documents_to_index, constant.BATCH_SIZE
                     ):
                         self.index_documents(chunk)
-                if deleted_document:
-                    for chunk in split_documents_into_equal_chunks(
-                        deleted_document, constant.BATCH_SIZE
-                    ):
-                        self.delete_documents(chunk)
                 if not signal_open:
                     break
 
