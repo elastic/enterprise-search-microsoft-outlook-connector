@@ -13,6 +13,12 @@ microsoft_exchange.server: ""
 microsoft_exchange.username: ""
 #Password of the administrator account
 microsoft_exchange.password: ""
+#Exchange Server domain name Example: exchange.demo
+microsoft_exchange.domain: ""
+#Validate the SSL certificate if host is secured. Specify Yes if host is secured and want to validate the SSL certificate, else No.
+microsoft_exchange.secure_connection: Yes
+#The path of the SSL certificate to establish a secure connection with Microsoft Exchange server
+microsoft_exchange.certificate_path: ""
 
 # ------------------------------- Office365 configuration settings -------------------------------
 #Client ID of microsoft azure application Example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx

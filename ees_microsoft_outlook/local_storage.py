@@ -1,4 +1,8 @@
+import copy
 import json
+import os
+
+from . import constant
 
 
 class LocalStorage:
@@ -34,7 +38,9 @@ class LocalStorage:
                         f"Error while parsing the json file of the ids store from path: {ids_path}. Error: {exception}"
                     )
         except FileNotFoundError:
-            self.logger.debug(f"Local storage for ids was not found with path: {ids_path}.")
+            self.logger.debug(
+                f"Local storage for ids was not found with path: {ids_path}."
+            )
             return {"global_keys": {}}
 
     def update_storage(self, ids, ids_path):
@@ -46,4 +52,31 @@ class LocalStorage:
             try:
                 json.dump(ids, ids_file, indent=4)
             except ValueError as exception:
-                self.logger.exception(f"Error while updating the doc_id json file. Error: {exception}")
+                self.logger.exception(
+                    f"Error while updating the doc_id json file. Error: {exception}"
+                )
+
+    def create_local_storage_directory(self):
+        """Creates a doc_id directory if not present"""
+        doc_ids_directory = os.path.dirname(constant.MAIL_DELETION_PATH)
+        if not os.path.exists(doc_ids_directory):
+            os.makedirs(doc_ids_directory)
+
+    def get_storage_with_collection(self, local_storage, ids_path):
+        """Returns a dictionary containing the locally stored IDs of mails, calendars, tasks and contacts.
+        :param local_storage: The object of the local storage used to store the indexed document IDs
+        """
+        storage_with_collection = {"global_keys": [], "delete_keys": []}
+        ids_collection = local_storage.load_storage(ids_path)
+        storage_with_collection["delete_keys"] = copy.deepcopy(
+            ids_collection.get("global_keys")
+        )
+
+        if not ids_collection["global_keys"]:
+            ids_collection["global_keys"] = []
+
+        storage_with_collection["global_keys"] = copy.deepcopy(
+            ids_collection["global_keys"]
+        )
+
+        return storage_with_collection

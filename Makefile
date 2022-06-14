@@ -13,13 +13,18 @@ TEST_DIRECTORY = tests
 COVERAGE_THRESHOLD = 50 # In percents, so 50 = 50%
 EXEC_DIR = bin
 CMD_UPDATE = touch
-
+ES_VERSION_V8 ?= yes
 .DEFAULT_GOAL = help
 
 ifeq ($(OS),Windows_NT)
     detected_OS := Windows
     EXEC_DIR := Scripts
 	CMD_UPDATE := type nul >
+endif
+ifeq ($(ES_VERSION_V8), yes)
+    ES_LIB := elastic_enterprise_search==8.2.0
+else
+    ES_LIB := elastic_enterprise_search==7.17.0
 endif
 
 help:
@@ -30,7 +35,7 @@ help:
 	@echo "make cover - check test coverage for the project"
 	@echo "make lint - run linter against the project"
 	@echo "make clean - remove venv and other temporary files from the project"
-	@echo "make test_connectivity - test connectivity to the source and Enterprise Search"
+	@echo "make test_connectivity - test connectivity to Microsoft Outlook and Enterprise Search"
 	@echo "make update_package - update package with local changes"
 
 .venv_init:
@@ -41,6 +46,7 @@ help:
 .installed: .venv_init
 	${VENV_DIRECTORY}/${EXEC_DIR}/${PIP} install -U pip
 	${VENV_DIRECTORY}/${EXEC_DIR}/${PIP} install -r requirements.txt
+	${VENV_DIRECTORY}/${EXEC_DIR}/${PIP} install --force-reinstall ${ES_LIB}
 	${CMD_UPDATE} .installed
 
 # install_locally can be used to test the implementation after the changes were made to the module
@@ -53,8 +59,8 @@ test: .installed .venv_init
 	${VENV_DIRECTORY}/${EXEC_DIR}/${PYTHON_EXE} -m pytest ${TEST_DIRECTORY}/ --suppress-no-test-exit-code
 
 cover: .installed .venv_init
-	${VENV_DIRECTORY}/${EXEC_DIR}/${PYTHON_EXE} -m pytest --cov ${PROJECT_DIRECTORY} --cov-fail-under=${COVERAGE_THRESHOLD} ${TEST_DIRECTORY}/ --suppress-no-test-exit-code
-
+	${VENV_DIRECTORY}/${EXEC_DIR}/${PYTHON_EXE} -m pytest --cov ${PROJECT_DIRECTORY} --cov-config=${TEST_DIRECTORY}/.coveragerc  --cov-fail-under=${COVERAGE_THRESHOLD} ${TEST_DIRECTORY}/ --suppress-no-test-exit-code 
+	
 lint: .installed .venv_init
 	${VENV_DIRECTORY}/${EXEC_DIR}/flake8 ${PROJECT_DIRECTORY}
 
@@ -63,6 +69,7 @@ test_connectivity: .installed .venv_init
 
 install_package: .installed
 	${PIP} install --user .
+	${PIP} install --force-reinstall ${ES_LIB}
 
 update_package: 
 	${PIP} install --user .

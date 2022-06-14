@@ -17,12 +17,13 @@ except ImportError:
     from cached_property import cached_property
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from elastic_enterprise_search import WorkplaceSearch
 
 from . import constant
 from .checkpointing import Checkpoint
 from .configuration import Configuration
+from .enterprise_search_wrapper import EnterpriseSearchWrapper
 from .local_storage import LocalStorage
+from .microsoft_outlook_mails import MicrosoftOutlookMails
 from .utils import split_date_range_into_chunks
 
 
@@ -65,19 +66,9 @@ class BaseCommand:
         return logger
 
     @cached_property
-    def workplace_search_client(self):
-        """Get the Workplace Search client instance for the running command.
-        Host and api key are taken from configuration file, if
-        a user was provided when running command, then basic auth
-        will be used instead.
-        """
-        args = self.args
-        host = self.config.get_value("enterprise_search.host_url")
-
-        if hasattr(args, "user") and args.user:
-            return WorkplaceSearch(f"{host}/api/ws/v1/sources", http_auth=(args.user, args.password))
-        else:
-            return WorkplaceSearch(f"{host}/api/ws/v1/sources", http_auth=self.config.get_value("workplace_search.api_key"))
+    def workplace_search_custom_client(self):
+        """Get the Workplace Search custom client instance for the running command."""
+        return EnterpriseSearchWrapper(self.logger, self.config, self.args)
 
     @cached_property
     def config(self):
@@ -89,6 +80,11 @@ class BaseCommand:
     def local_storage(self):
         """Get the object for local storage to fetch and update ids stored locally"""
         return LocalStorage(self.logger)
+
+    @cached_property
+    def microsoft_outlook_mail_object(self):
+        """Get the object for fetching the mails related data"""
+        return MicrosoftOutlookMails(self.logger, self.config)
 
     def create_jobs(self, thread_count, func, args, iterable_list):
         """Creates a thread pool of given number of thread count
@@ -116,11 +112,53 @@ class BaseCommand:
                         )
         else:
             with ThreadPoolExecutor(max_workers=thread_count) as executor:
-                for _ in range(thread_count):
-                    future = executor.submit(func)
+                future_to_path = {executor.submit(func): _ for _ in range(thread_count)}
+                for future in as_completed(future_to_path):
                     if future.exception():
                         raise Exception("Error while fetching results from threads")
         return documents
+
+    def create_jobs_for_mails(
+        self,
+        indexing_type,
+        sync_microsoft_outlook,
+        thread_count,
+        users_accounts,
+        time_range_list,
+        end_time,
+        queue,
+    ):
+        """Create job for fetching the mails
+        :param indexing_type: The type of the indexing i.e. Full or Incremental
+        :param sync_microsoft_outlook: Object of SyncMicrosoftOutlook
+        :param thread_count: Thread count to make partitions
+        :param users_accounts: List of users account
+        :param time_range_list: List of time range for fetching the data
+        :param end_time: End time for setting checkpoint
+        :param queue: Shared queue for storing the data
+        """
+        if constant.MAILS_OBJECT.lower() not in self.config.get_value("objects"):
+            self.logger.info(
+                "Mails are not getting indexed because user has excluded from configuration file"
+            )
+            return
+        self.logger.debug("Started fetching the mails")
+        ids_list = []
+        storage_with_collection = self.local_storage.get_storage_with_collection(
+            self.local_storage, constant.MAIL_DELETION_PATH
+        )
+        ids_list = storage_with_collection.get("global_keys")
+        self.create_jobs(
+            thread_count,
+            sync_microsoft_outlook.fetch_mails,
+            (ids_list, users_accounts, self.microsoft_outlook_mail_object, False),
+            time_range_list,
+        )
+        storage_with_collection["global_keys"] = list(ids_list)
+        self.local_storage.update_storage(
+            storage_with_collection, constant.MAIL_DELETION_PATH
+        )
+        queue.put_checkpoint(constant.MAILS_OBJECT.lower(), end_time, indexing_type)
 
     def get_datetime_iterable_list_based_on_full_inc_sync(
         self, indexing_type, checkpoint_object

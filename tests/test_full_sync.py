@@ -41,5 +41,6 @@ def test_start_producer(
     queue = ConnectorQueue(logger)
     mock_get_users.return_value = [Mock()]
     mock_get_users_accounts.return_value = [Mock()]
+    full.create_jobs_for_mails = Mock()
     full.start_producer(queue)
     assert queue.qsize() == config.get_value("enterprise_search_sync_thread_count")

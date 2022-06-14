@@ -16,6 +16,7 @@ from .connector_queue import ConnectorQueue
 from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
 from .office365_user import Office365User
 from .sync_enterprise_search import SyncEnterpriseSearch
+from .sync_microsoft_outlook import SyncMicrosoftOutlook
 
 FULL_SYNC_INDEXING = "full"
 
@@ -28,6 +29,7 @@ class FullSyncCommand(BaseCommand):
         the Microsoft Outlook and pushing them in the shared queue
         :param queue: Shared queue to fetch the stored documents
         """
+        thread_count = self.config.get_value("source_sync_thread_count")
         product_type = self.config.get_value("connector_platform_type")
         self.logger.debug(f"Starting producer for fetching objects from {product_type}")
 
@@ -53,6 +55,30 @@ class FullSyncCommand(BaseCommand):
             self.logger.info("Error while fetching users from the Active Directory")
             exit()
 
+        sync_microsoft_outlook = SyncMicrosoftOutlook(
+            self.config,
+            self.logger,
+            self.workplace_search_custom_client,
+            queue,
+        )
+
+        # Logic to fetch mails, calendars, contacts and task from Microsoft Outlook by using multithreading approach
+        (
+            end_time,
+            time_range_list,
+        ) = self.get_datetime_iterable_list_based_on_full_inc_sync(
+            FULL_SYNC_INDEXING, ""
+        )
+        self.create_jobs_for_mails(
+            FULL_SYNC_INDEXING,
+            sync_microsoft_outlook,
+            thread_count,
+            users_accounts,
+            time_range_list,
+            end_time,
+            queue,
+        )
+
         enterprise_thread_count = self.config.get_value(
             "enterprise_search_sync_thread_count"
         )
@@ -67,16 +93,20 @@ class FullSyncCommand(BaseCommand):
         checkpoint = Checkpoint(self.logger, self.config)
         thread_count = self.config.get_value("enterprise_search_sync_thread_count")
         sync_es = SyncEnterpriseSearch(
-            self.config, self.logger, self.workplace_search_client, queue
+            self.config, self.logger, self.workplace_search_custom_client, queue
         )
         try:
             self.create_jobs(thread_count, sync_es.perform_sync, (), [])
             for checkpoint_data in sync_es.checkpoint_list:
                 checkpoint.set_checkpoint(
-                    checkpoint_data["current_time"], checkpoint_data["index_type"], checkpoint_data["object_type"]
+                    checkpoint_data["current_time"],
+                    checkpoint_data["index_type"],
+                    checkpoint_data["object_type"],
                 )
         except Exception as exception:
-            raise Exception(f"Error while running Full sync command. Error: {exception}")
+            raise Exception(
+                f"Error while running Full sync command. Error: {exception}"
+            )
 
     def execute(self):
         """This function execute the start function."""
