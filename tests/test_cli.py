@@ -18,6 +18,12 @@ class TestCli(unittest.TestCase):
         self.capsys = capsys
 
     def test_run_with_bootstrap(self):
-        for command in ["bootstrap", "full-sync", "incremental-sync", "deletion-sync", "test-connectivity"]:
+        for command in [
+            "bootstrap",
+            "full-sync",
+            "incremental-sync",
+            "deletion-sync",
+            "test-connectivity",
+        ]:
             args = get_args(command)
             assert cli.run(args) == 0

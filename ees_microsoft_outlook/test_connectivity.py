@@ -49,14 +49,16 @@ def test_workplace(settings):
                 break
         except Exception as exception:
             print(
-                f"[Fail] Error while connecting to the Enterprise Search host {enterprise_search_host}. \
-                    Retry Count: {retry}. Error: {exception}"
+                f"[Fail] Error while connecting to the Enterprise Search host "
+                f"{enterprise_search_host}. Retry Count: {retry}. Error: {exception}"
             )
             # This condition is to avoid sleeping for the last time
             if retry < retry_count:
                 time.sleep(2**retry)
             else:
-                assert False, f"Error while connecting to the Enterprise Search at {enterprise_search_host}"
+                assert (
+                    False
+                ), f"Error while connecting to the Enterprise Search at {enterprise_search_host}"
             retry += 1
 
     print("Enterprise Search connectivity tests completed..")
@@ -89,22 +91,28 @@ def test_ingestion(settings):
                 content_source_id=configs.get_value("enterprise_search.source_id"),
                 documents=document,
             )
-            print("Successfully indexed a dummy document with id 1234 to the Enterprise Search")
+            print(
+                "Successfully indexed a dummy document with id 1234 to the Enterprise Search"
+            )
             break
         except Exception as exception:
             print(
-                f"[Fail] Error while ingesting document to the Enterprise Search host {enterprise_search_host}. \
-                Retry Count: {retry}. Error: {exception}"
+                f"[Fail] Error while ingesting document to the Enterprise Search host "
+                f"{enterprise_search_host}. Retry Count: {retry}. Error: {exception}"
             )
             # This condition is to avoid sleeping for the last time
             if retry < retry_count:
                 time.sleep(2**retry)
             else:
-                assert False, f"Error while connecting to the Enterprise Search at {enterprise_search_host}"
+                assert (
+                    False
+                ), f"Error while connecting to the Enterprise Search at {enterprise_search_host}"
             retry += 1
 
     if response:
-        print("Attempting to delete the dummy document 1234 from the Enterprise Search for cleanup")
+        print(
+            "Attempting to delete the dummy document 1234 from the Enterprise Search for cleanup"
+        )
         retry = 0
         while retry <= retry_count:
             try:
@@ -113,20 +121,24 @@ def test_ingestion(settings):
                     content_source_id=configs.get_value("enterprise_search.source_id"),
                     document_ids=[1234],
                 )
-                print("Successfully deleted the dummy document with id 1234 from the Enterprise Search")
+                print(
+                    "Successfully deleted the dummy document with id 1234 from the Enterprise Search"
+                )
                 if response:
                     assert True
                     break
             except Exception as exception:
                 print(
-                    f"[Fail] Error while deleting document id 1234 from the Enterprise Search host {enterprise_search_host}. \
-                        Retry Count: {retry}. Error: {exception}"
+                    f"[Fail] Error while deleting document id 1234 from the Enterprise Search host "
+                    f"{enterprise_search_host}. Retry Count: {retry}. Error: {exception}"
                 )
                 # This condition is to avoid sleeping for the last time
                 if retry < retry_count:
                     time.sleep(2**retry)
                 else:
-                    assert False, "Error while connecting to the Enterprise Search at {enterprise_search_host}"
+                    assert (
+                        False
+                    ), "Error while connecting to the Enterprise Search at {enterprise_search_host}"
                 retry += 1
 
     print("Enterprise Search ingestion tests completed..")

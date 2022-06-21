@@ -5,7 +5,8 @@
 #
 
 import sys
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 if sys.version_info < (3, 6):
     raise ValueError("Requires Python 3.6 or superior")
@@ -21,7 +22,7 @@ install_requires = [
     "pytest",
     "pytest-cov",
     "pyyaml",
-    "tika"
+    "tika",
 ]
 
 description = ""

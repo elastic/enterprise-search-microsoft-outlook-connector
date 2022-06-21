@@ -9,6 +9,8 @@ etc. This module provides convenience interface defining the shared
 objects and methods that will can be used by commands."""
 import logging
 
+# For Python>=3.8 cached_property should be imported from functools,
+# and for the prior versions it should be imported from cached_property
 try:
     from functools import cached_property
 except ImportError:
@@ -56,7 +58,7 @@ class BaseCommand:
 
     @cached_property
     def workplace_search_client(self):
-        """Get the workplace search client instance for the running command.
+        """Get the Workplace Search client instance for the running command.
         Host and api key are taken from configuration file, if
         a user was provided when running command, then basic auth
         will be used instead.
