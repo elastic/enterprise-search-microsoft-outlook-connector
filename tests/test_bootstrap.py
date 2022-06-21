@@ -21,41 +21,80 @@ CONFIG_FILE = os.path.join(
 
 def test_execute(caplog):
     """Test execute method in Bootstrap file creates a content source in the Enterprise Search."""
+    # Setup
     args = argparse.Namespace()
     args.name = "dummy"
     args.config_file = CONFIG_FILE
     caplog.set_level("INFO")
     mock_response = {"id": "1234"}
     bootstrap_obj = BootstrapCommand(args)
-    bootstrap_obj.config._Configuration__configurations[
-        "enterprise_search.host_url"
-    ] = "dummy"
-    bootstrap_obj.workplace_search_client.create_content_source = Mock(
+    bootstrap_obj.workplace_search_custom_client.create_content_source = Mock(
         return_value=mock_response
     )
-    bootstrap_obj.execute()
-    body = {
-        "name": "dummy",
-        "schema": {
-            "title": "text",
-            "type": "text",
-            "body": "text",
-            "url": "text",
-            "created_at": "date",
-        },
-        "display": {
-            "title_field": "title",
-            "url_field": "url",
-            "detail_fields": [
-                {"field_name": "title", "label": "Title"},
-                {"field_name": "type", "label": "Type"},
-                {"field_name": "body", "label": "Content"},
-                {"field_name": "created_at", "label": "Created At"},
-            ],
-            "color": "#000000",
-        },
-        "is_searchable": True,
+    schema = {
+        "title": "text",
+        "type": "text",
+        "body": "text",
+        "url": "text",
+        "created_at": "date",
     }
-    bootstrap_obj.workplace_search_client.create_content_source.assert_called_with(
-        http_auth="12345678", body=body
+    display = {
+        "title_field": "title",
+        "url_field": "url",
+        "detail_fields": [
+            {"field_name": "title", "label": "Title"},
+            {"field_name": "body", "label": "Content"},
+            {"field_name": "created_at", "label": "Created At"},
+        ],
+        "color": "#000000",
+    }
+    name = "dummy"
+
+    # Execute
+    bootstrap_obj.execute()
+
+    # Assert
+    bootstrap_obj.workplace_search_custom_client.create_content_source.assert_called_with(
+        schema, display, name, is_searchable=True
+    )
+
+
+def test_execute_with_username():
+    """Test execute method in Bootstrap file creates a content source in the Enterprise Search."""
+    # Setup
+    args = argparse.Namespace()
+    args.name = "dummy"
+    args.config_file = CONFIG_FILE
+    args.user = "user1"
+    args.password = "abcd1234"
+    mock_response = {"id": "1234"}
+    bootstrap_obj = BootstrapCommand(args)
+    bootstrap_obj.workplace_search_custom_client.create_content_source = Mock(
+        return_value=mock_response
+    )
+    schema = {
+        "title": "text",
+        "type": "text",
+        "body": "text",
+        "url": "text",
+        "created_at": "date",
+    }
+    display = {
+        "title_field": "title",
+        "url_field": "url",
+        "detail_fields": [
+            {"field_name": "title", "label": "Title"},
+            {"field_name": "body", "label": "Content"},
+            {"field_name": "created_at", "label": "Created At"},
+        ],
+        "color": "#000000",
+    }
+    name = "dummy"
+
+    # Execute
+    bootstrap_obj.execute()
+
+    # Assert
+    bootstrap_obj.workplace_search_custom_client.create_content_source.assert_called_with(
+        schema, display, name, is_searchable=True
     )

@@ -7,20 +7,19 @@
 
 Each method provides a way to make an interaction
 between Elastic Enterprise Search and remote system.
-
-For example, full-sync provides a command that will attempt to sync
-all data from remote system to Elastic Enterprise Search.
-
-See each individual command for the description.
 """
 
+import getpass
+import os
 from argparse import ArgumentParser
 
+from .bootstrap_command import BootstrapCommand
+
 CMD_BOOTSTRAP = "bootstrap"
-CMD_FULL_SYNC = "full-sync"
-CMD_INCREMENTAL_SYNC = "incremental-sync"
-CMD_DELETION_SYNC = "deletion-sync"
-CMD_TEST_CONNECTIVITY = "test-connectivity"
+
+commands = {
+    CMD_BOOTSTRAP: BootstrapCommand,
+}
 
 
 def _parser():
@@ -56,30 +55,34 @@ def _parser():
         help="Username of the Workplace Search admin account",
     )
 
-    subparsers.add_parser(CMD_FULL_SYNC)
-    subparsers.add_parser(CMD_INCREMENTAL_SYNC)
-    subparsers.add_parser(CMD_DELETION_SYNC)
-    subparsers.add_parser(CMD_TEST_CONNECTIVITY)
-
     return parser
 
 
 def main(args=None):
-    parser = _parser()
-    args = parser.parse_args(args=args)
+    """Entry point for the connector."""
+    if args is None:
+        parser = _parser()
+        args = parser.parse_args()
 
-    return run(args)
+    if args.cmd == CMD_BOOTSTRAP and args.user:
+        args.password = getpass.getpass(prompt="Password: ", stream=None)
+
+    if not args.config_file:
+        args.config_file = os.path.join(
+            os.path.expanduser("~"),
+            ".local",
+            "config",
+            "microsoft_outlook_connector.yml",
+        )
+
+    run(args)
 
 
 def run(args):
-    if args.cmd == CMD_BOOTSTRAP:
-        print("Running bootstrap")
-    elif args.cmd == CMD_FULL_SYNC:
-        print("Running full sync")
-    elif args.cmd == CMD_INCREMENTAL_SYNC:
-        print("Running incremental sync")
-    elif args.cmd == CMD_DELETION_SYNC:
-        print("Running deletion sync")
-    elif args.cmd == CMD_TEST_CONNECTIVITY:
-        print("Running connectivity test")
+    """Run the command from the parsed args.
+
+    This method takes already parsed and validated arguments
+    and attempts to run the command with specified arguments."""
+    commands[args.cmd](args).execute()
+
     return 0

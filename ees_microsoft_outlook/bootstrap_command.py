@@ -24,41 +24,23 @@ class BootstrapCommand(BaseCommand):
         It will use data from configuration file to determine
         which instance of Elastic Enterprise Search will be used
         to create a Content Source."""
-
-        logger = self.logger
-        args = self.args
-        workplace_search = self.workplace_search_client
-        try:
-            resp = workplace_search.create_content_source(
-                http_auth=self.config.get_value("enterprise_search.api_key"),
-                body={
-                    "name": args.name,
-                    "schema": {
-                        "title": "text",
-                        "type": "text",
-                        "body": "text",
-                        "url": "text",
-                        "created_at": "date",
-                    },
-                    "display": {
-                        "title_field": "title",
-                        "url_field": "url",
-                        "detail_fields": [
-                            {"field_name": "title", "label": "Title"},
-                            {"field_name": "type", "label": "Type"},
-                            {"field_name": "body", "label": "Content"},
-                            {"field_name": "created_at", "label": "Created At"},
-                        ],
-                        "color": "#000000",
-                    },
-                    "is_searchable": True,
-                },
-            )
-
-            content_source_id = resp.get("id")
-            logger.info(
-                f"Created ContentSource with ID {content_source_id}. "
-                f"You may now begin indexing with content-source-id={content_source_id}"
-            )
-        except Exception as exception:
-            logger.error(f"Could not create a content source, Error {exception}")
+        schema = {
+            "title": "text",
+            "type": "text",
+            "body": "text",
+            "url": "text",
+            "created_at": "date",
+        }
+        display = {
+            "title_field": "title",
+            "url_field": "url",
+            "detail_fields": [
+                {"field_name": "title", "label": "Title"},
+                {"field_name": "body", "label": "Content"},
+                {"field_name": "created_at", "label": "Created At"},
+            ],
+            "color": "#000000",
+        }
+        self.workplace_search_custom_client.create_content_source(
+            schema, display, self.args.name, is_searchable=True
+        )
