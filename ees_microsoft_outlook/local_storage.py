@@ -34,16 +34,20 @@ class LocalStorage:
                         f"Error while parsing the json file of the ids store from path: {ids_path}. Error: {exception}"
                     )
         except FileNotFoundError:
-            self.logger.debug(f"Local storage for ids was not found with path: {ids_path}.")
+            self.logger.debug(
+                f"Local storage for ids was not found with path: {ids_path}."
+            )
             return {"global_keys": {}}
 
     def update_storage(self, ids, ids_path):
         """This method is used to update the ids stored in doc_id.json file
-        :param ids: updated ids to be stored in the doc_id.json file
+        :param ids: Updated ids to be stored in the doc_id.json file
         :param ids_path: Path to the respective doc_ids.json
         """
         with open(ids_path, "w", encoding="utf-8") as ids_file:
             try:
                 json.dump(ids, ids_file, indent=4)
             except ValueError as exception:
-                self.logger.exception(f"Error while updating the doc_id json file. Error: {exception}")
+                self.logger.exception(
+                    f"Error while updating the doc_id json file. Error: {exception}"
+                )
