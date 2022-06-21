@@ -13,8 +13,7 @@ from elastic_enterprise_search import WorkplaceSearch
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from ees_microsoft_outlook.configuration import Configuration  # noqa
-from ees_microsoft_outlook.permission_sync_command import \
-    PermissionSyncCommand  # noqa
+from ees_microsoft_outlook.permission_sync_command import PermissionSyncCommand  # noqa
 
 CONFIG_FILE = os.path.join(
     os.path.join(os.path.dirname(__file__), "config"),
@@ -42,7 +41,7 @@ def create_permission_sync_obj():
 
 
 def test_remove_all_permissions():
-    """Test method for removing all the permissions from workplace search"""
+    """Test method for removing all the permissions from Workplace Search"""
     configs, _ = settings()
     permission_sync_obj = create_permission_sync_obj()
     mocked_respose = {"results": [{"user": "user1", "permissions": ["permission1"]}]}

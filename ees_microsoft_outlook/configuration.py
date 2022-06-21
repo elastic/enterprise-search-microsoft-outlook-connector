@@ -12,8 +12,11 @@ import yaml
 from cerberus import Validator
 from yaml.error import YAMLError
 
-from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
-                       CONNECTOR_TYPE_OFFICE365, RFC_3339_DATETIME_FORMAT)
+from .constant import (
+    CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
+    CONNECTOR_TYPE_OFFICE365,
+    RFC_3339_DATETIME_FORMAT,
+)
 from .schema import schema
 
 
@@ -60,10 +63,11 @@ class Configuration:
         self.__configurations = self.validate()
         if self.__configurations["start_time"] >= self.__configurations["end_time"]:
             raise ConfigurationInvalidException(
-                f"The start_time: {self.__configurations['start_time']}  \
-                    cannot be greater than or equal to the end_time: {self.__configurations['end_time']}"
+                f"The start_time: {self.__configurations['start_time']}  "
+                f"cannot be greater than or equal to the end_time: {self.__configurations['end_time']}"
             )
 
+        # Converting datetime object to string
         for date_config in ["start_time", "end_time"]:
             value = self.__configurations[date_config]
             self.__configurations[date_config] = self.__parse_date_config_value(value)
@@ -125,5 +129,5 @@ class Configuration:
 
     @staticmethod
     def __parse_date_config_value(string):
-        """Return Datetime by formatting into readable formats."""
+        """Change string to Datetime format"""
         return string.strftime(RFC_3339_DATETIME_FORMAT)
