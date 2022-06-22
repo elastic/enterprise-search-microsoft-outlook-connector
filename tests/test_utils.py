@@ -20,7 +20,7 @@ def settings():
     configuration = Configuration(
         file_name=os.path.join(
             os.path.join(os.path.dirname(__file__), "config"),
-            "microsoft_outlook_connector.yml",
+            "microsoft_teams_connector.yml",
         )
     )
 
