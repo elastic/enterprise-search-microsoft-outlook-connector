@@ -16,10 +16,7 @@ import pytest
 from elastic_enterprise_search import WorkplaceSearch
 
 from .configuration import Configuration
-from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
-                       CONNECTOR_TYPE_OFFICE365)
 from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
-from .office365_user import Office365User
 
 
 @pytest.fixture(name="settings")
@@ -44,24 +41,15 @@ def test_microsoft_outlook(settings):
     retry = 0
     while retry <= retry_count:
         try:
-            product_type = configs.get_value("connector_platform_type")
-            if CONNECTOR_TYPE_OFFICE365 in configs.get_value("connector_platform_type"):
-                office365_connection = Office365User(configs)
-                users = office365_connection.get_users()
-                users_accounts = office365_connection.get_users_accounts(users)
-            elif CONNECTOR_TYPE_MICROSOFT_EXCHANGE in configs.get_value(
-                "connector_platform_type"
-            ):
-                microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
-                    configs
-                )
-                users = microsoft_exchange_server_connection.get_users()
-                users_accounts = (
-                    microsoft_exchange_server_connection.get_users_accounts(users)
-                )
-
+            microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
+                configs
+            )
+            users = microsoft_exchange_server_connection.get_users()
+            users_accounts = (
+                microsoft_exchange_server_connection.get_users_accounts(users)
+            )
             if len(users_accounts) >= 0:
-                print(f"Successfully fetched users accounts from the {product_type}")
+                print("Successfully fetched users accounts from the Exchange Server")
                 assert True
                 break
         except Exception as exception:
@@ -82,7 +70,6 @@ def test_microsoft_outlook(settings):
 @pytest.mark.enterprise_search
 def test_workplace(settings):
     """Tests the connection to the Enterprise search host"""
-
     configs, _ = settings
     print("Starting Enterprise Search connectivity tests..")
     retry_count = configs.get_value("retry_count")
@@ -146,7 +133,7 @@ def test_ingestion(settings):
                 documents=document,
             )
             print(
-                "Successfully indexed a dummy document with id 1234 in the Enterprise Search"
+                "Successfully indexed a dummy document with id 1234 to the Enterprise Search"
             )
             break
         except Exception as exception:

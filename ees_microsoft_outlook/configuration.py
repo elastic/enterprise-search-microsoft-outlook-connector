@@ -8,7 +8,6 @@
     This module can be used to read and validate configuration file that defines
     the settings of the Microsoft Outlook connector.
 """
-
 import yaml
 from cerberus import Validator
 from yaml.error import YAMLError
@@ -31,6 +30,7 @@ class ConfigurationInvalidException(Exception):
 
     def __init__(self, errors):
         super().__init__(f"Provided configuration was invalid. Errors: {errors}.")
+
         self.errors = errors
 
 
@@ -66,6 +66,7 @@ class Configuration:
                 f"The start_time: {self.__configurations['start_time']}  "
                 f"cannot be greater than or equal to the end_time: {self.__configurations['end_time']}"
             )
+
         # Converting datetime object to string
         for date_config in ["start_time", "end_time"]:
             value = self.__configurations[date_config]
@@ -92,17 +93,14 @@ class Configuration:
                     },
                     "office365.client_id": {
                         "required": True,
-                        "type": "string",
                         "empty": False,
                     },
                     "office365.tenant_id": {
                         "required": True,
-                        "type": "string",
                         "empty": False,
                     },
                     "office365.client_secret": {
                         "required": True,
-                        "type": "string",
                         "empty": False,
                     },
                 }
@@ -166,7 +164,6 @@ class Configuration:
         validator.validate(self.__configurations, schema)
         if validator.errors:
             raise ConfigurationInvalidException(validator.errors)
-
         return validator.document
 
     def get_value(self, key):
