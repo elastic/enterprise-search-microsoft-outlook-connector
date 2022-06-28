@@ -93,14 +93,17 @@ class Configuration:
                     },
                     "office365.client_id": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "office365.tenant_id": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "office365.client_secret": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                 }
@@ -157,7 +160,7 @@ class Configuration:
             )
         else:
             raise ConfigurationInvalidException(
-                "Enter valid connector platform type. Allowed values are 'Microsoft Outlook' and 'Office365'"
+                "Enter valid connector platform type. Allowed values are 'Microsoft Exchange' and 'Office365'"
             )
 
         validator = Validator(schema)

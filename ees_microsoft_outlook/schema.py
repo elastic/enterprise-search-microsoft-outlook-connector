@@ -52,7 +52,7 @@ schema = {
     "microsoft_exchange.certificate_path": {
         "required": True,
         "type": "string",
-        "empty": False,
+        "empty": False
     },
     "office365.client_id": {
         "required": False,

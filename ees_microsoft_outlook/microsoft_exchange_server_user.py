@@ -10,7 +10,8 @@ import warnings
 from urllib.parse import urlparse
 
 import requests.adapters
-from exchangelib import IMPERSONATION, Account, Configuration, Credentials
+from exchangelib import (IMPERSONATION, Account, Configuration, Credentials,
+                         FaultTolerance)
 from exchangelib.protocol import BaseProtocol, NoVerifyHTTPAdapter
 from ldap3 import SAFE_SYNC, Connection, Server
 
@@ -108,6 +109,7 @@ class MicrosoftExchangeServerUser:
                     config = Configuration(
                         server=self.config.get_value("microsoft_exchange.server"),
                         credentials=credentials,
+                        retry_policy=FaultTolerance(max_wait=900),
                     )
                     user_account = Account(
                         primary_smtp_address=user["attributes"]["mail"],
