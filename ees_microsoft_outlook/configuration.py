@@ -74,9 +74,23 @@ class Configuration:
 
     def validate(self):
         """Validates each properties defined in the yaml configuration file"""
-        if CONNECTOR_TYPE_OFFICE365 in self.__configurations["connector_platform_type"]:
+        if (
+            self.__configurations["connector_platform_type"] and isinstance(self.__configurations[
+                "connector_platform_type"], str) and CONNECTOR_TYPE_OFFICE365
+            in self.__configurations["connector_platform_type"]
+        ):
             schema.update(
                 {
+                    "microsoft_exchange.secure_connection": {
+                        "required": False,
+                        "type": "boolean",
+                        "default": True,
+                    },
+                    "microsoft_exchange.certificate_path": {
+                        "required": False,
+                        "type": "string",
+                        "empty": True,
+                    },
                     "office365.client_id": {
                         "required": True,
                         "empty": False,
@@ -92,9 +106,25 @@ class Configuration:
                 }
             )
         elif (
-            CONNECTOR_TYPE_MICROSOFT_EXCHANGE
+            self.__configurations["connector_platform_type"] and isinstance(self.__configurations[
+                "connector_platform_type"], str) and CONNECTOR_TYPE_MICROSOFT_EXCHANGE
             in self.__configurations["connector_platform_type"]
         ):
+            if self.__configurations["microsoft_exchange.secure_connection"] is False:
+                schema.update(
+                    {
+                        "microsoft_exchange.secure_connection": {
+                            "required": True,
+                            "type": "boolean",
+                            "default": True,
+                        },
+                        "microsoft_exchange.certificate_path": {
+                            "required": False,
+                            "type": "string",
+                            "empty": True,
+                        },
+                    }
+                )
             schema.update(
                 {
                     "microsoft_exchange.active_directory_server": {
@@ -113,7 +143,17 @@ class Configuration:
                         "required": True,
                         "empty": False,
                     },
+                    "microsoft_exchange.domain": {
+                        "required": True,
+                        "type": "string",
+                        "regex": r"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$",
+                        "empty": False,
+                    },
                 }
+            )
+        else:
+            raise ConfigurationInvalidException(
+                "Enter valid connector platform type. Allowed values are 'Microsoft Exchange' and 'Office365'"
             )
 
         validator = Validator(schema)
