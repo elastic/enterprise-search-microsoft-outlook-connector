@@ -93,14 +93,17 @@ class Configuration:
                     },
                     "office365.client_id": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "office365.tenant_id": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "office365.client_secret": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                 }
@@ -129,18 +132,22 @@ class Configuration:
                 {
                     "microsoft_exchange.active_directory_server": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "microsoft_exchange.server": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "microsoft_exchange.username": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "microsoft_exchange.password": {
                         "required": True,
+                        "type": "string",
                         "empty": False,
                     },
                     "microsoft_exchange.domain": {
