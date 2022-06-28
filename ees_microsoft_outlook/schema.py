@@ -89,7 +89,6 @@ schema = {
         "type": "string",
         "default": "Office365",
         "allowed": ["Office365", "Microsoft Exchange"],
-        "empty": False,
     },
     "enable_document_permission": {
         "required": False,
