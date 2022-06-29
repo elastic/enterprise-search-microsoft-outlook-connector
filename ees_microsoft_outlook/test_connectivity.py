@@ -45,7 +45,7 @@ def test_microsoft_outlook(settings):
     while retry <= retry_count:
         try:
             product_type = configs.get_value("connector_platform_type")
-            if CONNECTOR_TYPE_OFFICE365 in configs.get_value("connector_platform_type"):
+            if CONNECTOR_TYPE_OFFICE365 in product_type:
                 office365_connection = Office365User(configs)
                 users = office365_connection.get_users()
                 users_accounts = office365_connection.get_users_accounts(users)
