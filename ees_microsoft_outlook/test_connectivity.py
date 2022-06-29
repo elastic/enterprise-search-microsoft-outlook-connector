@@ -49,9 +49,7 @@ def test_microsoft_outlook(settings):
                 office365_connection = Office365User(configs)
                 users = office365_connection.get_users()
                 users_accounts = office365_connection.get_users_accounts(users)
-            elif CONNECTOR_TYPE_MICROSOFT_EXCHANGE in configs.get_value(
-                "connector_platform_type"
-            ):
+            elif CONNECTOR_TYPE_MICROSOFT_EXCHANGE in product_type:
                 microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
                     configs
                 )
