@@ -16,6 +16,7 @@ import pytest
 from elastic_enterprise_search import WorkplaceSearch
 
 from .configuration import Configuration
+from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
 
 
 @pytest.fixture(name="settings")
@@ -25,6 +26,45 @@ def fixture_settings():
 
     logger = logging.getLogger("test_connectivity")
     return configuration, logger
+
+
+@pytest.mark.microsoftoutlook
+def test_microsoft_outlook(settings):
+    """Tests the connection with Microsoft Outlook.
+    :param settings: Configuration settings
+    """
+
+    configs, _ = settings
+    retry_count = configs.get_value("retry_count")
+    print("Starting Microsoft Outlook connectivity tests..")
+
+    retry = 0
+    while retry <= retry_count:
+        try:
+            microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
+                configs
+            )
+            users = microsoft_exchange_server_connection.get_users()
+            users_accounts = (
+                microsoft_exchange_server_connection.get_users_accounts(users)
+            )
+            if len(users_accounts) >= 0:
+                print("Successfully fetched users accounts from the Exchange Server")
+                assert True
+                break
+        except Exception as exception:
+            if retry > 0:
+                print(f"Connection Failed. Retry Count:{retry}")
+            # This condition is to avoid sleeping for the last time
+            if retry < retry_count:
+                time.sleep(2**retry)
+            else:
+                assert (
+                    False
+                ), f"Error while connecting to the Microsoft Outlook. Error: {exception}"
+            retry += 1
+            assert False
+    print("Microsoft Outlook connectivity tests completed..")
 
 
 @pytest.mark.enterprise_search
@@ -48,10 +88,11 @@ def test_workplace(settings):
                 assert True
                 break
         except Exception as exception:
-            print(
-                f"[Fail] Error while connecting to the Enterprise Search host "
-                f"{enterprise_search_host}. Retry Count: {retry}. Error: {exception}"
-            )
+            if retry > 0:
+                print(
+                    f"[Fail] Error while connecting to the Enterprise Search host "
+                    f"{enterprise_search_host}. Retry Count: {retry}. Error: {exception}"
+                )
             # This condition is to avoid sleeping for the last time
             if retry < retry_count:
                 time.sleep(2**retry)
@@ -67,7 +108,7 @@ def test_workplace(settings):
 @pytest.mark.ingestion
 def test_ingestion(settings):
     """Tests the successful ingestion and deletion of a sample document to the Enterprise search"""
-    configs, logger = settings
+    configs, _ = settings
     retry_count = configs.get_value("retry_count")
     enterprise_search_host = configs.get_value("enterprise_search.host_url")
     print("Starting Enterprise Search ingestion tests..")
@@ -96,10 +137,11 @@ def test_ingestion(settings):
             )
             break
         except Exception as exception:
-            print(
-                f"[Fail] Error while ingesting document to the Enterprise Search host "
-                f"{enterprise_search_host}. Retry Count: {retry}. Error: {exception}"
-            )
+            if retry > 0:
+                print(
+                    f"[Fail] Error while ingesting document to the Enterprise Search host "
+                    f"{enterprise_search_host}. Retry Count: {retry}. Error: {exception}"
+                )
             # This condition is to avoid sleeping for the last time
             if retry < retry_count:
                 time.sleep(2**retry)
@@ -138,7 +180,7 @@ def test_ingestion(settings):
                 else:
                     assert (
                         False
-                    ), "Error while connecting to the Enterprise Search at {enterprise_search_host}"
+                    ), f"Error while connecting to the Enterprise Search at {enterprise_search_host}"
                 retry += 1
 
     print("Enterprise Search ingestion tests completed..")
