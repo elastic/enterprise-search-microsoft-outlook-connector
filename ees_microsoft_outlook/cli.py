@@ -4,9 +4,8 @@
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
 """Cli module contains entry points to the connector.
-
 Each method provides a way to make an interaction
-between Elastic Enterprise Search and remote system.
+between Elastic Enterprise Search and remote system
 """
 
 import getpass
@@ -14,11 +13,14 @@ import os
 from argparse import ArgumentParser
 
 from .bootstrap_command import BootstrapCommand
+from .full_sync_command import FullSyncCommand
 
 CMD_BOOTSTRAP = "bootstrap"
+CMD_FULL_SYNC = "full-sync"
 
 commands = {
     CMD_BOOTSTRAP: BootstrapCommand,
+    CMD_FULL_SYNC: FullSyncCommand,
 }
 
 
@@ -55,6 +57,7 @@ def _parser():
         help="Username of the Workplace Search admin account",
     )
 
+    subparsers.add_parser(CMD_FULL_SYNC)
     return parser
 
 

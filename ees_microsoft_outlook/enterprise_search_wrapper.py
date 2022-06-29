@@ -8,7 +8,20 @@
 from elastic_enterprise_search import WorkplaceSearch, __version__
 from packaging import version
 
+from .utils import retry
+
 ENTERPRISE_V8 = version.parse("8.0")
+
+if version.parse(__version__) >= ENTERPRISE_V8:
+    from elastic_enterprise_search.exceptions import (BadGatewayError,
+                                                      GatewayTimeoutError,
+                                                      InternalServerError,
+                                                      ServiceUnavailableError)
+else:
+    from elastic_transport.exceptions import (BadGatewayError,
+                                              GatewayTimeoutError,
+                                              InternalServerError,
+                                              ServiceUnavailableError)
 
 
 class EnterpriseSearchWrapper:
@@ -20,6 +33,7 @@ class EnterpriseSearchWrapper:
         self.host = config.get_value("enterprise_search.host_url")
         self.api_key = config.get_value("enterprise_search.api_key")
         self.ws_source = config.get_value("enterprise_search.source_id")
+        self.retry_count = config.get_value("retry_count")
         if self.version >= ENTERPRISE_V8:
             if hasattr(args, "user") and args.user:
                 self.workplace_search_client = WorkplaceSearch(
@@ -71,3 +85,40 @@ class EnterpriseSearchWrapper:
             )
         except Exception as exception:
             self.logger.error(f"Could not create a content source, Error {exception}")
+
+    @retry(
+        exception_list=(
+            BadGatewayError,
+            GatewayTimeoutError,
+            InternalServerError,
+            ServiceUnavailableError,
+        )
+    )
+    def index_documents(self, documents, timeout):
+        """Indexes one or more new documents into a custom content source, or updates one
+        or more existing documents
+        :param documents: list of documents to be indexed
+        :param timeout: Timeout in seconds
+        """
+        try:
+            responses = self.workplace_search_client.index_documents(
+                content_source_id=self.ws_source,
+                documents=documents,
+                request_timeout=timeout,
+            )
+        except (
+            BadGatewayError,
+            GatewayTimeoutError,
+            InternalServerError,
+            ServiceUnavailableError,
+        ) as exception:
+            self.logger.exception(
+                f"Error while indexing the documents. Error: {exception}"
+            )
+            raise exception
+        except Exception as exception:
+            self.logger.exception(
+                f"Error while indexing the documents. Error: {exception}"
+            )
+            raise exception
+        return responses
