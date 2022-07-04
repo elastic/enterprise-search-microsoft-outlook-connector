@@ -27,9 +27,9 @@ def test_get_users(requests_mock):
     """Test for get users from outlook.
     :param requests_mock: Fixture for requests.get calls.
     """
+    # Setup
     config, _ = settings()
     office365_obj = Office365User(config)
-
     requests_mock.post(
         f"{MICROSOFTONLINE_URL}/{office365_obj.tenant_id}/oauth2/v2.0/token",
         json={
@@ -61,5 +61,9 @@ iaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
             ],
         },
     )
+
+    # Execute
     targeted_users = office365_obj.get_users()
+
+    # Assert
     assert targeted_users == ["John.doe@abc.com"]
