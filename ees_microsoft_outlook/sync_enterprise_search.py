@@ -24,6 +24,7 @@ class SyncEnterpriseSearch:
         )
         self.queue = queue
         self.checkpoint_list = []
+        self.max_allowed_bytes = 10000000
 
     def filter_removed_item_by_id(self, item, id):
         """This method is used filter removed document by id
