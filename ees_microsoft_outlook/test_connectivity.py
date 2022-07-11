@@ -16,7 +16,10 @@ import pytest
 from elastic_enterprise_search import WorkplaceSearch
 
 from .configuration import Configuration
+from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
+                       CONNECTOR_TYPE_OFFICE365)
 from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
+from .office365_user import Office365User
 
 
 @pytest.fixture(name="settings")
@@ -41,15 +44,22 @@ def test_microsoft_outlook(settings):
     retry = 0
     while retry <= retry_count:
         try:
-            microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
-                configs
-            )
-            users = microsoft_exchange_server_connection.get_users()
-            users_accounts = (
-                microsoft_exchange_server_connection.get_users_accounts(users)
-            )
+            product_type = configs.get_value("connector_platform_type")
+            if CONNECTOR_TYPE_OFFICE365 in product_type:
+                office365_connection = Office365User(configs)
+                users = office365_connection.get_users()
+                users_accounts = office365_connection.get_users_accounts(users)
+            elif CONNECTOR_TYPE_MICROSOFT_EXCHANGE in product_type:
+                microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
+                    configs
+                )
+                users = microsoft_exchange_server_connection.get_users()
+                users_accounts = (
+                    microsoft_exchange_server_connection.get_users_accounts(users)
+                )
+
             if len(users_accounts) >= 0:
-                print("Successfully fetched users accounts from the Exchange Server")
+                print(f"Successfully fetched users accounts from the {product_type}")
                 assert True
                 break
         except Exception as exception:
