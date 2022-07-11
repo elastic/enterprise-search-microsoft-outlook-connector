@@ -4,6 +4,7 @@
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
 """Cli module contains entry points to the connector.
+
 Each method provides a way to make an interaction
 between Elastic Enterprise Search and remote system.
 """
