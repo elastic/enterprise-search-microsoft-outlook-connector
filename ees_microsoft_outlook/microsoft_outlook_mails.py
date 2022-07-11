@@ -98,9 +98,7 @@ class MicrosoftOutlookMails:
 
         return mail_document
 
-    def get_mail_documents(
-        self, account, ids_list_mails, mail_type, mail_objs
-    ):
+    def get_mail_documents(self, account, ids_list_mails, mail_type, mail_objs):
         """This method is used to get mail's data and mapped with fields
         :param account: User account object
         :param ids_list_mails: Documents ids list
@@ -148,70 +146,41 @@ class MicrosoftOutlookMails:
             documents: List of all types of mail documents
         """
         documents = []
-        mail_type = [
-            {
-                "folder": "inbox",
-                "constant": constant.INBOX_MAIL_OBJECT,
-            },
-            {
-                "folder": "sent",
-                "constant": constant.SENT_MAIL_OBJECT,
-            },
-            {
-                "folder": "junk",
-                "constant": constant.JUNK_MAIL_OBJECT,
-            },
-            {
-                "folder": "archive",
-                "constant": constant.ARCHIVE_MAIL_OBJECT,
-            },
-        ]
         start_time = change_datetime_ews_format(start_time)
         end_time = change_datetime_ews_format(end_time)
         for account in accounts:
-
             # Logic to set time zone according to user account
             self.time_zone = account.default_timezone
 
             try:
-                for type in mail_type:
-
-                    # Logic to get mails folder
-                    if "archive" in type["folder"]:
-                        mail_type_obj_folder = (
-                            account.root / "Top of Information Store" / "Archive"
-                        )
-                    else:
-                        mail_type_obj_folder = getattr(account, type["folder"])
-
-                    # Logic to fetch mails
-                    mail_type_obj = (
-                        mail_type_obj_folder.all()
-                        .filter(
-                            last_modified_time__gt=start_time,
-                            last_modified_time__lt=end_time,
-                        )
-                        .only(
-                            "sender",
-                            "to_recipients",
-                            "cc_recipients",
-                            "bcc_recipients",
-                            "last_modified_time",
-                            "subject",
-                            "importance",
-                            "categories",
-                            "body",
-                            "has_attachments",
-                            "attachments",
-                        )
+                # Logic to fetch mails
+                mail_type_obj = (
+                    account.inbox.all()
+                    .filter(
+                        last_modified_time__gt=start_time,
+                        last_modified_time__lt=end_time,
                     )
-                    mail_type_documents = self.get_mail_documents(
-                        account,
-                        ids_list_mails,
-                        type["constant"],
-                        mail_type_obj,
+                    .only(
+                        "sender",
+                        "to_recipients",
+                        "cc_recipients",
+                        "bcc_recipients",
+                        "last_modified_time",
+                        "subject",
+                        "importance",
+                        "categories",
+                        "body",
+                        "has_attachments",
+                        "attachments",
                     )
-                    documents.extend(mail_type_documents)
+                )
+                mail_type_documents = self.get_mail_documents(
+                    account,
+                    ids_list_mails,
+                    constant.INBOX_MAIL_OBJECT,
+                    mail_type_obj,
+                )
+                documents.extend(mail_type_documents)
             except requests.exceptions.RequestException as request_error:
                 raise requests.exceptions.RequestException(
                     f"Error while fetching mails data for {account.primary_smtp_address}. Error: {request_error}"

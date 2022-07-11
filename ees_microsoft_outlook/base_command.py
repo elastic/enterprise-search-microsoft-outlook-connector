@@ -93,10 +93,10 @@ class BaseCommand:
         :param args: Arguments for the targeted function
         :param iterable_list: list to iterate over and create thread
         """
-        documents = []
         # If iterable_list is present, then iterate over the list and pass each list element
         # as an argument to the async function, else iterate over number of threads configured
         if iterable_list:
+            documents = []
             with ThreadPoolExecutor(max_workers=thread_count) as executor:
                 future_to_path = {
                     executor.submit(func, *args, *list_element): list_element
@@ -110,13 +110,11 @@ class BaseCommand:
                         self.logger.exception(
                             f"Error while fetching the data from Microsoft Outlook. Error {exception}"
                         )
+            return documents
         else:
             with ThreadPoolExecutor(max_workers=thread_count) as executor:
-                future_to_path = {executor.submit(func): _ for _ in range(thread_count)}
-                for future in as_completed(future_to_path):
-                    if future.exception():
-                        raise Exception("Error while fetching results from threads")
-        return documents
+                for _ in range(thread_count):
+                    executor.submit(func)
 
     def create_jobs_for_mails(
         self,

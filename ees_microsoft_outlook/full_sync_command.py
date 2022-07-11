@@ -8,12 +8,10 @@ It will attempt to sync absolutely all documents that are available in the
 third-party system and ingest them into Enterprise Search instance.
 """
 
-from . import constant
 from .base_command import BaseCommand
 from .checkpointing import Checkpoint
 from .connector_queue import ConnectorQueue
 from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
-from .office365_user import Office365User
 from .sync_enterprise_search import SyncEnterpriseSearch
 from .sync_microsoft_outlook import SyncMicrosoftOutlook
 
@@ -29,26 +27,20 @@ class FullSyncCommand(BaseCommand):
         :param queue: Shared queue to fetch the stored documents
         """
         thread_count = self.config.get_value("source_sync_thread_count")
-        product_type = self.config.get_value("connector_platform_type")
-        self.logger.debug(f"Starting producer for fetching objects from {product_type}")
+        self.logger.debug("Starting producer for fetching objects from Microsoft Exchange")
 
-        # Logic to fetch users from Microsoft Exchange or Office365
-        if constant.CONNECTOR_TYPE_OFFICE365 in product_type:
-            office365_connection = Office365User(self.config)
-            users = office365_connection.get_users()
-            users_accounts = office365_connection.get_users_accounts(users)
-        elif constant.CONNECTOR_TYPE_MICROSOFT_EXCHANGE in product_type:
-            microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
-                self.config
-            )
-            users = microsoft_exchange_server_connection.get_users()
-            users_accounts = microsoft_exchange_server_connection.get_users_accounts(
-                users
-            )
+        # Logic to fetch users from Microsoft Exchange
+        microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
+            self.config
+        )
+        users = microsoft_exchange_server_connection.get_users()
+        users_accounts = microsoft_exchange_server_connection.get_users_accounts(
+            users
+        )
 
         if len(users_accounts) >= 0:
             self.logger.info(
-                f"Successfully fetched users accounts from the {product_type}"
+                "Successfully fetched users accounts from the Microsoft Exchange"
             )
         else:
             self.logger.info("Error while fetching users from the Active Directory")
@@ -94,17 +86,12 @@ class FullSyncCommand(BaseCommand):
         sync_es = SyncEnterpriseSearch(
             self.config, self.logger, self.workplace_search_custom_client, queue
         )
-        try:
-            self.create_jobs(thread_count, sync_es.perform_sync, (), [])
-            for checkpoint_data in sync_es.checkpoint_list:
-                checkpoint.set_checkpoint(
-                    checkpoint_data["current_time"],
-                    checkpoint_data["index_type"],
-                    checkpoint_data["object_type"],
-                )
-        except Exception as exception:
-            raise Exception(
-                f"Error while running Full sync command. Error: {exception}"
+        self.create_jobs(thread_count, sync_es.perform_sync, (), [])
+        for checkpoint_data in sync_es.checkpoint_list:
+            checkpoint.set_checkpoint(
+                checkpoint_data["current_time"],
+                checkpoint_data["index_type"],
+                checkpoint_data["object_type"],
             )
 
     def execute(self):

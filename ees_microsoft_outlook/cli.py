@@ -5,7 +5,7 @@
 #
 """Cli module contains entry points to the connector.
 Each method provides a way to make an interaction
-between Elastic Enterprise Search and remote system
+between Elastic Enterprise Search and remote system.
 """
 
 import getpass

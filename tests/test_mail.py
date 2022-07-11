@@ -6,7 +6,7 @@
 
 import logging
 import os
-from unittest.mock import MagicMock, Mock
+from unittest.mock import Mock
 
 from ees_microsoft_outlook.configuration import Configuration
 from ees_microsoft_outlook.microsoft_outlook_mails import MicrosoftOutlookMails
@@ -56,7 +56,6 @@ def test_get_mails():
     ]
     account = Mock()
     accounts = [account]
-    account.root = MagicMock()
     microsoft_outlook_mails_obj = create_mail_obj()
     microsoft_outlook_mails_obj.get_mail_documents = Mock(return_value=inbox_response)
     start_date = "2022-04-21T12:10:00Z"

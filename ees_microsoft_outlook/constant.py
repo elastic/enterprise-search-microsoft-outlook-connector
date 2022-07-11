@@ -22,9 +22,6 @@ CURRENT_TIME = (datetime.datetime.utcnow()).strftime("%Y-%m-%dT%H:%M:%SZ")
 DEFAULT_TIME_ZONE = "UTC"
 MAILS_OBJECT = "Mails"
 INBOX_MAIL_OBJECT = "Inbox Mails"
-SENT_MAIL_OBJECT = "Sent Mails"
-JUNK_MAIL_OBJECT = "Junk Mails"
-ARCHIVE_MAIL_OBJECT = "Archive Mails"
 MAIL_DELETION_PATH = os.path.join(
     os.path.dirname(__file__), "doc_ids", "microsoft_outlook_mails_doc_ids.json"
 )

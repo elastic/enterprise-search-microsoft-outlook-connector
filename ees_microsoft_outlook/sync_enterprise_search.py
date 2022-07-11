@@ -7,7 +7,7 @@
 import collections
 
 from . import constant
-from .utils import split_documents_into_equal_chunks
+from .utils import split_documents_into_equal_chunks, split_documents_into_equal_bytes
 
 
 class SyncEnterpriseSearch:
@@ -32,12 +32,20 @@ class SyncEnterpriseSearch:
         """
         return item["id"] == id
 
+    def fetch_documents_by_id(self, response, documents):
+        """Filters the documents which are getting failed while indexing
+        :param response: Response getting from the Workplace Search
+        :param documents: Documents to be indexed into the Workplace Search
+        """
+        return list(filter(lambda seq: self.filter_removed_item_by_id(seq, response["id"]), documents,))
+
     def index_documents(self, documents):
         """This method indexes the documents to the Enterprise Search.
         :param documents: Documents to be indexed
         """
         try:
             if documents:
+                error_count = 0
                 total_records_dict = self.get_records_by_types(documents)
                 responses = self.workplace_search_custom_client.index_documents(
                     documents,
@@ -46,27 +54,25 @@ class SyncEnterpriseSearch:
                 if responses:
                     for each in responses["results"]:
                         if each["errors"]:
-                            item = list(
-                                filter(
-                                    lambda seq: self.filter_removed_item_by_id(
-                                        seq, each["id"]
-                                    ),
-                                    documents,
-                                )
-                            )
-                            documents.remove(item[0])
-                            self.logger.error(
-                                f"Error while indexing {each['id']} document. Error: {each['errors']}"
-                            )
+                            failed_document_list = self.fetch_documents_by_id(each, documents)
+                            # Removing the failed document from the successfully indexed document count
+                            documents = [document for document in documents if document not in failed_document_list]
+                            error_count += 1
             total_inserted_record_dict = self.get_records_by_types(documents)
             for type, count in total_records_dict.items():
                 self.logger.info(
                     f"Total {total_inserted_record_dict[type]} {type} indexed out of {count}."
                     if total_inserted_record_dict
-                    else f"Total 0 {type} indexed out of {count}"
+                    else "There is no record found to index into Workplace Search"
                 )
-        except Exception:
-            raise Exception()
+            if error_count:
+                self.logger.info(
+                    f"Total {error_count} documents missed due to some error and it will sync in next full-sync cycle"
+                )
+        except Exception as exception:
+            self.logger.info(
+                f"Error while indexing {len(documents)} documents into Workplace Search. Error: {exception}"
+            )
 
     def get_records_by_types(self, documents):
         """This method is used to for grouping the document based on their type
@@ -90,7 +96,7 @@ class SyncEnterpriseSearch:
             signal_open = True
             while signal_open:
                 documents_to_index = []
-                while len(documents_to_index) < constant.BATCH_SIZE:
+                while len(documents_to_index) < constant.BATCH_SIZE and len(str(documents_to_index)) < self.max_allowed_bytes:
                     documents = self.queue.get()
                     if documents.get("type") == "signal_close":
                         signal_open = False
@@ -109,9 +115,10 @@ class SyncEnterpriseSearch:
                     for chunk in split_documents_into_equal_chunks(
                         documents_to_index, constant.BATCH_SIZE
                     ):
-                        self.index_documents(chunk)
+                        for documents in split_documents_into_equal_bytes(chunk, self.max_allowed_bytes):
+                            self.index_documents(documents)
                 if not signal_open:
                     break
 
         except Exception as exception:
-            raise Exception(f"Error while indexing the objects. Error: {exception}")
+            self.logger.info(f"Error while indexing the objects. Error: {exception}")

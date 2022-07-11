@@ -3,7 +3,7 @@
 # or more contributor license agreements. Licensed under the Elastic License 2.0;
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
-"""This module contains utility methods.
+"""This module contains un-categorized utility methods.
 """
 import csv
 import os
@@ -234,3 +234,30 @@ def split_date_range_into_chunks(start_time, end_time, number_of_chunks):
     formatted_end_time = end_time.strftime(RFC_3339_DATETIME_FORMAT)
     datelist.append(formatted_end_time)
     return datelist
+
+
+def split_documents_into_equal_bytes(documents, allowed_size):
+    """This method splits a list of dictionary into list based on allowed size limit.
+    :param documents: List of dictionary to be partitioned into chunks
+    :param allowed_size: Maximum size allowed for indexing per request.
+    Returns:
+        list_of_chunks: List of dictionary array that to be indexed.
+    """
+    list_of_chunks = []
+    chunk = []
+    current_size = allowed_size
+    for document in documents:
+        document_size = len(str(document))
+        if document_size < current_size:
+            chunk.append(document)
+            current_size -= document_size
+        else:
+            if chunk:
+                list_of_chunks.append(chunk)
+            if document_size > allowed_size:
+                document["body"] = None
+                document_size = len(str(document))
+            chunk = [document]
+            current_size = allowed_size - document_size
+    list_of_chunks.append(chunk)
+    return list_of_chunks

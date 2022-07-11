@@ -18,4 +18,22 @@ SCHEMA = {
         "body": "Description",
         "created_at": "Created",
     },
+    "tasks": {
+        "id": "Id",
+        "title": "DisplayName",
+        "body": "Description",
+        "created_at": "Created",
+    },
+    "calendar": {
+        "id": "Id",
+        "title": "DisplayName",
+        "body": "Description",
+        "created_at": "Created",
+    },
+    "contacts": {
+        "id": "Id",
+        "title": "DisplayName",
+        "body": "Description",
+        "created_at": "Created",
+    },
 }
