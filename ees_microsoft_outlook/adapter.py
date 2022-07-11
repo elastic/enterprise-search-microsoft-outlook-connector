@@ -12,6 +12,28 @@
     while key values representthe source fields that will be used to populate the data.
 """
 SCHEMA = {
-    "created_at": "created_at",
-    "last_updated": "updated_at",
+    "mails": {
+        "id": "Id",
+        "title": "DisplayName",
+        "body": "Description",
+        "created_at": "Created",
+    },
+    "tasks": {
+        "id": "Id",
+        "title": "DisplayName",
+        "body": "Description",
+        "created_at": "Created",
+    },
+    "calendar": {
+        "id": "Id",
+        "title": "DisplayName",
+        "body": "Description",
+        "created_at": "Created",
+    },
+    "contacts": {
+        "id": "Id",
+        "title": "DisplayName",
+        "body": "Description",
+        "created_at": "Created",
+    },
 }
