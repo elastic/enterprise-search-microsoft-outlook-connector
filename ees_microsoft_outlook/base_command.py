@@ -16,6 +16,8 @@ try:
 except ImportError:
     from cached_property import cached_property
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from .configuration import Configuration
 from .enterprise_search_wrapper import EnterpriseSearchWrapper
 from .local_storage import LocalStorage
@@ -74,3 +76,33 @@ class BaseCommand:
     def local_storage(self):
         """Get the object for local storage to fetch and update ids stored locally"""
         return LocalStorage(self.logger)
+
+    def create_jobs(self, thread_count, func, args, iterable_list):
+        """Creates a thread pool of given number of thread count
+        :param thread_count: Total number of threads to be spawned
+        :param func: The target function on which the async calls would be made
+        :param args: Arguments for the targeted function
+        :param iterable_list: list to iterate over and create thread
+        """
+        # If iterable_list is present, then iterate over the list and pass each list element
+        # as an argument to the async function, else iterate over number of threads configured
+        if iterable_list:
+            documents = []
+            with ThreadPoolExecutor(max_workers=thread_count) as executor:
+                future_to_path = {
+                    executor.submit(func, *args, *list_element): list_element
+                    for list_element in iterable_list
+                }
+                for future in as_completed(future_to_path):
+                    try:
+                        if future.result():
+                            documents.extend(future.result())
+                    except Exception as exception:
+                        self.logger.exception(
+                            f"Error while fetching the data from Microsoft Outlook. Error {exception}"
+                        )
+            return documents
+        else:
+            with ThreadPoolExecutor(max_workers=thread_count) as executor:
+                for _ in range(thread_count):
+                    executor.submit(func)
