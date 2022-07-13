@@ -2,8 +2,6 @@ import copy
 import json
 import os
 
-from . import constant
-
 
 class LocalStorage:
     """This class contains all the methods to perform operations on doc_id.json file.
@@ -58,7 +56,8 @@ class LocalStorage:
 
     def create_local_storage_directory(self):
         """Creates a doc_id directory if not present"""
-        doc_ids_directory = os.path.dirname(constant.MAIL_DELETION_PATH)
+        doc_ids_directory = os.path.dirname(os.path.join(
+            os.path.dirname(__file__), "doc_ids", "microsoft_outlook_mails_doc_ids.json"))
         if not os.path.exists(doc_ids_directory):
             os.makedirs(doc_ids_directory)
 

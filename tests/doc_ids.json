@@ -1,0 +1,11 @@
+{
+    "global_keys": [
+        {
+            "id": "abc123",
+            "parent id": "xyz123",
+            "type": "inbox mail",
+            "platform": "Microsoft Exchange"
+        }
+    ],
+    "delete_keys": []
+}
