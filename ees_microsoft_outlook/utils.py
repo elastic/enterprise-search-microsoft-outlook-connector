@@ -236,14 +236,6 @@ def split_date_range_into_chunks(start_time, end_time, number_of_chunks):
     return datelist
 
 
-def is_document_in_present_data(document_item, id):
-    """This method is used filter removed document by id
-    :param document_item: Pass document
-    :param id: Pass id of the document which you want to match
-    """
-    return document_item["id"] == id
-
-
 def split_documents_into_equal_bytes(documents, allowed_size):
     """This method splits a list of dictionary into list based on allowed size limit.
     :param documents: List of dictionary to be partitioned into chunks

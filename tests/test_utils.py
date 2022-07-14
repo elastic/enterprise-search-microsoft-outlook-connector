@@ -54,10 +54,10 @@ def test_split_list_into_buckets():
     assert len(documents) == count
 
 
-def test_change_datetime_ews_format():
+def test_convert_datetime_to_ews_format():
     """Test for change date format"""
     # Execute
-    target_date_format = utils.change_datetime_ews_format("2022-04-02T08:20:30Z")
+    target_date_format = utils.convert_datetime_to_ews_format("2022-04-02T08:20:30Z")
 
     # Assert
     assert target_date_format == datetime.datetime(
@@ -109,18 +109,6 @@ def test_insert_document_into_doc_id_storage(ids_list, source_documents):
 
     # Assert
     assert source_documents == target_documents
-
-
-def test_is_document_in_present_data():
-    """Test method for is_document_in_present_data"""
-    # Setup
-    document = {"id": "abcd1234", "name": "abcd"}
-
-    # Execute
-    actual_response = utils.is_document_in_present_data(document, "abcd1234")
-
-    # Assert
-    assert actual_response
 
 
 def test_split_date_range_into_chunks():
