@@ -14,3 +14,5 @@ GRAPH_BASE_URL = "https://graph.microsoft.com/v1.0"
 API_SCOPE = "https://graph.microsoft.com/.default"
 MICROSOFTONLINE_URL = "https://login.microsoftonline.com"
 EWS_ENDPOINT = "https://outlook.office365.com/EWS/Exchange.asmx"
+CONNECTION_TIMEOUT = 60  # Timeout in seconds
+BATCH_SIZE = 100
