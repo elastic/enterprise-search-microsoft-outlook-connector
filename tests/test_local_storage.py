@@ -40,10 +40,7 @@ def test_create_local_storage_directory():
     local_storage_obj.create_local_storage_directory()
 
     # Assert
-    if os.path.exists(DIRECTORY_PATH):
-        assert True
-    else:
-        assert False
+    assert os.path.exists(DIRECTORY_PATH)
 
 
 def test_get_storage_with_collection():
