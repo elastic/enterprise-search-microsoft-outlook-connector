@@ -7,7 +7,7 @@
 import collections
 
 from . import constant
-from .utils import split_documents_into_equal_chunks, split_documents_into_equal_bytes, is_document_in_present_data
+from .utils import split_documents_into_equal_chunks, split_documents_into_equal_bytes
 
 
 class SyncEnterpriseSearch:
@@ -31,7 +31,7 @@ class SyncEnterpriseSearch:
         :param response: Response getting from the Workplace Search
         :param documents: Documents to be indexed into the Workplace Search
         """
-        return list(filter(lambda seq: is_document_in_present_data(seq, response["id"]), documents,))
+        return list(filter(lambda seq: seq["id"] == response["id"], documents,))
 
     def index_documents(self, documents):
         """This method indexes the documents to the Enterprise Search.
