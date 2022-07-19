@@ -17,7 +17,6 @@ GRAPH_BASE_URL = "https://graph.microsoft.com/v1.0"
 API_SCOPE = "https://graph.microsoft.com/.default"
 MICROSOFTONLINE_URL = "https://login.microsoftonline.com"
 EWS_ENDPOINT = "https://outlook.office365.com/EWS/Exchange.asmx"
-CONNECTION_TIMEOUT = 60  # Timeout in seconds
 CURRENT_TIME = (datetime.datetime.utcnow()).strftime("%Y-%m-%dT%H:%M:%SZ")
 DEFAULT_TIME_ZONE = "UTC"
 MAILS_OBJECT = "Mails"

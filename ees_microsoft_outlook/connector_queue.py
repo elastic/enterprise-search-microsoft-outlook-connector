@@ -23,7 +23,6 @@ class ConnectorQueue(Queue):
 
     def put_checkpoint(self, key, checkpoint_time, indexing_type):
         """Put the checkpoint object in the queue which will be used by the consumer to update the checkpoint file
-
         :param key: The key of the checkpoint dictionary
         :param checkpoint_time: The end time that will be stored in the checkpoint as {'key': 'checkpoint_time'}
         :param indexing_type: The type of the indexing i.e. Full or Incremental

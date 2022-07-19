@@ -139,7 +139,7 @@ def html_to_text(content):
         return text
 
 
-def change_datetime_ews_format(utc_datetime):
+def convert_datetime_to_ews_format(utc_datetime):
     """Change datetime format to EWS timezone
     :param utc_datetime: Datetime in UTC format
     Returns:
@@ -166,7 +166,7 @@ def change_datetime_format(datetime, timezone):
     ):
         return datetime.strftime("%Y-%m-%d")
     else:
-        return None
+        return datetime
 
 
 def insert_document_into_doc_id_storage(ids_list, id, parent_id, type, platform):
@@ -218,7 +218,7 @@ def get_schema_fields(document_name, objects):
 
 
 def split_date_range_into_chunks(start_time, end_time, number_of_chunks):
-    """Divides the timerange in equal partitions by number of threads
+    """Divides the timerange in equal partitions by number of chunks
     :param start_time: Start time of the interval
     :param end_time: End time of the interval
     :param number_of_chunks: Number of threads defined into config file for producer process

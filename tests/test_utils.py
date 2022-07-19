@@ -4,10 +4,13 @@
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
 
+import datetime
 import logging
 import os
 import sys
 
+import pytest
+from exchangelib import EWSTimeZone
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -49,6 +52,63 @@ def test_split_list_into_buckets():
             if id in documents:
                 count += 1
     assert len(documents) == count
+
+
+def test_convert_datetime_to_ews_format():
+    """Test for change date format"""
+    # Execute
+    target_date_format = utils.convert_datetime_to_ews_format("2022-04-02T08:20:30Z")
+
+    # Assert
+    assert target_date_format == datetime.datetime(
+        2022, 4, 2, 8, 20, 30, tzinfo=EWSTimeZone(key="UTC")
+    )
+
+
+def test_change_datetime_format():
+    """Test for change_datetime_format"""
+    # Setup
+    date_obj = datetime.date(2020, 5, 17)
+
+    # Execute
+    actual_response = utils.change_datetime_format(date_obj, "UTC")
+
+    # Assert
+    assert actual_response == "2020-05-17"
+
+
+@pytest.mark.parametrize(
+    "ids_list, source_documents",
+    [
+        (
+            [
+                {
+                    "id": "1645460238462",
+                    "parent id": "123456",
+                    "type": "Mails",
+                    "platform": "Office365",
+                }
+            ],
+            [
+                {
+                    "id": "1645460238462",
+                    "parent id": "123456",
+                    "type": "Mails",
+                    "platform": "Office365",
+                }
+            ],
+        )
+    ],
+)
+def test_insert_document_into_doc_id_storage(ids_list, source_documents):
+    """Test method for inserting the ids into doc id"""
+    # Execute
+    target_documents = utils.insert_document_into_doc_id_storage(
+        ids_list, "1645460238462", "123456", "Mails", "Office365"
+    )
+
+    # Assert
+    assert source_documents == target_documents
 
 
 def test_split_date_range_into_chunks():
@@ -95,6 +155,36 @@ def test_split_documents_into_equal_bytes_with_optimum_size():
             {"name": "dummy5", "body": "dummy5_body"},
             {"name": "dummy6", "body": "dummy6_body"},
         ],
+    ]
+
+    # Execute
+    returned_document = utils.split_documents_into_equal_bytes(
+        document_to_split, allowed_size
+    )
+
+    # Assert
+    assert returned_document == expected_output
+
+
+def test_split_documents_into_equal_bytes_with_lowest_possible_size():
+    """Tests split functionality based on size"""
+    # Setup
+    document_to_split = [
+        {"name": "dummy1", "body": "dummy1_body"},
+        {"name": "dummy2", "body": "dummy2_body"},
+        {"name": "dummy3", "body": "dummy3_body"},
+        {"name": "dummy4", "body": "dummy4_body"},
+        {"name": "dummy5", "body": "dummy5_body"},
+        {"name": "dummy6", "body": "dummy6_body"},
+    ]
+    allowed_size = 1
+    expected_output = [
+        [{"name": "dummy1", "body": None}],
+        [{"name": "dummy2", "body": None}],
+        [{"name": "dummy3", "body": None}],
+        [{"name": "dummy4", "body": None}],
+        [{"name": "dummy5", "body": None}],
+        [{"name": "dummy6", "body": None}],
     ]
 
     # Execute
