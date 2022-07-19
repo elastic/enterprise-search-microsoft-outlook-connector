@@ -11,7 +11,7 @@ from iteration_utilities import unique_everseen
 
 from . import constant
 from .utils import (
-    change_datetime_ews_format,
+    convert_datetime_to_ews_format,
     change_datetime_format,
     get_schema_fields,
     html_to_text,
@@ -146,8 +146,8 @@ class MicrosoftOutlookMails:
             documents: List of all types of mail documents
         """
         documents = []
-        start_time = change_datetime_ews_format(start_time)
-        end_time = change_datetime_ews_format(end_time)
+        start_time = convert_datetime_to_ews_format(start_time)
+        end_time = convert_datetime_to_ews_format(end_time)
         for account in accounts:
             # Logic to set time zone according to user account
             self.time_zone = account.default_timezone
