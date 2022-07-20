@@ -19,7 +19,6 @@ except ImportError:
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from . import constant
-from .checkpointing import Checkpoint
 from .configuration import Configuration
 from .enterprise_search_wrapper import EnterpriseSearchWrapper
 from .local_storage import LocalStorage
@@ -158,24 +157,12 @@ class BaseCommand:
         )
         queue.put_checkpoint(constant.MAILS_OBJECT.lower(), end_time, indexing_type)
 
-    def get_datetime_iterable_list_based_on_full_inc_sync(
-        self, indexing_type, checkpoint_object
-    ):
-        """Get time range partition based on checkpoint and thread count
-        :param indexing_type: The type of the indexing i.e. Full or Incremental
-        :param checkpoint_object: Object for retrieving checkpoint
+    def get_datetime_iterable_list(self, start_time, end_time):
+        """Get time range partition based on time duration and thread count
+        :param start_time: Start time for fetching data
+        :param end_time: End time for fetching data
         """
-        checkpoint = Checkpoint(self.logger, self.config)
         thread_count = self.config.get_value("source_sync_thread_count")
-        if "incremental" in indexing_type:
-            start_time, end_time = checkpoint.get_checkpoint(
-                constant.CURRENT_TIME, checkpoint_object
-            )
-        else:
-            start_time, end_time = (
-                self.config.get_value("start_time"),
-                constant.CURRENT_TIME,
-            )
         datelist_mails = split_date_range_into_chunks(
             start_time,
             end_time,
@@ -184,4 +171,4 @@ class BaseCommand:
         time_range_list = []
         for num in range(0, thread_count):
             time_range_list.append((datelist_mails[num], datelist_mails[num + 1]))
-        return end_time, time_range_list
+        return time_range_list

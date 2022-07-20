@@ -10,6 +10,7 @@ third-party system and ingest them into Enterprise Search instance.
 
 from .base_command import BaseCommand
 from .connector_queue import ConnectorQueue
+from .constant import CURRENT_TIME
 from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
 from .sync_microsoft_outlook import SyncMicrosoftOutlook
 
@@ -25,16 +26,14 @@ class FullSyncCommand(BaseCommand):
         :param queue: Shared queue to fetch the stored documents
         """
         thread_count = self.config.get_value("source_sync_thread_count")
-        self.logger.debug("Starting producer for fetching objects from Microsoft Exchange")
+        self.logger.debug(
+            "Starting producer for fetching objects from Microsoft Exchange"
+        )
 
         # Logic to fetch users from Microsoft Exchange
-        microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
-            self.config
-        )
+        microsoft_exchange_server_connection = MicrosoftExchangeServerUser(self.config)
         users = microsoft_exchange_server_connection.get_users()
-        users_accounts = microsoft_exchange_server_connection.get_users_accounts(
-            users
-        )
+        users_accounts = microsoft_exchange_server_connection.get_users_accounts(users)
 
         if len(users_accounts) >= 0:
             self.logger.info(
@@ -51,13 +50,12 @@ class FullSyncCommand(BaseCommand):
             queue,
         )
 
-        # Logic to fetch mails, calendars, contacts and task from Microsoft Outlook by using multithreading approach
-        (
-            end_time,
-            time_range_list,
-        ) = self.get_datetime_iterable_list_based_on_full_inc_sync(
-            FULL_SYNC_INDEXING, ""
+        start_time, end_time = (
+            self.config.get_value("start_time"),
+            CURRENT_TIME,
         )
+        # Logic to fetch mails, calendars, contacts and task from Microsoft Outlook by using multithreading approach
+        time_range_list = self.get_datetime_iterable_list(start_time, end_time)
         self.create_jobs_for_mails(
             FULL_SYNC_INDEXING,
             sync_microsoft_outlook,
