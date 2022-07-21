@@ -63,7 +63,7 @@ def test_get_mails():
 
     # Execute
     source_mails = microsoft_outlook_mails_obj.get_mails(
-        [], start_date, end_date, accounts
+        [], accounts, start_date, end_date
     )
 
     # Assert
