@@ -136,12 +136,12 @@ class MicrosoftOutlookMails:
         return documents
 
     @retry(exception_list=(requests.exceptions.RequestException,))
-    def get_mails(self, ids_list_mails, start_time, end_time, accounts):
+    def get_mails(self, ids_list_mails, accounts, start_time, end_time):
         """This method is used to get documents of mails and mapped with Workplace Search fields
         :param ids_list_mails: List of ids of documents
+        :param accounts: List of user accounts
         :param start_time: Start time for fetching the mails
         :param end_time: End time for fetching the mails
-        :param accounts: List of user accounts
         Returns:
             documents: List of all types of mail documents
         """

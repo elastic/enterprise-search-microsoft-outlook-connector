@@ -148,7 +148,7 @@ class BaseCommand:
         self.create_jobs(
             thread_count,
             sync_microsoft_outlook.fetch_mails,
-            (ids_list, users_accounts, self.microsoft_outlook_mail_object, False),
+            (ids_list, users_accounts, self.microsoft_outlook_mail_object),
             time_range_list,
         )
         storage_with_collection["global_keys"] = list(ids_list)
