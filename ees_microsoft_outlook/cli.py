@@ -14,11 +14,14 @@ import os
 from argparse import ArgumentParser
 
 from .bootstrap_command import BootstrapCommand
+from .full_sync_command import FullSyncCommand
 
 CMD_BOOTSTRAP = "bootstrap"
+CMD_FULL_SYNC = "full-sync"
 
 commands = {
     CMD_BOOTSTRAP: BootstrapCommand,
+    CMD_FULL_SYNC: FullSyncCommand,
 }
 
 
@@ -55,6 +58,7 @@ def _parser():
         help="Username of the Workplace Search admin account",
     )
 
+    subparsers.add_parser(CMD_FULL_SYNC)
     return parser
 
 
