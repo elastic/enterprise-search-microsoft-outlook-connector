@@ -7,10 +7,11 @@
 It will attempt to sync absolutely all documents that are available in the
 third-party system and ingest them into Enterprise Search instance.
 """
-from . import constant
+
 from .base_command import BaseCommand
 from .connector_queue import ConnectorQueue
-from .constant import CURRENT_TIME
+from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
+                       CONNECTOR_TYPE_OFFICE365, CURRENT_TIME)
 from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
 from .office365_user import Office365User
 from .sync_microsoft_outlook import SyncMicrosoftOutlook
@@ -31,11 +32,11 @@ class FullSyncCommand(BaseCommand):
         self.logger.debug(f"Starting producer for fetching objects from {product_type}")
 
         # Logic to fetch users from Microsoft Exchange or Office365
-        if constant.CONNECTOR_TYPE_OFFICE365 in product_type:
+        if CONNECTOR_TYPE_OFFICE365 in product_type:
             office365_connection = Office365User(self.config)
             users = office365_connection.get_users()
             users_accounts = office365_connection.get_users_accounts(users)
-        elif constant.CONNECTOR_TYPE_MICROSOFT_EXCHANGE in product_type:
+        elif CONNECTOR_TYPE_MICROSOFT_EXCHANGE in product_type:
             microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
                 self.config
             )
