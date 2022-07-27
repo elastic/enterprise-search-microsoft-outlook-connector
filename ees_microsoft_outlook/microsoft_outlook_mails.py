@@ -53,10 +53,7 @@ class MicrosoftOutlookMails:
                 )
 
             # Logic to fetch mail attachments
-            if (
-                attachment.last_modified_time >= start_time
-                and attachment.last_modified_time < end_time
-            ):
+            if attachment.last_modified_time >= start_time and attachment.last_modified_time < end_time:
                 attachments = {
                     "type": constant.MAILS_ATTACHMENTS_OBJECT,
                     "id": attachment.attachment_id.id,
