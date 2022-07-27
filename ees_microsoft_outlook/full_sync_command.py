@@ -28,15 +28,15 @@ class FullSyncCommand(BaseCommand):
         :param queue: Shared queue to fetch the stored documents
         """
         thread_count = self.config.get_value("microsoft_outlook_sync_thread_count")
-        product_type = self.config.get_value("connector_platform_type")
-        self.logger.debug(f"Starting producer for fetching objects from {product_type}")
+        platform_type = self.config.get_value("connector_platform_type")
+        self.logger.debug(f"Starting producer for fetching objects from {platform_type}")
 
         # Logic to fetch users from Microsoft Exchange or Office365
-        if CONNECTOR_TYPE_OFFICE365 in product_type:
+        if CONNECTOR_TYPE_OFFICE365 in platform_type:
             office365_connection = Office365User(self.config)
             users = office365_connection.get_users()
             users_accounts = office365_connection.get_users_accounts(users)
-        elif CONNECTOR_TYPE_MICROSOFT_EXCHANGE in product_type:
+        elif CONNECTOR_TYPE_MICROSOFT_EXCHANGE in platform_type:
             microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
                 self.config
             )
@@ -47,7 +47,7 @@ class FullSyncCommand(BaseCommand):
 
         if len(users_accounts) >= 0:
             self.logger.info(
-                f"Successfully fetched users accounts from the {product_type}"
+                f"Successfully fetched users accounts from the {platform_type}"
             )
         else:
             self.logger.info("Error while fetching users from the Active Directory")
