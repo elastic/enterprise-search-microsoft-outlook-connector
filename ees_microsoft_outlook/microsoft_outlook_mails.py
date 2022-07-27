@@ -203,8 +203,7 @@ class MicrosoftOutlookMails:
                         )
                     )
                     mail_type_documents = self.get_mail_documents(
-                        account, ids_list_mails, type["constant"], mail_type_obj, start_time, end_time
-                    )
+                        account, ids_list_mails, type["constant"], mail_type_obj)
                     documents.extend(mail_type_documents)
             except requests.exceptions.RequestException as request_error:
                 raise requests.exceptions.RequestException(
