@@ -14,8 +14,8 @@ from .connector_queue import ConnectorQueue
 from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
                        CONNECTOR_TYPE_OFFICE365, CURRENT_TIME)
 from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
-from .sync_enterprise_search import SyncEnterpriseSearch
 from .office365_user import Office365User
+from .sync_enterprise_search import SyncEnterpriseSearch
 from .sync_microsoft_outlook import SyncMicrosoftOutlook
 
 FULL_SYNC_INDEXING = "full"
