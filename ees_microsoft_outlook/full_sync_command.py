@@ -11,9 +11,11 @@ third-party system and ingest them into Enterprise Search instance.
 from .base_command import BaseCommand
 from .checkpointing import Checkpoint
 from .connector_queue import ConnectorQueue
-from .constant import CURRENT_TIME
+from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
+                       CONNECTOR_TYPE_OFFICE365, CURRENT_TIME)
 from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
 from .sync_enterprise_search import SyncEnterpriseSearch
+from .office365_user import Office365User
 from .sync_microsoft_outlook import SyncMicrosoftOutlook
 
 FULL_SYNC_INDEXING = "full"
@@ -27,19 +29,27 @@ class FullSyncCommand(BaseCommand):
         the Microsoft Outlook and pushing them in the shared queue
         :param queue: Shared queue to fetch the stored documents
         """
-        thread_count = self.config.get_value("source_sync_thread_count")
-        self.logger.debug(
-            "Starting producer for fetching objects from Microsoft Exchange"
-        )
+        thread_count = self.config.get_value("microsoft_outlook_sync_thread_count")
+        platform_type = self.config.get_value("connector_platform_type")
+        self.logger.debug(f"Starting producer for fetching objects from {platform_type}")
 
-        # Logic to fetch users from Microsoft Exchange
-        microsoft_exchange_server_connection = MicrosoftExchangeServerUser(self.config)
-        users = microsoft_exchange_server_connection.get_users()
-        users_accounts = microsoft_exchange_server_connection.get_users_accounts(users)
+        # Logic to fetch users from Microsoft Exchange or Office365
+        if CONNECTOR_TYPE_OFFICE365 in platform_type:
+            office365_connection = Office365User(self.config)
+            users = office365_connection.get_users()
+            users_accounts = office365_connection.get_users_accounts(users)
+        elif CONNECTOR_TYPE_MICROSOFT_EXCHANGE in platform_type:
+            microsoft_exchange_server_connection = MicrosoftExchangeServerUser(
+                self.config
+            )
+            users = microsoft_exchange_server_connection.get_users()
+            users_accounts = microsoft_exchange_server_connection.get_users_accounts(
+                users
+            )
 
         if len(users_accounts) >= 0:
             self.logger.info(
-                "Successfully fetched users accounts from the Microsoft Exchange"
+                f"Successfully fetched users accounts from the {platform_type}"
             )
         else:
             self.logger.info("Error while fetching users from the Active Directory")
