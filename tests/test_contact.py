@@ -12,7 +12,7 @@ import exchangelib
 from ees_microsoft_outlook.configuration import Configuration
 from ees_microsoft_outlook.microsoft_outlook_contacts import \
     MicrosoftOutlookContacts
-from exchangelib.ewsdatetime import EWSDateTime, EWSTimeZone
+from exchangelib.ewsdatetime import EWSDate, EWSTimeZone
 from exchangelib.items.contact import Contact
 
 
@@ -82,14 +82,14 @@ def test_convert_contact_to_workplace_search_document():
         "DisplayName": "Demo User",
         "Description": "Email Addresses: demo@abc.com\n Company Name: demo_com\n\
 Contact Numbers: 123456789\n Date of Birth: ",
-        "Created": "2022-04-11T02:13:00Z",
+        "Created": "2022-04-11",
     }
     microsoft_outlook_con_obj = create_contact_obj()
     microsoft_outlook_con_obj.time_zone = EWSTimeZone("Asia/Calcutta")
     contact_obj = Contact(
         email_addresses=[Mock()],
         phone_numbers=[Mock()],
-        last_modified_time=EWSDateTime(2022, 4, 11, 2, 13, 00),
+        last_modified_time=EWSDate(2022, 4, 11),
         id="123456789",
         display_name="Demo User",
         company_name="demo_com",
