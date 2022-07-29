@@ -67,8 +67,8 @@ class MicrosoftOutlookContacts:
         contact_document = {
             "Id": contact_obj.id,
             "DisplayName": contact_obj.display_name,
-            "Description": f"Email Addresses: {contact_emails}\n Company Name: {contact_obj.company_name}\n"
-            f"Contact Numbers: {contact_numbers}\n Date of Birth: {contact_obj.birthday}",
+            "Description": f"Email Addresses: {contact_emails}\nCompany Name: {contact_obj.company_name}\n"
+            f"Contact Numbers: {contact_numbers}\nDate of Birth: {contact_obj.birthday}",
             "Created": contact_created,
         }
         return contact_document
