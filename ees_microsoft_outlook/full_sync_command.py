@@ -75,7 +75,15 @@ class FullSyncCommand(BaseCommand):
             end_time,
             queue,
         )
-
+        self.create_jobs_for_calendar(
+            FULL_SYNC_INDEXING,
+            sync_microsoft_outlook,
+            thread_count,
+            users_accounts,
+            time_range_list,
+            end_time,
+            queue,
+        )
         enterprise_thread_count = self.config.get_value(
             "enterprise_search_sync_thread_count"
         )

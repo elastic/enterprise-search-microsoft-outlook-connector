@@ -22,6 +22,7 @@ from . import constant
 from .configuration import Configuration
 from .enterprise_search_wrapper import EnterpriseSearchWrapper
 from .local_storage import LocalStorage
+from .microsoft_outlook_calendar import MicrosoftOutlookCalendar
 from .microsoft_outlook_mails import MicrosoftOutlookMails
 from .utils import split_date_range_into_chunks
 
@@ -84,6 +85,11 @@ class BaseCommand:
     def microsoft_outlook_mail_object(self):
         """Get the object for fetching the mails related data"""
         return MicrosoftOutlookMails(self.logger, self.config)
+
+    @cached_property
+    def microsoft_outlook_calendar_object(self):
+        """Get the object for fetching the calendars related data"""
+        return MicrosoftOutlookCalendar(self.logger, self.config)
 
     def create_jobs(self, thread_count, func, args, iterable_list):
         """Creates a thread pool of given number of thread count
@@ -156,6 +162,48 @@ class BaseCommand:
             storage_with_collection, constant.MAIL_DELETION_PATH
         )
         queue.put_checkpoint(constant.MAILS_OBJECT.lower(), end_time, indexing_type)
+
+    def create_jobs_for_calendar(
+        self,
+        indexing_type,
+        sync_microsoft_outlook,
+        thread_count,
+        users_accounts,
+        time_range_list,
+        end_time,
+        queue,
+    ):
+        """Create job for fetching the calendars
+        :param indexing_type: The type of the indexing i.e. Full or Incremental
+        :param sync_microsoft_outlook: Object of SyncMicrosoftOutlook
+        :param thread_count: Thread count to make partitions
+        :param users_accounts: List of users account
+        :param time_range_list: List of time range for fetching the data
+        :param end_time: End time for setting checkpoint
+        :param queue: Shared queue for storing the data
+        """
+        if constant.CALENDARS_OBJECT.lower() not in self.config.get_value("objects"):
+            self.logger.info(
+                "Calendar events are not getting indexed because user has excluded from configuration file"
+            )
+            return
+        self.logger.debug("Started fetching the calendar")
+        ids_list = []
+        storage_with_collection = self.local_storage.get_storage_with_collection(
+            self.local_storage, constant.CALENDAR_DELETION_PATH
+        )
+        ids_list = storage_with_collection.get("global_keys")
+        self.create_jobs(
+            thread_count,
+            sync_microsoft_outlook.fetch_calendar,
+            (ids_list, users_accounts, self.microsoft_outlook_calendar_object),
+            time_range_list,
+        )
+        storage_with_collection["global_keys"] = list(ids_list)
+        self.local_storage.update_storage(
+            storage_with_collection, constant.CALENDAR_DELETION_PATH
+        )
+        queue.put_checkpoint(constant.CALENDARS_OBJECT.lower(), end_time, indexing_type)
 
     def get_datetime_iterable_list(self, start_time, end_time):
         """Get time range partition based on time duration and thread count

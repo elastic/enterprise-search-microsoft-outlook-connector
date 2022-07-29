@@ -47,3 +47,23 @@ class SyncMicrosoftOutlook:
             self.logger.exception(f"Error while fetching Mails. Error: {exception}")
         self.logger.info("Successfully fetched Mails from Microsoft Outlook")
         self.queue.append_to_queue(constant.MAILS_OBJECT.lower(), documents)
+
+    def fetch_calendar(
+        self, ids_list, users_account, calendar_object, start_time, end_time
+    ):
+        """This method is used to fetch calendar from Microsoft Outlook
+        :ids_list: List of ids of documents
+        :param users_accounts: List of user account
+        :param calendar_object: Object of calendar
+        :param start_time: Start time for fetching the calendar
+        :param end_time: End time for fetching the calendar
+        """
+        self.logger.info("Fetching Calendars from Microsoft Outlook")
+        try:
+            documents = calendar_object.get_calendar(
+                ids_list, users_account, start_time, end_time
+            )
+        except Exception as exception:
+            self.logger.exception(f"Error while fetching Calendar. Error: {exception}")
+        self.logger.info("Successfully fetched Calendars from Microsoft Outlook")
+        self.queue.append_to_queue(constant.CALENDARS_OBJECT.lower(), documents)
