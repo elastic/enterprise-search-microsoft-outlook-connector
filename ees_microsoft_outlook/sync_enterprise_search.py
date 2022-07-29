@@ -72,16 +72,13 @@ class SyncEnterpriseSearch:
         """This method is used to for grouping the document based on their type
         :param documents: Document to be indexed
         Returns:
-             df_dict: Dictionary of type with its count
+             dict_count: Dictionary of type with its count
         """
-        dict_count = {}
         if not documents:
             return {}
-        grouped_documents = collections.defaultdict(list)
+        dict_count = collections.defaultdict(int)
         for item in documents:
-            grouped_documents[item["type"]].append(item)
-        for model, group in grouped_documents.items():
-            dict_count[model] = len(group)
+            dict_count[item["type"]] += 1
         return dict_count
 
     def perform_sync(self):
