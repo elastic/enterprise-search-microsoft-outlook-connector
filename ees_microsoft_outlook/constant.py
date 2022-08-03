@@ -43,3 +43,5 @@ CALENDAR_ATTACHMENTS_OBJECT = "Calendar Attachments"
 CALENDAR_DELETION_PATH = os.path.join(
     os.path.dirname(__file__), "doc_ids", "microsoft_outlook_calendar_doc_ids.json"
 )
+SIGNAL_CLOSE = "signal_close"
+CHECKPOINT = "checkpoint"

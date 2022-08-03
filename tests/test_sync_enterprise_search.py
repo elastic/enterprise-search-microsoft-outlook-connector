@@ -106,46 +106,4 @@ def test_get_records_by_types():
     target_response = indexer_obj.get_records_by_types(input_document)
 
     # Assert
-    assert {"text": 1} == target_response
-
-
-def test_fetch_documents_by_id():
-    indexer_obj = create_enterprise_search_obj()
-    document = {
-        "id": 0,
-        "title": "file0",
-        "body": "Not much. It is a made up thing.",
-        "url": "dummy_folder/file0.txt",
-        "created_at": "2019-06-01T12:00:00+00:00",
-        "type": "text",
-    }
-    document_list = [
-        {
-            "id": 0,
-            "title": "file0",
-            "body": "Not much. It is a made up thing.",
-            "url": "dummy_folder/file0.txt",
-            "created_at": "2019-06-01T12:00:00+00:00",
-            "type": "text",
-        },
-        {
-            "id": 1,
-            "title": "file1",
-            "body": "Not much. It is a made up thing.",
-            "url": "dummy_folder/file1.txt",
-            "created_at": "2019-06-01T12:00:00+00:00",
-            "type": "text",
-        },
-    ]
-    expected_document = [
-        {
-            "id": 0,
-            "title": "file0",
-            "body": "Not much. It is a made up thing.",
-            "url": "dummy_folder/file0.txt",
-            "created_at": "2019-06-01T12:00:00+00:00",
-            "type": "text",
-        }
-    ]
-    actual_response = indexer_obj.fetch_documents_by_id(document, document_list)
-    assert expected_document == actual_response
+    assert {"text": [0]} == target_response

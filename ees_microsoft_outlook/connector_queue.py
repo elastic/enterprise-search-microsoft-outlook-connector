@@ -6,6 +6,8 @@
 import multiprocessing
 from multiprocessing.queues import Queue
 
+from .constant import CHECKPOINT, SIGNAL_CLOSE
+
 
 class ConnectorQueue(Queue):
     """Class to support additional queue operations specific to the connector"""
@@ -18,7 +20,7 @@ class ConnectorQueue(Queue):
     def end_signal(self):
         """Send an terminate signal to indicate the queue can be closed"""
 
-        signal_close = {"type": "signal_close"}
+        signal_close = {"type": SIGNAL_CLOSE}
         self.put(signal_close)
 
     def put_checkpoint(self, key, checkpoint_time, indexing_type):
@@ -29,7 +31,7 @@ class ConnectorQueue(Queue):
         """
 
         checkpoint = {
-            "type": "checkpoint",
+            "type": CHECKPOINT,
             "data": (key, checkpoint_time, indexing_type),
         }
         self.put(checkpoint)

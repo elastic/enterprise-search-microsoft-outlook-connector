@@ -5,9 +5,10 @@
 #
 
 import collections
+import copy
 
 from . import constant
-from .utils import split_documents_into_equal_chunks, split_documents_into_equal_bytes
+from .utils import split_documents_into_equal_bytes, split_documents_into_equal_chunks
 
 
 class SyncEnterpriseSearch:
@@ -26,13 +27,6 @@ class SyncEnterpriseSearch:
         self.checkpoint_list = []
         self.max_allowed_bytes = 10000000
 
-    def fetch_documents_by_id(self, response, documents):
-        """Filters the documents which are getting failed while indexing
-        :param response: Response getting from the Workplace Search
-        :param documents: Documents to be indexed into the Workplace Search
-        """
-        return list(filter(lambda seq: seq["id"] == response["id"], documents,))
-
     def index_documents(self, documents):
         """This method indexes the documents to the Enterprise Search.
         :param documents: Documents to be indexed
@@ -40,7 +34,11 @@ class SyncEnterpriseSearch:
         try:
             if documents:
                 error_count = 0
+                documents_dict = collections.defaultdict(dict)
+                for document in documents:
+                    documents_dict[document["id"]] = document
                 total_records_dict = self.get_records_by_types(documents)
+                total_inserted_record_dict = copy.deepcopy(total_records_dict)
                 responses = self.workplace_search_custom_client.index_documents(
                     documents,
                     constant.CONNECTION_TIMEOUT,
@@ -48,14 +46,13 @@ class SyncEnterpriseSearch:
                 if responses:
                     for each in responses["results"]:
                         if each["errors"]:
-                            failed_document_list = self.fetch_documents_by_id(each, documents)
                             # Removing the failed document from the successfully indexed document count
-                            documents = [document for document in documents if document not in failed_document_list]
                             error_count += 1
-            total_inserted_record_dict = self.get_records_by_types(documents)
+                            type = documents_dict[each["id"]]["type"]
+                            total_inserted_record_dict[type].remove(each["id"])
             for type, count in total_records_dict.items():
                 self.logger.info(
-                    f"Total {total_inserted_record_dict[type]} {type} indexed out of {count}."
+                    f"Total {len(total_inserted_record_dict[type])} {type} indexed out of {len(count)}."
                     if total_inserted_record_dict
                     else "There is no record found to index into Workplace Search"
                 )
@@ -76,9 +73,9 @@ class SyncEnterpriseSearch:
         """
         if not documents:
             return {}
-        dict_count = collections.defaultdict(int)
+        dict_count = collections.defaultdict(list)
         for item in documents:
-            dict_count[item["type"]] += 1
+            dict_count[item["type"]].append(item["id"])
         return dict_count
 
     def perform_sync(self):
@@ -89,14 +86,15 @@ class SyncEnterpriseSearch:
                 documents_to_index = []
                 while len(documents_to_index) < constant.BATCH_SIZE and len(str(documents_to_index)) < self.max_allowed_bytes:
                     documents = self.queue.get()
-                    if documents.get("type") == "signal_close":
+                    if documents.get("type") == constant.SIGNAL_CLOSE:
                         signal_open = False
                         break
-                    elif documents.get("type") == "checkpoint":
+                    elif documents.get("type") == constant.CHECKPOINT:
+                        data = documents.get("data")
                         checkpoint_dict = {
-                            "current_time": documents.get("data")[1],
-                            "index_type": documents.get("data")[2],
-                            "object_type": documents.get("data")[0],
+                            "current_time": data[1],
+                            "index_type": data[2],
+                            "object_type": data[0],
                         }
                         self.checkpoint_list.append(checkpoint_dict)
                         break
@@ -108,7 +106,9 @@ class SyncEnterpriseSearch:
                     for chunk in split_documents_into_equal_chunks(
                         documents_to_index, constant.BATCH_SIZE
                     ):
-                        for documents in split_documents_into_equal_bytes(chunk, self.max_allowed_bytes):
+                        for documents in split_documents_into_equal_bytes(
+                            chunk, self.max_allowed_bytes
+                        ):
                             self.index_documents(documents)
                 if not signal_open:
                     break
