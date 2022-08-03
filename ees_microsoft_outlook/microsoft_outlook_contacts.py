@@ -18,6 +18,9 @@ from .utils import (
     retry,
 )
 
+# Default Birth Year in Outlook set to 1604 if user not specified Birth Year
+DEFAULT_BIRTH_YEAR = 1604
+
 
 class MicrosoftOutlookContacts:
     """This class fetches contacts for all users from Microsoft Outlook"""
@@ -60,15 +63,17 @@ class MicrosoftOutlookContacts:
 
         # Logic to remove year from birthdate if birth year is kept empty by the user
         if contact_obj.birthday:
-            if 1604 == contact_obj.birthday.year:
+            if DEFAULT_BIRTH_YEAR == contact_obj.birthday.year:
                 contact_obj.birthday = contact_obj.birthday.strftime("%m-%d")
 
         # Logic to create document body
         contact_document = {
             "Id": contact_obj.id,
             "DisplayName": contact_obj.display_name,
-            "Description": f"Email Addresses: {contact_emails}\nCompany Name: {contact_obj.company_name}\n"
-            f"Contact Numbers: {contact_numbers}\nDate of Birth: {contact_obj.birthday}",
+            "Description": f"""Email Addresses: {contact_emails}
+                            Company Name: {contact_obj.company_name}
+                            Contact Numbers: {contact_numbers}
+                            Date of Birth: {contact_obj.birthday}""",
             "Created": contact_created,
         }
         return contact_document

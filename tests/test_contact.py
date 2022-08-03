@@ -80,9 +80,11 @@ def test_convert_contact_to_workplace_search_document():
     expected_contact = {
         "Id": "123456789",
         "DisplayName": "Demo User",
-        "Description": "Email Addresses: demo@abc.com\nCompany Name: demo_com\n\
-Contact Numbers: 123456789\nDate of Birth: ",
-        "Created": "2022-04-11",
+        "Description": """Email Addresses: demo@abc.com
+                            Company Name: demo_com
+                            Contact Numbers: 123456789
+                            Date of Birth: """,
+        "Created": "2022-04-11"
     }
     microsoft_outlook_con_obj = create_contact_obj()
     microsoft_outlook_con_obj.time_zone = EWSTimeZone("Asia/Calcutta")
