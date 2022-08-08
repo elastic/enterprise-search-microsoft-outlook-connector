@@ -64,9 +64,9 @@ The steps above are relevant to all users. Some users may require additional fea
 
 ### Gather Microsoft Outlook details
 
-Before deploying the connector, you’ll need to identify the type of your Microsoft Outlook like Microsoft Exchange Outlook or Microsoft Office365 Outlook and based on that you have to gather below details. 
+Before deploying the connector, you’ll need to identify whether you're using Microsoft _Exchange_ Outlook or Microsoft _Office365_ Outlook. You'll need to gather different details based on this. 
 
-If it is Microsoft Exchange Outlook, then collect the below information that is required to connect to Microsoft Exchange Outlook:
+For Microsoft _Exchange_ Outlook, collect the following information:
 
 - The address of the Microsoft Exchange active directory host.
 - The address of the Microsoft Exchange Server host.
@@ -77,9 +77,9 @@ If it is Microsoft Exchange Outlook, then collect the below information that is 
 
 ℹ️ The username and password must be the admin account for the Microsoft Exchange server.
 
-If it is Microsoft Office365 Outlook, then collect the below information that is required to connect to Microsoft Office365 Outlook:
+For Microsoft _Office365_ Outlook, collect the following information:
 
-- The client id, tenant id and client secret will be used to generate access token and for fetching users details.
+- The `client id`, `tenant id` and `client secret` will be used to generate access tokens and fetch users details.
 
 Later, you will [configure the connector](#configure-the-connector) with these values.
 
@@ -141,7 +141,7 @@ make install_package
 ```
 
 This command runs as the current user and installs the connector and its dependencies.
-Note: By Default, the package installed supports Enterprise Search version 8.0 or above. In order to use the connector for older versions of Enterprise Search(less than version 8.0) use the ES_VERSION_V8 argument while running make install_package or make install_locally command:
+Note: By Default, the package installed supports Enterprise Search version 8.0 or above. In order to use the connector for older versions of Enterprise Search(less than version 8.0) use the `ES_VERSION_V8` argument while running the `make install_package` or `make install_locally` command:
 
 ```shell
 make install_package ES_VERSION_V8=no
@@ -316,10 +316,10 @@ Finally, you can set custom timestamps to control which objects are synced, base
 The following sections provide the solution for issues related to access token generation.
 
 #### Disable Multi-factor Authentication
-1. Go to Microsoft Azure AD > properties.
-2. Go to Manage Security defaults, disable the security, and save the changes.
-3. Then, go to users and create a new user with global permissions from assignees roles.
-4. Now, go to Microsoft Outlook Azure AD conditional access and create a new policy:
+1. Go to **Microsoft Azure AD -> Properties**.
+2. Go to **Manage Security defaults**, disable the security, and save the changes.
+3. Go to **Users** and create a new user with global permissions from assignees roles.
+4. Go to **Microsoft Outlook Azure AD conditional access** and create a new policy:
 - **Name:** Name of the policy
 - **Users or workload identities:** include "allusers" and exclude the newly created users (this step will disable MFA for all excluded users).
 - **Cloud apps or actions:** include "All cloud apps"
@@ -328,13 +328,17 @@ The following sections provide the solution for issues related to access token g
 #### Add permissions to Microsoft Azure Platform
 1. Check the configuration file and verify all Microsoft Outlook settings configuration values are set correctly.
 2. If configuration values are set correctly, go to your application on Microsoft Azure Platform and verify all permissions are added as per the permission listed below and have the admin consent to each permission.
-- User.Read (Delegated)
-- User.Read.All (Delegated and Application)
-- full_access_as_app (Application)
+- `User.Read` (Delegated)
+- `User.Read.All` (Delegated and Application)
+- `full_access_as_app` (Application)
 
 #### Add permissions to Microsoft Exchange Server
 1. Check the configuration file and verify all Microsoft Outlook settings configuration values are set correctly.
-2. If configuration values are set correctly, go to your application on Microsoft Exchange Server and verify permissions under admin roles add Application Impersonation in impersonation section and include admin user in member section.
+2. If configuration values are set correctly:
+    1. Go to your application on Microsoft Exchange Server
+    2. Verify permissions under admin roles 
+    3. Add Application Impersonation in the impersonation section
+    4. Include admin user in member section.
 
 ### Use document-level permissions (DLP)
 
@@ -667,23 +671,23 @@ retry_count: 3
 ```
 By default, it is set to `3`.
 
-#### `microsoft_outlook_sync_thread_count`
+#### `source_sync_sync_thread_count`
 
-The number of threads the connector will run parallelly for fetching documents from the Microsoft Outlook. By default, the connector uses 5 threads
+The number of threads the connector will run in parallel to fetch documents from the Microsoft Outlook. By default, the connector uses 5 threads.
 
 ```yaml
-microsoft_outlook_sync_thread_count: 5
+source_sync_sync_thread_count: 5
 ```
 
 #### `enterprise_search_sync_thread_count`
 
-The number of threads the connector will run parallelly for indexing documents to the Enterprise Search instance. By default, the connector uses 5 threads
+The number of threads the connector will run in parallel for indexing documents to the Enterprise Search instance. By default, the connector uses 5 threads.
 
 ```yaml
 enterprise_search_sync_thread_count: 5
 ```
 
-For the Linux distribution with at least 2 GB RAM and 4 vCPUs, you can increase the thread counts if the overall CPU and RAM are under utilized i.e. below 60-70%.
+For a Linux distribution with at least 2 GB RAM and 4 vCPUs, you can increase the thread counts if the overall CPU and RAM are under utilized, i.e. below 60-70%.
 
 #### `connector.user_mapping`
 
@@ -713,5 +717,5 @@ Each Microsoft Outlook connector requires a runtime environment that satisfies t
 
 The following sections provide limitations of connector:
 
-- The connector can't fetch the files having the size greater than 10 MB due to the exchange-lib module's limitation. As it does not allow us to fetch those files so we can't index them to Workplace Search.
-- Sometimes exchange-lib module takes some time to respond the attachments of Mails, Calendars and Tasks, so there might be some attachments missing with increment sync, but in the next full-sync cycle it will index that missing attachments.
+- The connector can't fetch files larger than 10 MB due to a limitation with the `exchange-lib` module. These files will not be indexed into Workplace Search.
+- The `exchange-lib` module can be slow to return attachments from Mails, Calendars and Tasks. In some cases, attachments may be missing following an incremental sync. However, these missing attachments will be indexed in the next full-sync cycle.
