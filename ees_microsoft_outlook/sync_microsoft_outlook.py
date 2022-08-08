@@ -78,7 +78,6 @@ class SyncMicrosoftOutlook:
         :param start_time: Start time for fetching the contacts
         :param end_time: End time for fetching the contacts
         """
-        print(contact_object)
         self.logger.info("Fetching Contacts from Microsoft Outlook")
         try:
             documents = contact_object.get_contacts(
