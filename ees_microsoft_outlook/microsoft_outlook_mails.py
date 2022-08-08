@@ -78,7 +78,7 @@ class MicrosoftOutlookMails:
 
         return mail_attachments
 
-    def convert_mails_to_workplace_search_documents(
+    def mails_to_docs(
         self,
         ids_list_mails,
         mail_type,
@@ -100,57 +100,67 @@ class MicrosoftOutlookMails:
         """
 
         # Logic for email sender
-        sender_email = ""
         if mail_obj.sender:
             sender_email = mail_obj.sender.email_address
+        else:
+            sender_email = ""
 
         # Logic for email recipients
-        receiver_email = ""
         if mail_obj.to_recipients:
             receiver_email_list = []
             for recipient in mail_obj.to_recipients:
                 receiver_email_list.append(recipient.email_address)
             receiver_email = ", ".join(receiver_email_list)
+        else:
+            receiver_email = ""
 
         # Logic for email cc
-        cc = ""
         if mail_obj.cc_recipients:
             cc_list = []
             for cc_recipient in mail_obj.cc_recipients:
                 cc_list.append(cc_recipient.email_address)
             cc = ", ".join(cc_list)
+        else:
+            cc = ""
 
         # Logic for email bcc
-        bcc = ""
         if mail_obj.bcc_recipients:
             bcc_list = []
             for bcc_recipient in mail_obj.bcc_recipients:
                 bcc_list.append(bcc_recipient.email_address)
             bcc = ", ".join(bcc_list)
+        else:
+            bcc = ""
 
         # Logic for mail last modified time
-        mail_created = ""
         if mail_obj.last_modified_time:
             mail_created = change_datetime_format(
                 mail_obj.last_modified_time, self.time_zone
             )
+        else:
+            mail_created = ""
 
         # Logic for mail categories
-        mail_categories = ""
         if mail_obj.categories:
             mail_categories_list = []
             for categories in mail_obj.categories:
                 mail_categories_list.append(categories)
             mail_categories = ", ".join(mail_categories_list)
+        else:
+            mail_categories = ""
 
         # Logic to create document body
         mail_document = {
             "type": mail_type,
             "Id": mail_obj.id,
             "DisplayName": mail_obj.subject,
-            "Description": f"Sender Email: {sender_email}\n Receiver Email: {receiver_email}\n"
-            f"CC: {cc}\n BCC: {bcc}\n Importance: {mail_obj.importance}\n"
-            f"Category: {mail_categories}\n Body: {html_to_text(mail_obj.body)}",
+            "Description": f"""Sender Email: {sender_email}
+                            Receiver Email: {receiver_email}
+                            CC: {cc}
+                            BCC: {bcc}
+                            Importance: {mail_obj.importance}
+                            Category: {mail_categories}
+                            Body: {html_to_text(mail_obj.body)}""",
             "Created": mail_created,
         }
 
@@ -193,7 +203,7 @@ class MicrosoftOutlookMails:
             (
                 mail_dict,
                 mail_attachment,
-            ) = self.convert_mails_to_workplace_search_documents(
+            ) = self.mails_to_docs(
                 ids_list_mails,
                 mail_type,
                 mail_obj,

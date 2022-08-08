@@ -109,7 +109,7 @@ def test_get_mail_documents():
     account = Mock()
     microsoft_outlook_mails_obj = create_mail_obj()
     microsoft_outlook_mails_obj.time_zone = EWSTimeZone("Asia/Calcutta")
-    microsoft_outlook_mails_obj.convert_mails_to_workplace_search_documents = Mock(
+    microsoft_outlook_mails_obj.mails_to_docs = Mock(
         return_value=(mail_response, attachments_response)
     )
     mail_obj = [Mock()]
