@@ -85,12 +85,12 @@ class SyncEnterpriseSearch:
             while signal_open:
                 documents_to_index = []
                 while len(documents_to_index) < constant.BATCH_SIZE and len(str(documents_to_index)) < self.max_allowed_bytes:
-                    documents = self.queue.get()
-                    if documents.get("type") == constant.SIGNAL_CLOSE:
+                    queue_item = self.queue.get()
+                    if queue_item.get("type") == constant.SIGNAL_CLOSE:
                         signal_open = False
                         break
-                    elif documents.get("type") == constant.CHECKPOINT:
-                        data = documents.get("data")
+                    elif queue_item.get("type") == constant.CHECKPOINT:
+                        data = queue_item.get("data")
                         checkpoint_dict = {
                             "current_time": data[1],
                             "index_type": data[2],
@@ -99,7 +99,7 @@ class SyncEnterpriseSearch:
                         self.checkpoint_list.append(checkpoint_dict)
                         break
                     else:
-                        documents_to_index.extend(documents.get("data"))
+                        documents_to_index.extend(queue_item.get("data"))
                 # This loop is to ensure if the last document fetched from the queue exceeds the size of
                 # documents_to_index to more than the permitted chunk size, then we split the documents as per the limit
                 if documents_to_index:
