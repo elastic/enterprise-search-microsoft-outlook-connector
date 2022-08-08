@@ -11,7 +11,7 @@ from unittest.mock import Mock
 from ees_microsoft_outlook.configuration import Configuration
 from ees_microsoft_outlook.microsoft_outlook_calendar import \
     MicrosoftOutlookCalendar
-from exchangelib.ewsdatetime import EWSDateTime, EWSTimeZone
+from exchangelib.ewsdatetime import EWSDate, EWSTimeZone
 from exchangelib.items.calendar_item import CalendarItem
 
 
@@ -62,7 +62,7 @@ Descriptions: demo calendar event\n",
     account_list = [account]
     account.primary_smtp_address = "abc@xyz.com"
     calendar_obj = create_calendar_obj()
-    calendar_obj.convert_calendars_to_workplace_search_documents = Mock(
+    calendar_obj.calendar_to_docs = Mock(
         return_value=calendar_response
     )
     start_date = "2022-04-21T12:10:00Z"
@@ -74,16 +74,21 @@ Descriptions: demo calendar event\n",
     assert expected_calendar_events == source_calendar_events
 
 
-def test_convert_calendar_to_workplace_search_document():
+def test_calendar_to_docs():
     """Test method to convert calendar event to Workplace Search document"""
     expected_calendar_document = {
         "type": "Calendar",
         "Id": "123465789",
         "DisplayName": "Demo Event",
-        "Description": "Start Date: 2022-04-12T02:13:00Z\nEnd Date: 2022-04-13T02:13:00Z\nLocation: Demo Location\n \
-Organizer: abc@xyz.com\nMeeting Type: Recurring ('Every One Week',)\n Attendee List: abc@xyz.com\n\
-Description: Demo Body",
-        "Created": "2022-04-11T02:13:00Z",
+        "Description": """
+                Start Date: 2022-04-12
+                End Date: 2022-04-13
+                Location: Demo Location
+                Organizer: abc@xyz.com
+                Meeting Type: Recurring ('Every One Week',)
+                Attendee List: abc@xyz.com
+                Description: Demo Body""",
+        "Created": "2022-04-11",
     }
 
     microsoft_outlook_cal_obj = create_calendar_obj()
@@ -92,11 +97,11 @@ Description: Demo Body",
         required_attendees=[Mock()],
         type="RecurringMaster",
         recurrence=Mock(),
-        last_modified_time=EWSDateTime(2022, 4, 11, 2, 13, 00),
+        last_modified_time=EWSDate(2022, 4, 11),
         id="123465789",
         subject="Demo Event",
-        start=EWSDateTime(2022, 4, 12, 2, 13, 00),
-        end=EWSDateTime(2022, 4, 13, 2, 13, 00),
+        start=EWSDate(2022, 4, 12),
+        end=EWSDate(2022, 4, 13),
         location="Demo Location",
         organizer=Mock(),
         body="Demo Body",
@@ -105,5 +110,6 @@ Description: Demo Body",
     calendar_obj.required_attendees[0].mailbox.email_address = "abc@xyz.com"
     calendar_obj.recurrence.pattern = ("Every One Week",)
     calendar_obj.organizer.email_address = "abc@xyz.com"
-    source_calendar = microsoft_outlook_cal_obj.convert_calendars_to_workplace_search_documents(calendar_obj, "")
+    source_calendar = microsoft_outlook_cal_obj.calendar_to_docs(calendar_obj, "")
+    print(source_calendar)
     assert expected_calendar_document == source_calendar

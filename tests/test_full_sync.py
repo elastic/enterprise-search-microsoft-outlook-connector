@@ -44,6 +44,7 @@ def test_start_producer(
     mock_get_users_accounts.return_value = [Mock()]
     full.create_jobs_for_mails = Mock()
     full.create_jobs_for_calendar = Mock()
+    full.create_jobs_for_contacts = Mock()
 
     # Execute
     full.start_producer(queue)

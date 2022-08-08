@@ -21,7 +21,7 @@ class MicrosoftOutlookCalendar:
         self.time_zone = constant.DEFAULT_TIME_ZONE
         self.retry_count = self.config.get_value("retry_count")
 
-    def convert_calendars_to_workplace_search_documents(
+    def calendar_to_docs(
         self,
         calendar_obj,
         child_calendar,
@@ -65,18 +65,20 @@ class MicrosoftOutlookCalendar:
 
         # Logic for Birthday Calendar Events
         if child_calendar in ["Folder (Birthdays)", "Birthdays (Birthdays)"]:
-            calendar_document["Description"] = \
-                f"Date: {(change_datetime_format(calendar_obj.start, self.time_zone)).split('T', 1)[0]}\n" \
-                f"Organizer: {calendar_obj.organizer.email_address}\n Meeting Type: {event_type}\n"
+            calendar_document["Description"] = f"""
+                Date: {(change_datetime_format(calendar_obj.start, self.time_zone)).split('T', 1)[0]}
+                Organizer: {calendar_obj.organizer.email_address}\n Meeting Type: {event_type}\n"""
 
         # Logic for Other Calendar Events
         else:
-            calendar_document["Description"] = \
-                f"Start Date: {change_datetime_format(calendar_obj.start, self.time_zone)}\n" \
-                f"End Date: {change_datetime_format(calendar_obj.end, self.time_zone)}\n" \
-                f"Location: {calendar_obj.location}\n Organizer: {calendar_obj.organizer.email_address}\n" \
-                f"Meeting Type: {event_type}\n Attendee List: {attendees}\n" \
-                f"Description: {html_to_text(calendar_obj.body)}"
+            calendar_document["Description"] = f"""
+                Start Date: {change_datetime_format(calendar_obj.start, self.time_zone)}
+                End Date: {change_datetime_format(calendar_obj.end, self.time_zone)}
+                Location: {calendar_obj.location}
+                Organizer: {calendar_obj.organizer.email_address}
+                Meeting Type: {event_type}
+                Attendee List: {attendees}
+                Description: {html_to_text(calendar_obj.body)}"""
 
         return calendar_document
 
@@ -129,7 +131,7 @@ class MicrosoftOutlookCalendar:
                         constant.CALENDARS_OBJECT.lower(),
                         self.config.get_value("connector_platform_type"),
                     )
-                    calendar_obj = self.convert_calendars_to_workplace_search_documents(
+                    calendar_obj = self.calendar_to_docs(
                         calendar,
                         str(calendar),
                     )
@@ -143,58 +145,6 @@ class MicrosoftOutlookCalendar:
                     for ws_field, ms_fields in calendar_schema.items():
                         calendar_map[ws_field] = calendar_obj[ms_fields]
                     documents.append(calendar_map)
-
-                # Logic to fetch Custom Calendar Events
-                for child_calendar in account.calendar.children:
-                    for calendar in child_calendar.filter(
-                        last_modified_time__gt=start_time,
-                        last_modified_time__lt=end_time,
-                    ).only(
-                        "required_attendees",
-                        "type",
-                        "recurrence",
-                        "last_modified_time",
-                        "subject",
-                        "start",
-                        "end",
-                        "location",
-                        "organizer",
-                        "body",
-                        "has_attachments",
-                        "attachments",
-                    ):
-
-                        # Logic to insert calendar into global_keys object
-                        insert_document_into_doc_id_storage(
-                            ids_list_calendars,
-                            calendar.id,
-                            "",
-                            constant.CALENDARS_OBJECT.lower(),
-                            self.config.get_value("connector_platform_type"),
-                        )
-                        (
-                            calendar_obj,
-                            calendar_attachment,
-                        ) = self.convert_calendars_to_workplace_search_documents(
-                            ids_list_calendars,
-                            calendar,
-                            account.primary_smtp_address,
-                            start_time,
-                            end_time,
-                            str(child_calendar),
-                        )
-                        calendar_map = {}
-                        calendar_map["_allow_permissions"] = []
-                        if self.config.get_value("enable_document_permission"):
-                            calendar_map["_allow_permissions"] = [
-                                account.primary_smtp_address
-                            ]
-                        calendar_map["type"] = calendar_obj["type"]
-                        for ws_field, ms_fields in calendar_schema.items():
-                            calendar_map[ws_field] = calendar_obj[ms_fields]
-                        documents.append(calendar_map)
-                        if calendar_attachment:
-                            documents.extend(calendar_attachment)
             except requests.exceptions.RequestException as request_error:
                 raise requests.exceptions.RequestException(
                     f"Error while fetching calendar data for {account.primary_smtp_address}. Error: {request_error}"
