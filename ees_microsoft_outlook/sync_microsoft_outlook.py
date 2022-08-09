@@ -3,6 +3,8 @@
 # or more contributor license agreements. Licensed under the Elastic License 2.0;
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
+import csv
+import os
 
 from . import constant
 
@@ -29,6 +31,32 @@ class SyncMicrosoftOutlook:
         self.ws_auth = config.get_value("enterprise_search.api_key")
         self.ws_source = config.get_value("enterprise_search.source_id")
         self.queue = queue
+
+    def workplace_add_permission(self, user_name, permissions):
+        """Indexes the user permissions into Workplace Search
+        :param user_name: A string value denoting the username of the user
+        :param permissions: Permissions that needs to be provided to the user
+        """
+        self.workplace_search_custom_client.add_permissions(
+            user_name,
+            permissions,
+        )
+
+    def map_ms_outlook_user_to_ws_user(self, user, permissions):
+        """This method is used to map the Microsoft Outlook user to Workplace Search
+        user and responsible to call the user permissions indexer method
+        :param user: User for indexing the permissions
+        :param permissions: User permissions
+        """
+        rows = {}
+        mapping_sheet_path = self.config.get_value("connector.user_mapping")
+        if mapping_sheet_path and os.path.exists(mapping_sheet_path) and os.path.getsize(mapping_sheet_path) > 0:
+            with open(mapping_sheet_path, encoding="UTF-8") as file:
+                csvreader = csv.reader(file)
+                for row in csvreader:
+                    rows[row[0]] = row[1]
+        user_name = rows.get(user, user)
+        self.workplace_add_permission(user_name, permissions)
 
     def fetch_mails(self, ids_list, users_account, mail_object, start_time, end_time):
         """This method is used to fetch mails from Microsoft Outlook
