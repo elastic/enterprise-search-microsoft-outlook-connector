@@ -67,3 +67,21 @@ class SyncMicrosoftOutlook:
             self.logger.exception(f"Error while fetching Contacts. Error: {exception}")
         self.logger.info("Successfully fetched Contacts from Microsoft Outlook")
         self.queue.append_to_queue(constant.CONTACTS_OBJECT.lower(), documents)
+
+    def fetch_tasks(self, ids_list, users_account, task_object, start_time, end_time):
+        """This method is used to fetch tasks from Microsoft Outlook
+        :ids_list: List of ids of documents
+        :param users_account: List of user accounts
+        :param task_object: Object of task
+        :param start_time: Start time for fetching the tasks
+        :param end_time: End time for fetching the tasks
+        """
+        self.logger.info("Fetching Tasks from Microsoft Outlook")
+        try:
+            documents = task_object.get_tasks(
+                ids_list, users_account, start_time, end_time
+            )
+        except Exception as exception:
+            self.logger.exception(f"Error while fetching Tasks. Error: {exception}")
+        self.logger.info("Successfully fetched Tasks from Microsoft Outlook")
+        self.queue.append_to_queue(constant.TASKS_OBJECT.lower(), documents)
