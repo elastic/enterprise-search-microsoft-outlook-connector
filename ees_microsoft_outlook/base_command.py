@@ -92,6 +92,7 @@ class BaseCommand:
         """Get the object for fetching the calendars related data"""
         return MicrosoftOutlookCalendar(self.logger, self.config)
 
+    @cached_property
     def microsoft_outlook_contact_object(self):
         """Get the object for fetching the contacts related data"""
         return MicrosoftOutlookContacts(self.logger, self.config)
