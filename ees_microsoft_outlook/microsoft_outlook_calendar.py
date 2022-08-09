@@ -34,13 +34,14 @@ class MicrosoftOutlookCalendar:
         """
 
         # Logic for attendees list
-        attendees = ""
         if calendar_obj.required_attendees:
             attendees_list = []
             for attendee in calendar_obj.required_attendees:
                 if attendee.mailbox.email_address:
                     attendees_list.append(attendee.mailbox.email_address)
             attendees = ", ".join(attendees_list)
+        else:
+            attendees = ""
 
         # Logic for meeting type
         if calendar_obj.type == "Single":
@@ -49,11 +50,12 @@ class MicrosoftOutlookCalendar:
             event_type = f"Recurring {calendar_obj.recurrence.pattern}"
 
         # Logic for calendar last modified time
-        calendar_created = ""
         if calendar_obj.last_modified_time:
             calendar_created = change_datetime_format(
                 calendar_obj.last_modified_time, self.time_zone
             )
+        else:
+            calendar_created = ""
 
         # Logic to create document body
         calendar_document = {
