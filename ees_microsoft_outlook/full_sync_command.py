@@ -9,11 +9,13 @@ third-party system and ingest them into Enterprise Search instance.
 """
 
 from .base_command import BaseCommand
+from .checkpointing import Checkpoint
 from .connector_queue import ConnectorQueue
 from .constant import (CONNECTOR_TYPE_MICROSOFT_EXCHANGE,
                        CONNECTOR_TYPE_OFFICE365, CURRENT_TIME)
 from .microsoft_exchange_server_user import MicrosoftExchangeServerUser
 from .office365_user import Office365User
+from .sync_enterprise_search import SyncEnterpriseSearch
 from .sync_microsoft_outlook import SyncMicrosoftOutlook
 
 FULL_SYNC_INDEXING = "full"
@@ -99,9 +101,28 @@ class FullSyncCommand(BaseCommand):
         for _ in range(enterprise_thread_count):
             queue.end_signal()
 
+    def start_consumer(self, queue):
+        """This method starts async calls for the consumer which is responsible for indexing documents to the
+        Enterprise Search
+        :param queue: Shared queue to fetch the stored documents
+        """
+        checkpoint = Checkpoint(self.logger, self.config)
+        thread_count = self.config.get_value("enterprise_search_sync_thread_count")
+        sync_es = SyncEnterpriseSearch(
+            self.config, self.logger, self.workplace_search_custom_client, queue
+        )
+        self.create_jobs(thread_count, sync_es.perform_sync, (), [])
+        for checkpoint_data in sync_es.checkpoint_list:
+            checkpoint.set_checkpoint(
+                checkpoint_data["current_time"],
+                checkpoint_data["index_type"],
+                checkpoint_data["object_type"],
+            )
+
     def execute(self):
         """This function execute the start function."""
 
         queue = ConnectorQueue(self.logger)
         self.local_storage.create_local_storage_directory()
         self.start_producer(queue)
+        self.start_consumer(queue)

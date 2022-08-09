@@ -10,7 +10,7 @@ from unittest.mock import Mock
 
 from ees_microsoft_outlook.configuration import Configuration
 from ees_microsoft_outlook.microsoft_outlook_mails import MicrosoftOutlookMails
-from exchangelib.ewsdatetime import EWSTimeZone
+from exchangelib.ewsdatetime import EWSDateTime, EWSTimeZone
 
 
 def settings():
@@ -81,6 +81,14 @@ def test_get_mail_documents():
 \nCC:  \n BCC:  \n Importance: Normal \n Category: None \nBody: demo body",
         "Created": "2022-04-21T12:12:30Z",
     }
+    attachments_response = [
+        {
+            "type": "Mails Attachments",
+            "id": "987654321",
+            "title": "Demo",
+            "body": "Hello world",
+        }
+    ]
     expected_mails_documents = [
         {
             "_allow_permissions": ["abc@xyz.com"],
@@ -90,13 +98,19 @@ def test_get_mail_documents():
             "body": "Sender Email: abc@xyz.com \n Receiver Email: , pqr@xyz.com \
 \nCC:  \n BCC:  \n Importance: Normal \n Category: None \nBody: demo body",
             "created_at": "2022-04-21T12:12:30Z",
-        }
+        },
+        {
+            "type": "Mails Attachments",
+            "id": "987654321",
+            "title": "Demo",
+            "body": "Hello world",
+        },
     ]
     account = Mock()
     microsoft_outlook_mails_obj = create_mail_obj()
     microsoft_outlook_mails_obj.time_zone = EWSTimeZone("Asia/Calcutta")
-    microsoft_outlook_mails_obj.convert_mails_to_workplace_search_documents = Mock(
-        return_value=mail_response
+    microsoft_outlook_mails_obj.mails_to_docs = Mock(
+        return_value=(mail_response, attachments_response)
     )
     mail_obj = [Mock()]
     account.primary_smtp_address = "abc@xyz.com"
@@ -106,7 +120,9 @@ def test_get_mail_documents():
         account,
         [],
         "Inbox Mails",
-        mail_obj
+        mail_obj,
+        EWSDateTime(2022, 4, 11, 2, 13, 00),
+        EWSDateTime(2022, 4, 13, 2, 13, 00),
     )
 
     # Assert
