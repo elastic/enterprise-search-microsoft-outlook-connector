@@ -111,5 +111,4 @@ def test_calendar_to_docs():
     calendar_obj.recurrence.pattern = ("Every One Week",)
     calendar_obj.organizer.email_address = "abc@xyz.com"
     source_calendar = microsoft_outlook_cal_obj.calendar_to_docs(calendar_obj, "")
-    print(source_calendar)
     assert expected_calendar_document == source_calendar
