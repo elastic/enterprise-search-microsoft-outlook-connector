@@ -85,9 +85,9 @@ class PermissionSyncCommand(BaseCommand):
                 f"Error while removing the permissions from the Workplace Search. Error: {exception}"
             )
 
-    def set_permissions_to_users(self, users_accounts):
+    def set_permissions_to_users(self, user_account):
         """Method fetches users from Microsoft Outlook and adds fetched permissions to Enterprise Search users.
-        :param users_accounts: List of Microsoft Outlook users
+        :param user_account: Microsoft Outlook user
         """
         sync_microsoft_outlook = SyncMicrosoftOutlook(
             self.config,
@@ -95,10 +95,9 @@ class PermissionSyncCommand(BaseCommand):
             self.workplace_search_custom_client,
             [],
         )
-        for account in users_accounts:
-            sync_microsoft_outlook.map_ms_outlook_user_to_ws_user(
-                account.primary_smtp_address, [account.primary_smtp_address]
-            )
+        sync_microsoft_outlook.map_ms_outlook_user_to_ws_user(
+            user_account.primary_smtp_address, [user_account.primary_smtp_address]
+        )
 
     def execute(self):
         """Runs the permission indexing logic.
@@ -134,4 +133,5 @@ class PermissionSyncCommand(BaseCommand):
             exit()
 
         self.remove_all_permissions(users_accounts)
-        self.set_permissions_to_users(users_accounts)
+        for user_account in users_accounts:
+            self.set_permissions_to_users(user_account)
