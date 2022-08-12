@@ -92,6 +92,49 @@ class DeletionSyncCommand(BaseCommand):
         )
         self.logger.info("Completed deletion of mails")
 
+    def create_jobs_for_calendar_deletion(
+        self,
+        thread_count,
+        users_accounts,
+        time_range_list,
+        queue,
+    ):
+        """Creates jobs for deleting the calendar
+        :param thread_count: Thread count to make partitions
+        :param users_accounts: User accounts
+        :param time_range_list: Time range split
+        :param queue: Shared queue for storing the data
+        """
+        if constant.CALENDARS_OBJECT.lower() not in self.config.get_value("objects"):
+            return
+        self.logger.debug("Started deletion of calendar...")
+        storage_with_collection = self.local_storage.get_storage_with_collection(
+            self.local_storage, constant.CALENDAR_DELETION_PATH
+        )
+        calendar_documents = self.create_jobs(
+            thread_count,
+            self.microsoft_outlook_calendar_object.get_calendar,
+            ([], users_accounts,),
+            time_range_list,
+        )
+        # print(calendar_documents)
+        delete_keys_documents = storage_with_collection.get("delete_keys") or []
+        global_keys_documents = storage_with_collection.get("global_keys") or []
+        deleted_documents = []
+        self.remove_deleted_documents_from_global_keys(
+            calendar_documents,
+            delete_keys_documents,
+            deleted_documents,
+            global_keys_documents,
+        )
+        queue.append_to_queue("deletion", list(deleted_documents))
+        storage_with_collection["global_keys"] = list(global_keys_documents)
+        storage_with_collection["delete_keys"] = []
+        self.local_storage.update_storage(
+            storage_with_collection, constant.CALENDAR_DELETION_PATH
+        )
+        self.logger.info("Completed deletion of calendar")
+
     def create_jobs_for_contacts_deletion(
         self,
         thread_count,
@@ -136,6 +179,49 @@ class DeletionSyncCommand(BaseCommand):
             storage_with_collection, constant.CONTACT_DELETION_PATH
         )
         self.logger.info("Completed deletion of contacts")
+
+    def create_jobs_for_tasks_deletion(
+        self,
+        thread_count,
+        users_accounts,
+        time_range_list,
+        queue,
+    ):
+        """Creates jobs for deleting the tasks
+        :param thread_count: Thread count to make partitions
+        :param users_accounts: User accounts
+        :param time_range_list: Time range split
+        :param queue: Shared queue for storing the data
+        """
+        if constant.TASKS_OBJECT.lower() not in self.config.get_value("objects"):
+            return
+        self.logger.debug("Started deletion of tasks...")
+        storage_with_collection = self.local_storage.get_storage_with_collection(
+            self.local_storage, constant.TASK_DELETION_PATH
+        )
+        tasks_documents = self.create_jobs(
+            thread_count,
+            self.microsoft_outlook_task_object.get_tasks,
+            ([], users_accounts,),
+            time_range_list,
+        )
+        # print(tasks_documents)
+        delete_keys_documents = storage_with_collection.get("delete_keys") or []
+        global_keys_documents = storage_with_collection.get("global_keys") or []
+        deleted_documents = []
+        self.remove_deleted_documents_from_global_keys(
+            tasks_documents,
+            delete_keys_documents,
+            deleted_documents,
+            global_keys_documents,
+        )
+        queue.append_to_queue("deletion", list(deleted_documents))
+        storage_with_collection["global_keys"] = list(global_keys_documents)
+        storage_with_collection["delete_keys"] = []
+        self.local_storage.update_storage(
+            storage_with_collection, constant.TASK_DELETION_PATH
+        )
+        self.logger.info("Completed deletion of tasks")
 
     def start_producer(self, queue):
         """This method starts async calls for the producer which is responsible
@@ -184,7 +270,19 @@ class DeletionSyncCommand(BaseCommand):
             time_range_list,
             queue,
         )
+        self.create_jobs_for_calendar_deletion(
+            thread_count,
+            users_accounts,
+            time_range_list,
+            queue,
+        )
         self.create_jobs_for_contacts_deletion(
+            thread_count,
+            users_accounts,
+            time_range_list,
+            queue,
+        )
+        self.create_jobs_for_tasks_deletion(
             thread_count,
             users_accounts,
             time_range_list,
