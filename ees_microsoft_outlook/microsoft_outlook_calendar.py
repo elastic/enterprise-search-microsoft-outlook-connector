@@ -147,6 +147,49 @@ class MicrosoftOutlookCalendar:
                     for ws_field, ms_fields in calendar_schema.items():
                         calendar_map[ws_field] = calendar_obj[ms_fields]
                     documents.append(calendar_map)
+
+                # Logic to fetch Custom Calendar Events
+                for child_calendar in account.calendar.children:
+                    for calendar in child_calendar.filter(
+                        last_modified_time__gt=start_time,
+                        last_modified_time__lt=end_time,
+                    ).only(
+                        "required_attendees",
+                        "type",
+                        "recurrence",
+                        "last_modified_time",
+                        "subject",
+                        "start",
+                        "end",
+                        "location",
+                        "organizer",
+                        "body",
+                        "has_attachments",
+                        "attachments",
+                    ):
+
+                        # Logic to insert calendar into global_keys object
+                        insert_document_into_doc_id_storage(
+                            ids_list_calendars,
+                            calendar.id,
+                            "",
+                            constant.CALENDARS_OBJECT.lower(),
+                            self.config.get_value("connector_platform_type"),
+                        )
+                        calendar_obj = self.calendar_to_docs(
+                            calendar,
+                            str(calendar),
+                        )
+                        calendar_map = {}
+                        calendar_map["_allow_permissions"] = []
+                        if self.config.get_value("enable_document_permission"):
+                            calendar_map["_allow_permissions"] = [
+                                account.primary_smtp_address
+                            ]
+                        calendar_map["type"] = calendar_obj["type"]
+                        for ws_field, ms_fields in calendar_schema.items():
+                            calendar_map[ws_field] = calendar_obj[ms_fields]
+                        documents.append(calendar_map)
             except requests.exceptions.RequestException as request_error:
                 raise requests.exceptions.RequestException(
                     f"Error while fetching calendar data for {account.primary_smtp_address}. Error: {request_error}"
