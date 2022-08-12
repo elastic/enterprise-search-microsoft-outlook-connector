@@ -8,7 +8,7 @@
 import requests
 
 from . import constant
-from .utils import (change_datetime_ews_format, change_datetime_format,
+from .utils import (change_datetime_format, convert_datetime_to_ews_format,
                     extract, get_schema_fields, html_to_text,
                     insert_document_into_doc_id_storage, retry)
 
@@ -125,13 +125,17 @@ class MicrosoftOutlookCalendar:
 
         # Logic for Birthday Calendar Events
         if child_calendar in ["Folder (Birthdays)", "Birthdays (Birthdays)"]:
-            calendar_document["Description"] = f"""
+            calendar_document[
+                "Description"
+            ] = f"""
                 Date: {(change_datetime_format(calendar_obj.start, self.time_zone)).split('T', 1)[0]}
                 Organizer: {calendar_obj.organizer.email_address}\n Meeting Type: {event_type}\n"""
 
         # Logic for Other Calendar Events
         else:
-            calendar_document["Description"] = f"""
+            calendar_document[
+                "Description"
+            ] = f"""
                 Start Date: {change_datetime_format(calendar_obj.start, self.time_zone)}
                 End Date: {change_datetime_format(calendar_obj.end, self.time_zone)}
                 Location: {calendar_obj.location}
@@ -154,18 +158,18 @@ class MicrosoftOutlookCalendar:
         return calendar_document, calendar_attachments_documents
 
     @retry(exception_list=(requests.exceptions.RequestException,))
-    def get_calendar(self, ids_list_calendars, start_time, end_time, accounts):
+    def get_calendar(self, ids_list_calendars, accounts, start_time, end_time):
         """This method is used to get documents of calendar and mapped with Workplace Search fields
         :param ids_list_calendars: List of ids of documents
+        param accounts: List of user accounts
         :param start_time: Start time for fetching the calendar events
         :param end_time: End time for fetching the calendar events
-        param accounts: List of user accounts
         Returns:
             documents: Documents with all calendar events
         """
         documents = []
-        start_time = change_datetime_ews_format(start_time)
-        end_time = change_datetime_ews_format(end_time)
+        start_time = convert_datetime_to_ews_format(start_time)
+        end_time = convert_datetime_to_ews_format(end_time)
         calendar_schema = get_schema_fields(
             constant.CALENDARS_OBJECT.lower(), self.config.get_value("objects")
         )
@@ -202,10 +206,7 @@ class MicrosoftOutlookCalendar:
                         constant.CALENDARS_OBJECT.lower(),
                         self.config.get_value("connector_platform_type"),
                     )
-                    (
-                        calendar_obj,
-                        calendar_attachment,
-                    ) = self.calendar_to_docs(
+                    (calendar_obj, calendar_attachment,) = self.calendar_to_docs(
                         ids_list_calendars,
                         calendar,
                         account.primary_smtp_address,
@@ -254,10 +255,7 @@ class MicrosoftOutlookCalendar:
                             constant.CALENDARS_OBJECT.lower(),
                             self.config.get_value("connector_platform_type"),
                         )
-                        (
-                            calendar_obj,
-                            calendar_attachment,
-                        ) = self.calendar_to_docs(
+                        (calendar_obj, calendar_attachment,) = self.calendar_to_docs(
                             ids_list_calendars,
                             calendar,
                             account.primary_smtp_address,
