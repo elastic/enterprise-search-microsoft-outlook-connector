@@ -12,6 +12,7 @@ from . import constant
 from .utils import (
     change_datetime_format,
     convert_datetime_to_ews_format,
+    extract,
     get_schema_fields,
     insert_document_into_doc_id_storage,
     retry,
@@ -27,11 +28,66 @@ class MicrosoftOutlookTasks:
         self.time_zone = constant.DEFAULT_TIME_ZONE
         self.retry_count = self.config.get_value("retry_count")
 
-    def tasks_to_docs(self, task_obj):
+    def get_task_attachments(
+        self, ids_list_tasks, task_obj, user_email_address, start_time, end_time
+    ):
+        """Method is used to fetch attachment from task object store in dictionary
+        :param ids_list_tasks: Documents ids of tasks
+        :param mail_obj: Object of account
+        :param user_email_address: Email address of user
+        :param start_time: Start time for fetching the tasks
+        :param end_time: End time for fetching the tasks
+        Returns:
+            task_attachments: Dictionary of attachment
+        """
+        task_attachments = []
+        for attachment in task_obj.attachments:
+
+            # Logic for task last modified time
+            attachment_created = ""
+            if attachment.last_modified_time:
+                attachment_created = change_datetime_format(
+                    attachment.last_modified_time, self.time_zone
+                )
+
+            # Logic to fetch task attachments
+            if attachment.last_modified_time >= start_time and attachment.last_modified_time < end_time:
+                attachments = {
+                    "type": constant.TASKS_ATTACHMENTS_OBJECT,
+                    "id": attachment.attachment_id.id,
+                    "title": attachment.name,
+                    "created": attachment_created,
+                }
+                attachments["_allow_permissions"] = []
+                if self.config.get_value("enable_document_permission"):
+                    attachments["_allow_permissions"] = [user_email_address]
+
+                # Logic to insert task attachment into global_keys object
+                insert_document_into_doc_id_storage(
+                    ids_list_tasks,
+                    attachment.attachment_id.id,
+                    task_obj.id,
+                    constant.TASKS_ATTACHMENTS_OBJECT.lower(),
+                    self.config.get_value("connector_platform_type"),
+                )
+                if hasattr(attachment, "content"):
+                    attachments["body"] = extract(attachment.content)
+                task_attachments.append(attachments)
+
+        return task_attachments
+
+    def tasks_to_docs(
+        self, task_obj, ids_list_tasks, user_email_address, start_time, end_time
+    ):
         """Method is used to convert task data into Workplace Search document
         :param task_obj: Object of task
+        :param ids_list_tasks: List of ids of documents
+        :param user_email_address: Email address of user
+        :param start_time: Start time for fetching the tasks
+        :param end_time: End time for fetching the tasks
         Returns:
             task_document: Dictionary of task
+            task_attachments_documents: Dictionary of attachment
         """
 
         # Logic for task last modified time
@@ -116,7 +172,14 @@ class MicrosoftOutlookTasks:
                 Categories: {task_categories}
                 Importance: {task_obj.importance}"""
 
-        return task_document
+        # Logic to fetches attachments
+        task_attachments_documents = []
+        if task_obj.has_attachments:
+            task_attachments_documents = self.get_task_attachments(
+                ids_list_tasks, task_obj, user_email_address, start_time, end_time
+            )
+
+        return task_document, task_attachments_documents
 
     @retry(exception_list=(requests.exceptions.RequestException,))
     def get_tasks(self, ids_list_tasks, accounts, start_time, end_time):
@@ -173,7 +236,13 @@ class MicrosoftOutlookTasks:
                         constant.TASKS_OBJECT.lower(),
                         self.config.get_value("connector_platform_type"),
                     )
-                    task_obj = self.tasks_to_docs(task)
+                    (task_obj, task_attachment,) = self.tasks_to_docs(
+                        task,
+                        ids_list_tasks,
+                        account.primary_smtp_address,
+                        start_time,
+                        end_time,
+                    )
                     task_map = {}
                     task_map["_allow_permissions"] = []
                     if self.config.get_value("enable_document_permission"):
@@ -182,6 +251,8 @@ class MicrosoftOutlookTasks:
                     for ws_field, ms_field in task_schema.items():
                         task_map[ws_field] = task_obj[ms_field]
                     documents.append(task_map)
+                    if task_attachment:
+                        documents.extend(task_attachment)
             except requests.exceptions.RequestException as request_error:
                 raise requests.exceptions.RequestException(
                     f"Error while fetching tasks data for {account.primary_smtp_address}. Error: {request_error}"

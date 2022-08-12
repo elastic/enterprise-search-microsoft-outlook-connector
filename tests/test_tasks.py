@@ -43,6 +43,16 @@ def test_get_tasks():
 Complete Date: None\n Body: demo task for test\r\n\n Companies: None\n Categories: None\n Importance: Normal",
         "Created": "2022-04-22T12:12:04Z",
     }
+    task_attachments_response = [
+        {
+            "type": "Tasks Attachments",
+            "id": "987654321",
+            "title": "demo_attachment.txt",
+            "created": "2022-04-22T10:11:38Z",
+            "_allow_permissions": [],
+            "body": "\n\n\n\n\n\n\n\ndemo body\n",
+        }
+    ]
     expected_tasks = [
         {
             "_allow_permissions": ["abc@xyz.com"],
@@ -52,7 +62,15 @@ Complete Date: None\n Body: demo task for test\r\n\n Companies: None\n Categorie
             "body": "Due Date: 2022-04-23\n Status: NotStarted\n Owner: Sample User\n Start Date: None\n \
 Complete Date: None\n Body: demo task for test\r\n\n Companies: None\n Categories: None\n Importance: Normal",
             "created_at": "2022-04-22T12:12:04Z",
-        }
+        },
+        {
+            "type": "Tasks Attachments",
+            "id": "987654321",
+            "title": "demo_attachment.txt",
+            "created": "2022-04-22T10:11:38Z",
+            "_allow_permissions": [],
+            "body": "\n\n\n\n\n\n\n\ndemo body\n",
+        },
     ]
     account = Mock()
     account.tasks = MagicMock()
@@ -60,7 +78,7 @@ Complete Date: None\n Body: demo task for test\r\n\n Companies: None\n Categorie
     account_list = [account]
     ms_outlook_task_obj = create_task_obj()
     ms_outlook_task_obj.tasks_to_docs = Mock(
-        return_value=task_response
+        return_value=(task_response, task_attachments_response)
     )
     start_date = "2022-04-21T12:10:00Z"
     end_date = "2022-04-21T12:13:00Z"
@@ -71,6 +89,16 @@ Complete Date: None\n Body: demo task for test\r\n\n Companies: None\n Categorie
 
 def test_tasks_to_docs():
     """Test method to convert task to Workplace Search document"""
+    attachments_response = [
+        {
+            "type": "Tasks Attachments",
+            "id": "987654321",
+            "title": "demo_attachment.txt",
+            "created": "2022-04-22T10:11:38Z",
+            "_allow_permissions": [],
+            "body": "\n\n\n\n\n\n\n\ndemo body\n",
+        }
+    ]
     expected_task = {
         "type": "Tasks",
         "Id": "123456789",
@@ -87,6 +115,16 @@ def test_tasks_to_docs():
                 Importance: Normal""",
         "Created": "2022-04-11",
     }
+    expected_attachments = [
+        {
+            "type": "Tasks Attachments",
+            "id": "987654321",
+            "title": "demo_attachment.txt",
+            "created": "2022-04-22T10:11:38Z",
+            "_allow_permissions": [],
+            "body": "\n\n\n\n\n\n\n\ndemo body\n",
+        }
+    ]
     ms_outlook_task_obj = create_task_obj()
     ms_outlook_task_obj.time_zone = EWSTimeZone("Asia/Calcutta")
     tasks_obj = Task(
@@ -104,5 +142,13 @@ def test_tasks_to_docs():
         importance="Normal",
         has_attachments=True,
     )
-    source_task = ms_outlook_task_obj.tasks_to_docs(tasks_obj)
+    ms_outlook_task_obj.get_task_attachments = Mock(return_value=attachments_response)
+    (source_task, source_task_attachments,) = ms_outlook_task_obj.tasks_to_docs(
+        tasks_obj,
+        [],
+        "abc@xyz.com",
+        tasks_obj.start_date,
+        EWSDate(2022, 4, 16),
+    )
     assert expected_task == source_task
+    assert expected_attachments == source_task_attachments
