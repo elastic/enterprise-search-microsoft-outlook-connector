@@ -77,7 +77,25 @@ class FullSyncCommand(BaseCommand):
             end_time,
             queue,
         )
+        self.create_jobs_for_calendar(
+            FULL_SYNC_INDEXING,
+            sync_microsoft_outlook,
+            thread_count,
+            users_accounts,
+            time_range_list,
+            end_time,
+            queue,
+        )
         self.create_jobs_for_contacts(
+            FULL_SYNC_INDEXING,
+            sync_microsoft_outlook,
+            thread_count,
+            users_accounts,
+            time_range_list,
+            end_time,
+            queue,
+        )
+        self.create_jobs_for_tasks(
             FULL_SYNC_INDEXING,
             sync_microsoft_outlook,
             thread_count,

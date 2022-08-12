@@ -176,16 +176,9 @@ class MicrosoftOutlookCalendar:
                             constant.CALENDARS_OBJECT.lower(),
                             self.config.get_value("connector_platform_type"),
                         )
-                        (
-                            calendar_obj,
-                            calendar_attachment,
-                        ) = self.convert_calendars_to_workplace_search_documents(
-                            ids_list_calendars,
+                        calendar_obj = self.calendar_to_docs(
                             calendar,
-                            account.primary_smtp_address,
-                            start_time,
-                            end_time,
-                            str(child_calendar),
+                            str(calendar),
                         )
                         calendar_map = {}
                         calendar_map["_allow_permissions"] = []
