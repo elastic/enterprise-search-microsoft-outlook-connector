@@ -45,6 +45,7 @@ def test_start_producer(
     full.create_jobs_for_mails = Mock()
     full.create_jobs_for_calendar = Mock()
     full.create_jobs_for_contacts = Mock()
+    full.create_jobs_for_tasks = Mock()
 
     # Execute
     full.start_producer(queue)
