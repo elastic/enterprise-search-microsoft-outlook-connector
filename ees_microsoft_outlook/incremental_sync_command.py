@@ -3,21 +3,25 @@
 # or more contributor license agreements. Licensed under the Elastic License 2.0;
 # you may not use this file except in compliance with the Elastic License 2.0.
 #
-"""This module allows to run a full sync against the source.
-It will attempt to sync absolutely all documents that are available in the
-third-party system and ingest them into Enterprise Search instance.
-"""
+"""This module allows to run an incremental sync against the source.
 
+    It will attempt to sync documents that have changed or have been added in the
+    third-party system recently and ingest them into Enterprise Search instance.
+
+    Recency is determined by the time when the last successful incremental or full job
+    was ran.
+"""
+from . import constant
 from .base_indexing_command import BaseIndexingCommand
+from .checkpointing import Checkpoint
 from .connector_queue import ConnectorQueue
-from .constant import CURRENT_TIME
 from .sync_microsoft_outlook import SyncMicrosoftOutlook
 
-FULL_SYNC_INDEXING = "full"
+INCREMENTAL_SYNC_INDEXING = "incremental"
 
 
-class FullSyncCommand(BaseIndexingCommand):
-    """This class start execution of fullsync feature."""
+class IncrementalSyncCommand(BaseIndexingCommand):
+    """This class start executions of incremental sync feature."""
 
     def start_producer(self, queue):
         """This method starts async calls for the Producer which is responsible for fetching documents from
@@ -25,6 +29,7 @@ class FullSyncCommand(BaseIndexingCommand):
         :param queue: Shared queue to fetch the stored documents
         """
         thread_count = self.config.get_value("microsoft_outlook_sync_thread_count")
+        checkpoint = Checkpoint(self.logger, self.config)
 
         users_accounts = self.get_accounts()
         sync_microsoft_outlook = SyncMicrosoftOutlook(
@@ -34,14 +39,13 @@ class FullSyncCommand(BaseIndexingCommand):
             queue,
         )
 
-        start_time, end_time = (
-            self.config.get_value("start_time"),
-            CURRENT_TIME,
+        # Logic to fetch mails from Microsoft Outlook by using multithreading approach based on saved checkpoint
+        start_time, end_time = checkpoint.get_checkpoint(
+            constant.CURRENT_TIME, constant.MAILS_OBJECT.lower()
         )
-        # Logic to fetch mails, calendars, contacts and task from Microsoft Outlook by using multithreading approach
         time_range_list = self.get_datetime_iterable_list(start_time, end_time)
         self.create_jobs_for_mails(
-            FULL_SYNC_INDEXING,
+            INCREMENTAL_SYNC_INDEXING,
             sync_microsoft_outlook,
             thread_count,
             users_accounts,
@@ -49,8 +53,14 @@ class FullSyncCommand(BaseIndexingCommand):
             end_time,
             queue,
         )
+
+        # Logic to fetch calendars from Microsoft Outlook by using multithreading approach based on saved checkpoint
+        start_time, end_time = checkpoint.get_checkpoint(
+            constant.CURRENT_TIME, constant.CALENDARS_OBJECT.lower()
+        )
+        time_range_list = self.get_datetime_iterable_list(start_time, end_time)
         self.create_jobs_for_calendar(
-            FULL_SYNC_INDEXING,
+            INCREMENTAL_SYNC_INDEXING,
             sync_microsoft_outlook,
             thread_count,
             users_accounts,
@@ -58,8 +68,14 @@ class FullSyncCommand(BaseIndexingCommand):
             end_time,
             queue,
         )
+
+        # Logic to fetch contacts from Microsoft Outlook by using multithreading approach based on saved checkpoint
+        start_time, end_time = checkpoint.get_checkpoint(
+            constant.CURRENT_TIME, constant.CONTACTS_OBJECT.lower()
+        )
+        time_range_list = self.get_datetime_iterable_list(start_time, end_time)
         self.create_jobs_for_contacts(
-            FULL_SYNC_INDEXING,
+            INCREMENTAL_SYNC_INDEXING,
             sync_microsoft_outlook,
             thread_count,
             users_accounts,
@@ -67,8 +83,14 @@ class FullSyncCommand(BaseIndexingCommand):
             end_time,
             queue,
         )
+
+        # Logic to fetch tasks from Microsoft Outlook by using multithreading approach based on saved checkpoint
+        start_time, end_time = checkpoint.get_checkpoint(
+            constant.CURRENT_TIME, constant.TASKS_OBJECT.lower()
+        )
+        time_range_list = self.get_datetime_iterable_list(start_time, end_time)
         self.create_jobs_for_tasks(
-            FULL_SYNC_INDEXING,
+            INCREMENTAL_SYNC_INDEXING,
             sync_microsoft_outlook,
             thread_count,
             users_accounts,
