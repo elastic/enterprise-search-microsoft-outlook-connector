@@ -68,8 +68,8 @@ Before deploying the connector, you’ll need to identify whether you're using M
 
 For Microsoft _Exchange_ Outlook, collect the following information:
 
-- The address of the Microsoft Exchange active directory host.
-- The address of the Microsoft Exchange Server host.
+- The IP address or Hostname of the Microsoft Exchange active directory host.
+- The IP address or Hostname of the Microsoft Exchange Server host.
 - The username the connector will use to log in to Microsoft Exchange Outlook.
 - The password the connector will use to log in to Microsoft Exchange Outlook.
 - The domain of the Microsoft Exchange Server host.
@@ -495,7 +495,7 @@ By default, it is set to `Office365`.
 
 #### `microsoft_exchange.active_directory_server` (required for "Microsoft Exchange")
 
-Microsoft Exchange active directory host address.
+Microsoft Exchange active directory IP address or Hostname.
 
 ```yaml
 microsoft_exchange.active_directory_server: 0.0.0.0
@@ -503,7 +503,7 @@ microsoft_exchange.active_directory_server: 0.0.0.0
 
 #### `microsoft_exchange.server` (required for "Microsoft Exchange")
 
-Microsoft Exchange Server host address.
+Microsoft Exchange Server IP address or Hostname.
 
 ```yaml
 microsoft_exchange.server: 0.0.0.0
