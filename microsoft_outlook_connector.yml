@@ -5,9 +5,9 @@
 connector_platform_type: "Microsoft Exchange"
 
 # ------------------------------- Microsoft Exchange Server configuration settings -------------------------------
-#Microsoft Exchange active directory host address Example: 10.0.12.179
+#Microsoft Exchange active directory IP address or Hostname. Example: 10.0.12.179
 microsoft_exchange.active_directory_server: ""
-#Microsoft Exchange Server host address Example: 10.0.12.180
+#Microsoft Exchange Server IP address or Hostname. Example: 10.0.12.180
 microsoft_exchange.server: ""
 #Username of the administrator account
 microsoft_exchange.username: ""
