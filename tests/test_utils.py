@@ -23,7 +23,7 @@ def settings():
     configuration = Configuration(
         file_name=os.path.join(
             os.path.join(os.path.dirname(__file__), "config"),
-            "microsoft_teams_connector.yml",
+            "microsoft_outlook_connector.yml",
         )
     )
 
@@ -111,6 +111,18 @@ def test_insert_document_into_doc_id_storage(ids_list, source_documents):
     assert source_documents == target_documents
 
 
+def test_split_documents_into_equal_chunks():
+    """Test Method to split Documents into chunks"""
+    # Setup
+    document = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    # Execute
+    target_document = utils.split_documents_into_equal_chunks(document, 5)
+
+    # Assert
+    assert len(target_document[0]) == 5
+
+
 def test_split_date_range_into_chunks():
     """Test Method to split dates into chunks"""
     # Setup
@@ -130,6 +142,17 @@ def test_split_date_range_into_chunks():
 
     # Assert
     assert expected_list == target_list
+
+
+def test_fetch_users_from_csv_file():
+    """Test Method to fetch users from csv"""
+    _, logger = settings()
+    users_mapping = os.path.join(
+        os.path.join(os.path.dirname(__file__), "config"),
+        "user_mapping.csv",
+    )
+    users_dict = utils.fetch_users_from_csv_file(users_mapping, logger)
+    assert users_dict == {"dummy": "dummy"}
 
 
 def test_split_documents_into_equal_bytes_with_optimum_size():
