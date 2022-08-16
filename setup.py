@@ -39,6 +39,7 @@ with open("README.md", encoding="utf-8") as readme_file:
 
 classifiers = [
     "Programming Language :: Python",
+    "License :: OSI Approved :: Apache Software License",
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.6",
@@ -51,7 +52,7 @@ classifiers = [
 setup(
     name="ees-microsoft-outlook",
     version=__version__,
-    url="someurl",
+    url="https://example.com",
     packages=find_packages(),
     long_description=description.strip(),
     description=("This is a python project for a Enterprise Search Outlook Connector."),
