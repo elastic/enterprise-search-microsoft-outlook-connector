@@ -14,15 +14,21 @@ if sys.version_info < (3, 6):
 from ees_microsoft_outlook import __version__  # NOQA
 
 install_requires = [
-    "cached_property",
     "cerberus",
     "ecs_logging",
     "elastic_enterprise_search",
-    "flake8",
     "pytest",
-    "pytest-cov",
     "pyyaml",
+    "beautifulsoup4",
+    "iteration_utilities",
+    "cached_property==1.5.2; python_version < '3.8'",
+    "pytest-cov",
+    "flake8",
+    "ldap3",
+    "exchangelib",
+    "requests",
     "tika",
+    "pytz"
 ]
 
 description = ""
@@ -33,7 +39,6 @@ with open("README.md", encoding="utf-8") as readme_file:
 
 classifiers = [
     "Programming Language :: Python",
-    "License :: OSI Approved :: Apache Software License",
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.6",
@@ -44,9 +49,9 @@ classifiers = [
 
 
 setup(
-    name="Microsoft Outlook",
+    name="ees-microsoft-outlook",
     version=__version__,
-    url="https://example.com",
+    url="someurl",
     packages=find_packages(),
     long_description=description.strip(),
     description=("This is a python project for a Enterprise Search Outlook Connector."),
@@ -56,8 +61,9 @@ setup(
     zip_safe=False,
     classifiers=classifiers,
     install_requires=install_requires,
+    data_files=[("config", ["microsoft_outlook_connector.yml"])],
     entry_points="""
       [console_scripts]
-      run_connector=connector.cli:main
+      ees_microsoft_outlook = ees_microsoft_outlook.cli:main
       """,
 )
