@@ -157,12 +157,7 @@ schema = {
         "allowed": ["DEBUG", "INFO", "WARNING", "ERROR"],
     },
     "retry_count": {"required": False, "type": "integer", "default": 3, "min": 1},
-    "source_sync_thread_count": {
-        "required": True,
-        "type": "integer",
-        "default": 5,
-        "min": 1,
-    },
+    "source_sync_thread_count": {"required": True, "type": "integer", "default": 5, "min": 1,},
     "enterprise_search_sync_thread_count": {
         "required": True,
         "type": "integer",
