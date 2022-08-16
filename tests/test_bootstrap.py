@@ -43,6 +43,7 @@ def test_execute(caplog):
         "url_field": "url",
         "detail_fields": [
             {"field_name": "title", "label": "Title"},
+            {'field_name': 'type', 'label': 'Type'},
             {"field_name": "body", "label": "Content"},
             {"field_name": "created_at", "label": "Created At"},
         ],
@@ -84,6 +85,7 @@ def test_execute_with_username():
         "url_field": "url",
         "detail_fields": [
             {"field_name": "title", "label": "Title"},
+            {'field_name': 'type', 'label': 'Type'},
             {"field_name": "body", "label": "Content"},
             {"field_name": "created_at", "label": "Created At"},
         ],
