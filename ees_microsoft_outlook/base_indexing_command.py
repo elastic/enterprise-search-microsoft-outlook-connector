@@ -29,7 +29,7 @@ class BaseIndexingCommand(BaseCommand):
         self.logger.debug(
             f"Starting producer for fetching objects from {platform_type}"
         )
-
+        self.logger.info(f"Fetching users account from the {platform_type}")
         # Logic to fetch users from Microsoft Exchange or Office365
         if CONNECTOR_TYPE_OFFICE365 in platform_type:
             office365_connection = Office365User(self.config)
