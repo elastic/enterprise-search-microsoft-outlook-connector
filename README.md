@@ -64,7 +64,7 @@ The steps above are relevant to all users. Some users may require additional fea
 
 ### Gather Microsoft Outlook details
 
-Before deploying the connector, you’ll need to identify whether you're using Microsoft _Exchange_ Outlook or Microsoft _Office365_ Outlook. You'll need to gather different details based on this. 
+It is necessary to identify whether you are using Microsoft _Exchange_ Outlook or Microsoft _Office365_ Outlook and configure the parameter `connector_platform_type`. You'll need to gather different details based on this. 
 
 For Microsoft _Exchange_ Outlook, collect the following information:
 
@@ -112,11 +112,11 @@ Each Microsoft Outlook Server connector syncs data from Microsoft Outlook Server
 
 Create a content source within Kibana:
 
-1. Navigate to **Enterprise Search** → **Workplace Search** → **Sources** → **Add Source** → **Custom Content Source**.
+1. Navigate to **Enterprise Search** → **Workplace Search** → **Sources** → **Add Source** → **Custom API Source**.
 2. Name your Content Source, (e.g. Microsoft Outlook Connector).
 3. Choose **Configure Microsoft Outlook Connector**.
 
-For more details please refer [Elastic Documentation for creating a custom content source](https://www.elastic.co/guide/en/workplace-search/current/workplace-search-custom-api-sources.html#create-custom-source).
+For more details please refer [Elastic Documentation for creating a custom API source](https://www.elastic.co/guide/en/workplace-search/current/workplace-search-custom-api-sources.html#create-custom-source).
 
 Record the ID of the new content source. This value is labeled *Source Identifier* within Kibana. Later, you will [configure the connector](#configure-the-connector) with this value.
 
@@ -158,7 +158,7 @@ winget install -e --id GnuWin32.Make
 Next, ensure the `ees_microsoft_outlook` executable is on your `PATH`. For example, on macOS:
 
 ```shell
-export PATH=/Users/shaybanon/Library/Python/3.8/bin:$PATH
+export PATH=/Users/$USER/Library/Python/3.8/bin:$PATH
 ```
 
 The following table provides the installation location for each operating system (note Python version 3.8):
