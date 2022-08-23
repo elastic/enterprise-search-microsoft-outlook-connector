@@ -67,7 +67,7 @@ def create_enterprise_search_obj():
                 },
             ],
             {"results": [{"id": "0", "errors": []}, {"id": "1", "errors": []}]},
-            "Total 2 text indexed out of 2.",
+            "Total text indexed: 2 out of 2.",
         )
     ],
 )
