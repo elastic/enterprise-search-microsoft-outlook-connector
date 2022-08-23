@@ -52,7 +52,7 @@ class SyncEnterpriseSearch:
                             total_inserted_record_dict[type].remove(each["id"])
             for type, count in total_records_dict.items():
                 self.logger.info(
-                    f"Total {len(total_inserted_record_dict[type])} {type} indexed out of {len(count)}."
+                    f"Total {type} indexed: {len(total_inserted_record_dict[type])} out of {len(count)}."
                     if total_inserted_record_dict
                     else "There is no record found to index into Workplace Search"
                 )
