@@ -64,7 +64,7 @@ The steps above are relevant to all users. Some users may require additional fea
 
 ### Gather Microsoft Outlook details
 
-It is necessary to identify whether you are using Microsoft _Exchange_ Outlook or Microsoft _Office365_ Outlook and configure the parameter `connector_platform_type`. You'll need to gather different details based on this. 
+First identify whether you are using Microsoft _Exchange_ Outlook or Microsoft _Office365_ Outlook, and configure the parameter `connector_platform_type`. You'll need to gather different details based depending on which service you are using.
 
 For Microsoft _Exchange_ Outlook, collect the following information:
 

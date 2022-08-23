@@ -4,7 +4,7 @@
 #The connector platform type Example: "Microsoft Exchange" or "Office365"
 connector_platform_type: "Microsoft Exchange"
 
-# ------------------------------- Microsoft Exchange Server configuration settings(Ignore in case of Office365) -------------------------------
+# ------------------------------- Microsoft Exchange Server configuration settings(Ignore for Office365) -------------------------------
 #Microsoft Exchange active directory IP address or Hostname. Example: 10.0.12.179
 microsoft_exchange.active_directory_server: ""
 #Microsoft Exchange Server IP address or Hostname. Example: 10.0.12.180
@@ -20,7 +20,7 @@ microsoft_exchange.secure_connection: Yes
 #The path of the SSL certificate to establish a secure connection with Microsoft Exchange server
 microsoft_exchange.certificate_path: ""
 
-# ------------------------------- Office365 configuration settings(Ignore in case of Microsoft Exchange) -------------------------------
+# ------------------------------- Office365 configuration settings(Ignore for Microsoft Exchange) -------------------------------
 #Client ID of microsoft azure application Example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 office365.client_id: ""
 #Tenant ID of microsoft azure application Example:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
