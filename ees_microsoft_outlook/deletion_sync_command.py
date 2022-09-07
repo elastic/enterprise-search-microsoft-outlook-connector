@@ -117,7 +117,6 @@ class DeletionSyncCommand(BaseCommand):
             ([], users_accounts,),
             time_range_list,
         )
-        # print(calendar_documents)
         delete_keys_documents = storage_with_collection.get("delete_keys") or []
         global_keys_documents = storage_with_collection.get("global_keys") or []
         deleted_documents = []
@@ -205,7 +204,6 @@ class DeletionSyncCommand(BaseCommand):
             ([], users_accounts,),
             time_range_list,
         )
-        # print(tasks_documents)
         delete_keys_documents = storage_with_collection.get("delete_keys") or []
         global_keys_documents = storage_with_collection.get("global_keys") or []
         deleted_documents = []
