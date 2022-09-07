@@ -9,7 +9,7 @@
     that will be uploaded to Elastic Enterprise Search per the source object.
 
     Keys for each object represent the fields that will be uploaded to Enterprise Search
-    while key values representthe source fields that will be used to populate the data.
+    while key values represent the source fields that will be used to populate the data.
 """
 SCHEMA = {
     "mails": {
