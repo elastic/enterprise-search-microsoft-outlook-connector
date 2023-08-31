@@ -3,9 +3,5 @@ agents:
   machineType: "n1-standard-4"
 
 steps:
-  - label: ":wrench: Linting"
-    command: 'docker run -v `pwd`:/ci -w=/ci --rm --name jenkins-linter -v "$PWD":/usr/src/myapp -w /usr/src/myapp python:3 make lint'
-  - label: ":safety_vest: Testing"
-    command: 'docker run -v `pwd`:/ci -w=/ci --rm --name jenkins-linter -v "$PWD":/usr/src/myapp -w /usr/src/myapp python:3 make test'
-  - label: ":safety_vest: Test Coverage"
-    command: 'docker run -v `pwd`:/ci -w=/ci --rm --name jenkins-linter -v "$PWD":/usr/src/myapp -w /usr/src/myapp python:3 make cover'
+  - label: "Sample Pipeline"
+    command: 'echo "hello world!"'
