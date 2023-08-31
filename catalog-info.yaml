@@ -11,17 +11,17 @@ metadata:
   annotations:
     backstage.io/source-location: "url:https://github.com/elastic/enterprise-search-microsoft-outlook-connector/"
     github.com/project-slug: "elastic/enterprise-search-microsoft-outlook-connector"
-    github.com/team-slug: "elastic/enterprise-search"
+    github.com/team-slug: "elastic/ingestion-team"
     buildkite.com/project-slug: "elastic/enterprise-search-microsoft-outlook-connector"
   tags:
     - "enterprise-search-microsoft-outlook-connector"
     - "enterprise-search"
+    - "ingestion-team"
     - "buildkite"
 spec:
   type: "library"
-  system: "enterprise-search"
   lifecycle: "production"
-  owner: "group:enterprise-search"
+  owner: "group:ingestion-team"
 
 ---
 # yaml-language-server: $schema=https://gist.githubusercontent.com/elasticmachine/988b80dae436cafea07d9a4a460a011d/raw/rre.schema.json
@@ -36,7 +36,7 @@ metadata:
 
 spec:
   type: buildkite-pipeline
-  owner: group:enterprise-search
+  owner: group:ingestion-team
   system: buildkite
   implementation:
     apiVersion: buildkite.elastic.dev/v1
@@ -47,6 +47,8 @@ spec:
       repository: elastic/enterprise-search-microsoft-outlook-connector
       pipeline_file: ".buildkite/pipeline.yml"
       teams:
+        ingestion-team:
+           access_level: MANAGE_BUILD_AND_READ
         enterprise-search:
            access_level: MANAGE_BUILD_AND_READ
         everyone:
