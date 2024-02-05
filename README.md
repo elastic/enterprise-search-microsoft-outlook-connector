@@ -2,9 +2,15 @@
 
 [Elastic Enterprise Search](https://www.elastic.co/guide/en/enterprise-search/current/index.html) | [Elastic Workplace Search](https://www.elastic.co/guide/en/workplace-search/current/index.html)
 
-# Microsoft Outlook connector package
+___
+**For new users, we recommend using our Elasticsearch native tools, rather than the standalone Workplace Search product. See [this blog post](https://www.elastic.co/blog/evolution-workplace-search-private-data-elasticsearch) for more information about upgrading your internal knowledge search, to make it an amazing experience for your users!**
 
-Use this _Elastic Enterprise Search Microsoft Outlook connector package_ to deploy and run a Microsoft Outlook connector on your own infrastructure. The connector extracts and syncs data from [Microsoft Exchange Outlook](https://docs.microsoft.com/en-us/exchange/exchange-server?view=exchserver-2019) and [Microsoft Office365 Outlook](https://docs.microsoft.com/en-us/microsoft-365/?view=o365-worldwide) application. The data is indexed into a Workplace Search content source within an Elastic deployment.
+We recommend using the new [Elastic Outlook connector](https://www.elastic.co/guide/en/enterprise-search/current/connectors-outlook.html) to ingest your content from Outlook in regular Elasticsearch indices.
+___
+
+# Workplace Search: Microsoft Outlook connector package
+
+Use this _Elastic Enterprise Search Microsoft Outlook connector package_ to deploy and run a Microsoft Outlook content source on your own infrastructure. The connector package extracts and syncs data from [Microsoft Exchange Outlook](https://docs.microsoft.com/en-us/exchange/exchange-server?view=exchserver-2019) and [Microsoft Office365 Outlook](https://docs.microsoft.com/en-us/microsoft-365/?view=o365-worldwide) application. The data is indexed into a Workplace Search content source within an Elastic deployment.
 
 ⚠️ _This connector package is a **beta** feature._
 Beta features are subject to change and are not covered by the support SLA of generally available (GA) features. Elastic plans to promote this feature to GA in a future release.
